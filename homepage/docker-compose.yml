@@ -1,0 +1,20 @@
+services:
+  homepage:
+    image: ghcr.io/benphelps/homepage:main
+    container_name: homepage
+    restart: unless-stopped
+    ports:
+      - 3000:3000
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./config:/app/config
+    environment:
+      - HOMEPAGE_VAR_DISKSTATION_URL=${DISKSTATION_URL}
+      - HOMEPAGE_VAR_DISKSTATION_USER=${DISKSTATION_USER}
+      - HOMEPAGE_VAR_DISKSTATION_PASSWORD=${DISKSTATION_PASSWORD}
+      - HOMEPAGE_VAR_HOMEBRIDGE_URL=${HOMEBRIDGE_URL}
+      - HOMEPAGE_VAR_HOMEBRIDGE_USER=${HOMEBRIDGE_USER}
+      - HOMEPAGE_VAR_HOMEBRIDGE_PASSWORD=${HOMEBRIDGE_PASSWORD}
+      - HOMEPAGE_VAR_ZIMA_GRAFANA_URL=${ZIMA_GRAFANA_URL}
+      - HOMEPAGE_VAR_ZIMA_GRAFANA_USER=${ZIMA_GRAFANA_USER}
+      - HOMEPAGE_VAR_ZIMA_GRAFANA_PASSWORD=${ZIMA_GRAFANA_PASSWORD}

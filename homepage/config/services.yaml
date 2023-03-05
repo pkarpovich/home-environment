@@ -1,0 +1,42 @@
+- Services:
+    - Disk Station:
+        icon: synology-dsm
+        href: {{HOMEPAGE_VAR_DISKSTATION_URL}}
+        widget:
+            type: diskstation
+            url: {{HOMEPAGE_VAR_DISKSTATION_URL}}
+            username: {{HOMEPAGE_VAR_DISKSTATION_USER}}
+            password: {{HOMEPAGE_VAR_DISKSTATION_PASSWORD}}
+
+    - Download Station:
+        icon: synology-download-station
+        href: {{HOMEPAGE_VAR_DISKSTATION_URL}}
+        widget:
+            type: downloadstation
+            url: {{HOMEPAGE_VAR_DISKSTATION_URL}}
+            username: {{HOMEPAGE_VAR_DISKSTATION_USER}}
+            password: {{HOMEPAGE_VAR_DISKSTATION_PASSWORD}}
+
+    - Pi Homebridge:
+        icon: homebridge
+        href: {{HOMEPAGE_VAR_HOMEBRIDGE_URL}}
+        widget:
+            type: homebridge
+            url: {{HOMEPAGE_VAR_HOMEBRIDGE_URL}}
+            username: {{HOMEPAGE_VAR_HOMEBRIDGE_USER}}
+            password: {{HOMEPAGE_VAR_HOMEBRIDGE_PASSWORD}}
+
+    - Zima Grafana:
+        icon: grafana
+        href: {{HOMEPAGE_VAR_ZIMA_GRAFANA_URL}}
+        widget:
+            type: grafana
+            url: {{HOMEPAGE_VAR_ZIMA_GRAFANA_URL}}
+            username: {{HOMEPAGE_VAR_ZIMA_GRAFANA_USER}}
+            password: {{HOMEPAGE_VAR_ZIMA_GRAFANA_PASSWORD}}
+
+- External services:
+    - Zima issues:
+        icon: sentry
+        href: https://zima.sentry.io/issues/
+        description: Sentry issues
