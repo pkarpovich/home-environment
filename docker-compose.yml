@@ -7,7 +7,7 @@ services:
       - 3000:3000
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-      - ./config:/app/config
+      - ./homepage/config:/app/config
     environment:
       - HOMEPAGE_VAR_DISKSTATION_URL=${DISKSTATION_URL}
       - HOMEPAGE_VAR_DISKSTATION_USER=${DISKSTATION_USER}
@@ -18,3 +18,15 @@ services:
       - HOMEPAGE_VAR_ZIMA_GRAFANA_URL=${ZIMA_GRAFANA_URL}
       - HOMEPAGE_VAR_ZIMA_GRAFANA_USER=${ZIMA_GRAFANA_USER}
       - HOMEPAGE_VAR_ZIMA_GRAFANA_PASSWORD=${ZIMA_GRAFANA_PASSWORD}
+
+  homebridge:
+    image: oznu/homebridge:latest
+    restart: always
+    network_mode: host
+    volumes:
+      - ./volumes/homebridge:/homebridge
+    logging:
+      driver: json-file
+      options:
+        max-size: "10mb"
+        max-file: "1"
