@@ -21,7 +21,8 @@ services:
 
   homebridge:
     image: oznu/homebridge:latest
-    restart: always
+    container_name: homebridge
+    restart: unless-stopped
     network_mode: host
     volumes:
       - ./volumes/homebridge:/homebridge
