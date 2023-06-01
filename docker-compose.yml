@@ -31,3 +31,11 @@ services:
       options:
         max-size: "10mb"
         max-file: "1"
+
+  iSponsorBlockTV:
+    image: ghcr.io/dmunozv04/isponsorblocktv:latest
+    container_name: iSponsorBlockTV
+    restart: unless-stopped
+    network_mode: host
+    volumes:
+      - ./iSponsorBlockTV/config.json:/app/config.json

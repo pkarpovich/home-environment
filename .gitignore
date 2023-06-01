@@ -93,3 +93,4 @@ fabric.properties
 
 **/.env
 **/logs/*
+/iSponsorBlockTV/config.json
