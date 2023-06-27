@@ -35,6 +35,14 @@
             username: {{HOMEPAGE_VAR_ZIMA_GRAFANA_USER}}
             password: {{HOMEPAGE_VAR_ZIMA_GRAFANA_PASSWORD}}
 
+    - Pi Hole:
+        icon: pi-hole
+        href: "{{HOMEPAGE_VAR_PI_HOLE_URL}}/admin"
+        widget:
+            type: pihole
+            url: {{HOMEPAGE_VAR_PI_HOLE_URL}}
+            key: {{HOMEPAGE_VAR_PI_HOLE_KEY}}
+
 - External services:
     - Zima issues:
         icon: sentry

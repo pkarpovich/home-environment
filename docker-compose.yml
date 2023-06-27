@@ -18,6 +18,8 @@ services:
       - HOMEPAGE_VAR_ZIMA_GRAFANA_URL=${ZIMA_GRAFANA_URL}
       - HOMEPAGE_VAR_ZIMA_GRAFANA_USER=${ZIMA_GRAFANA_USER}
       - HOMEPAGE_VAR_ZIMA_GRAFANA_PASSWORD=${ZIMA_GRAFANA_PASSWORD}
+      - HOMEPAGE_VAR_PI_HOLE_URL=${PI_HOLE_URL}
+      - HOMEPAGE_VAR_PI_HOLE_KEY=${PI_HOLE_KEY}
 
   homebridge:
     image: oznu/homebridge:latest
@@ -47,9 +49,10 @@ services:
       - "53:53/tcp"
       - "53:53/udp"
       - "67:67/udp"
-      - "80:80/tcp"
+      - "8000:80/tcp"
     environment:
       TZ: 'Europe/Warsaw'
+      DNSMASQ_LISTENING: 'all'
     volumes:
       - './etc-pihole:/etc/pihole'
       - './etc-dnsmasq.d:/etc/dnsmasq.d'
