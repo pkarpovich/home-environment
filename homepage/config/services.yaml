@@ -43,6 +43,11 @@
             url: {{HOMEPAGE_VAR_PI_HOLE_URL}}
             key: {{HOMEPAGE_VAR_PI_HOLE_KEY}}
 
+    - Local Docker Logs:
+        icon: dozzle
+        href: {{HOMEPAGE_VAR_LOCAL_DOCKER_LOGS_URL}}
+        description: Local Docker Logs (Dozzle)
+
 - External services:
     - Zima issues:
         icon: sentry
