@@ -1,0 +1,140 @@
+services:
+  traefik:
+    image: traefik:v2.10
+    restart: unless-stopped
+    environment:
+      - ROOT_DOMAIN=${ROOT_DOMAIN}
+      - CF_API_EMAIL=${CF_API_EMAIL}
+      - CF_API_KEY=${CF_API_KEY}
+    networks:
+      - proxy
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./traefik/traefik.yml:/etc/traefik/traefik.yml:ro
+      - letsencrypt:/letsencrypt
+    healthcheck:
+      test: [ "CMD", "traefik", "healthcheck", "--ping" ]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.traefik.rule=Host(`traefik.${ROOT_DOMAIN}`)"
+      - "traefik.http.routers.traefik.entrypoints=https"
+      - "traefik.http.routers.traefik.tls.certresolver=le"
+      - "traefik.http.routers.traefik.service=api@internal"
+      - "traefik.http.routers.traefik.middlewares=strip"
+      - "traefik.http.middlewares.strip.stripprefix.prefixes=/traefik"
+
+  homepage:
+    image: ghcr.io/benphelps/homepage:main
+    container_name: homepage
+    restart: unless-stopped
+    expose:
+      - 3000
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./homepage/config:/app/config
+    networks:
+      - proxy
+    environment:
+      - HOMEPAGE_VAR_DISKSTATION_URL=${DISKSTATION_URL}
+      - HOMEPAGE_VAR_DISKSTATION_USER=${DISKSTATION_USER}
+      - HOMEPAGE_VAR_DISKSTATION_PASSWORD=${DISKSTATION_PASSWORD}
+      - HOMEPAGE_VAR_HOMEBRIDGE_URL=${HOMEBRIDGE_URL}
+      - HOMEPAGE_VAR_HOMEBRIDGE_USER=${HOMEBRIDGE_USER}
+      - HOMEPAGE_VAR_HOMEBRIDGE_PASSWORD=${HOMEBRIDGE_PASSWORD}
+      - HOMEPAGE_VAR_ZIMA_GRAFANA_URL=${ZIMA_GRAFANA_URL}
+      - HOMEPAGE_VAR_ZIMA_GRAFANA_USER=${ZIMA_GRAFANA_USER}
+      - HOMEPAGE_VAR_ZIMA_GRAFANA_PASSWORD=${ZIMA_GRAFANA_PASSWORD}
+      - HOMEPAGE_VAR_PI_HOLE_URL=${PI_HOLE_URL}
+      - HOMEPAGE_VAR_PI_HOLE_KEY=${PI_HOLE_KEY}
+      - HOMEPAGE_VAR_LOCAL_DOCKER_LOGS_URL=${LOCAL_DOCKER_LOGS_URL}
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.homepage.rule=Host(`home.${ROOT_DOMAIN}`)"
+      - "traefik.http.routers.homepage.entrypoints=https"
+      - "traefik.http.routers.homepage.tls.certresolver=le"
+
+  homebridge:
+    image: oznu/homebridge:latest
+    container_name: homebridge
+    restart: unless-stopped
+    expose:
+      - 8581
+    networks:
+      - proxy
+    network_mode: host
+    volumes:
+      - ./volumes/homebridge:/homebridge
+    logging:
+      driver: json-file
+      options:
+        max-size: "10mb"
+        max-file: "1"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.homebridge.rule=Host(`homebridge.${ROOT_DOMAIN}`)"
+      - "traefik.http.routers.homebridge.entrypoints=https"
+      - "traefik.http.routers.homebridge.tls.certresolver=le"
+
+  iSponsorBlockTV:
+    image: ghcr.io/dmunozv04/isponsorblocktv:latest
+    container_name: iSponsorBlockTV
+    restart: unless-stopped
+    network_mode: host
+    volumes:
+      - ./iSponsorBlockTV/config.json:/app/config.json
+
+  pihole:
+    container_name: pihole
+    image: pihole/pihole:latest
+    ports:
+      - "53:53/tcp"
+      - "53:53/udp"
+      - "67:67/udp"
+    expose:
+      - 80
+    environment:
+      TZ: 'Europe/Warsaw'
+      DNSMASQ_LISTENING: 'all'
+    volumes:
+      - './etc-pihole:/etc/pihole'
+      - './etc-dnsmasq.d:/etc/dnsmasq.d'
+    cap_add:
+      - NET_ADMIN
+    restart: unless-stopped
+    networks:
+      - proxy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.pihole.rule=Host(`pihole.${ROOT_DOMAIN}`)"
+      - "traefik.http.routers.pihole.entrypoints=https"
+      - "traefik.http.routers.pihole.tls.certresolver=le"
+
+  dozzle:
+    container_name: dozzle
+    image: amir20/dozzle:v5.0.0-beta.0
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    restart: unless-stopped
+    expose:
+      - 8080
+    networks:
+      - proxy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.dozzle.rule=Host(`logs.${ROOT_DOMAIN}`)"
+      - "traefik.http.routers.dozzle.entrypoints=https"
+      - "traefik.http.routers.dozzle.tls.certresolver=le"
+
+networks:
+  proxy:
+    external: true
+
+volumes:
+  letsencrypt:
