@@ -64,10 +64,6 @@ services:
     image: oznu/homebridge:latest
     container_name: homebridge
     restart: unless-stopped
-    expose:
-      - 8581
-    networks:
-      - proxy
     network_mode: host
     volumes:
       - ./volumes/homebridge:/homebridge
@@ -81,6 +77,7 @@ services:
       - "traefik.http.routers.homebridge.rule=Host(`homebridge.${ROOT_DOMAIN}`)"
       - "traefik.http.routers.homebridge.entrypoints=https"
       - "traefik.http.routers.homebridge.tls.certresolver=le"
+      - "traefik.http.services.homebridge.loadbalancer.server.port=8581"
 
   iSponsorBlockTV:
     image: ghcr.io/dmunozv04/isponsorblocktv:latest
