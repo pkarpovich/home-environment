@@ -1,0 +1,16 @@
+task:
+  - name: git checkout
+    script: git clone git@github.com:pkarpovich/environment.git ~/environment
+    cond: "[ ! -d ~/environment/.git ]"
+
+  - name: git pull/update
+    script: |
+      cd ~/environment
+      git pull
+
+  - name: pull docker images and restart
+    script: |
+      cd ~/environment
+      docker compose down
+      docker compose pull
+      docker compose up -d --build
