@@ -64,7 +64,9 @@ services:
     image: oznu/homebridge:latest
     container_name: homebridge
     restart: unless-stopped
-    network_mode: host
+    networks:
+      - homekit
+      - proxy
     volumes:
       - ./volumes/homebridge:/homebridge
     logging:
@@ -112,6 +114,7 @@ services:
       - "traefik.http.routers.pihole.rule=Host(`pihole.${ROOT_DOMAIN}`)"
       - "traefik.http.routers.pihole.entrypoints=https"
       - "traefik.http.routers.pihole.tls.certresolver=le"
+      - "traefik.http.services.pihole.loadbalancer.server.port=80"
 
   dozzle:
     container_name: dozzle
@@ -130,6 +133,15 @@ services:
       - "traefik.http.routers.dozzle.tls.certresolver=le"
 
 networks:
+  homekit:
+    driver: macvlan
+    driver_opts:
+      parent: eth0
+    ipam:
+      config:
+        - subnet: 192.168.198.0/24
+          gateway: 192.168.198.1
+          ip_range: 192.168.198.16/32
   proxy:
     external: true
 
