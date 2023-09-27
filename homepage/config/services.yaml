@@ -43,7 +43,7 @@
             url: {{HOMEPAGE_VAR_PI_HOLE_URL}}
             key: {{HOMEPAGE_VAR_PI_HOLE_KEY}}
 
-    - Plex
+    - Plex:
         icon: plex
         href: {{HOMEPAGE_VAR_PLEX_URL}}
         widget:
