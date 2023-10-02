@@ -54,6 +54,8 @@ services:
       - HOMEPAGE_VAR_PI_HOLE_URL=${PI_HOLE_URL}
       - HOMEPAGE_VAR_PI_HOLE_KEY=${PI_HOLE_KEY}
       - HOMEPAGE_VAR_LOCAL_DOCKER_LOGS_URL=${LOCAL_DOCKER_LOGS_URL}
+      - HOMEPAGE_VAR_PLEX_URL=${PLEX_URL}
+      - HOMEPAGE_VAR_PLEX_KEY=${PLEX_KEY}
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.homepage.rule=Host(`home.${ROOT_DOMAIN}`)"
