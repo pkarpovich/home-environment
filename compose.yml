@@ -82,7 +82,7 @@ services:
         max-file: "1"
     labels:
       - "traefik.enable=true"
-      - "traefik.docker.network=homekit"
+      - "traefik.docker.network=proxy"
       - "traefik.http.routers.homebridge.rule=Host(`homebridge.${ROOT_DOMAIN}`)"
       - "traefik.http.routers.homebridge.entrypoints=https"
       - "traefik.http.routers.homebridge.tls.certresolver=le"
