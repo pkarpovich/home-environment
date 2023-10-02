@@ -61,6 +61,8 @@ services:
       - "traefik.http.routers.homepage.rule=Host(`home.${ROOT_DOMAIN}`)"
       - "traefik.http.routers.homepage.entrypoints=https"
       - "traefik.http.routers.homepage.tls.certresolver=le"
+    depends_on:
+      - traefik
 
   homebridge:
     image: oznu/homebridge:latest
@@ -69,6 +71,8 @@ services:
     networks:
       - homekit
       - proxy
+    dns:
+      - 1.1.1.1
     volumes:
       - ./volumes/homebridge:/homebridge
     logging:
@@ -82,6 +86,8 @@ services:
       - "traefik.http.routers.homebridge.entrypoints=https"
       - "traefik.http.routers.homebridge.tls.certresolver=le"
       - "traefik.http.services.homebridge.loadbalancer.server.port=8581"
+    depends_on:
+      - traefik
 
   iSponsorBlockTV:
     image: ghcr.io/dmunozv04/isponsorblocktv:latest
@@ -117,6 +123,8 @@ services:
       - "traefik.http.routers.pihole.entrypoints=https"
       - "traefik.http.routers.pihole.tls.certresolver=le"
       - "traefik.http.services.pihole.loadbalancer.server.port=80"
+    depends_on:
+      - traefik
 
   dozzle:
     container_name: dozzle
@@ -133,6 +141,8 @@ services:
       - "traefik.http.routers.dozzle.rule=Host(`logs.${ROOT_DOMAIN}`)"
       - "traefik.http.routers.dozzle.entrypoints=https"
       - "traefik.http.routers.dozzle.tls.certresolver=le"
+    depends_on:
+      - traefik
 
 networks:
   homekit:
