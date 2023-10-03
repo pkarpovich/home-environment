@@ -56,6 +56,9 @@ services:
       - HOMEPAGE_VAR_LOCAL_DOCKER_LOGS_URL=${LOCAL_DOCKER_LOGS_URL}
       - HOMEPAGE_VAR_PLEX_URL=${PLEX_URL}
       - HOMEPAGE_VAR_PLEX_KEY=${PLEX_KEY}
+      - HOMEPAGE_VAR_TRAEFIK_URL=${TRAEFIK_URL}
+      - HOMEPAGE_VAR_TRAEFIK_USER=${TRAEFIK_USER}
+      - HOMEPAGE_VAR_TRAEFIK_PASSWORD=${TRAEFIK_PASSWORD}
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.homepage.rule=Host(`home.${ROOT_DOMAIN}`)"

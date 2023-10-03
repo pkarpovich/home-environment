@@ -17,6 +17,15 @@
             username: {{HOMEPAGE_VAR_DISKSTATION_USER}}
             password: {{HOMEPAGE_VAR_DISKSTATION_PASSWORD}}
 
+    - Traefik:
+        icon: traefik
+        href: {{HOMEPAGE_VAR_TRAEFIK_URL}}
+        widget:
+            type: traefik
+            url: {{HOMEPAGE_VAR_TRAEFIK_URL}}
+            username: {{HOMEPAGE_VAR_TRAEFIK_USER}}
+            password: {{HOMEPAGE_VAR_TRAEFIK_PASSWORD}}
+
     - Pi Homebridge:
         icon: homebridge
         href: {{HOMEPAGE_VAR_HOMEBRIDGE_URL}}
