@@ -60,6 +60,32 @@
             url: {{HOMEPAGE_VAR_PLEX_URL}}
             key: {{HOMEPAGE_VAR_PLEX_KEY}}
 
+    - Sonarr:
+        icon: sonarr
+        href: {{HOMEPAGE_VAR_SONARR_URL}}
+        widget:
+            type: sonarr
+            url: {{HOMEPAGE_VAR_SONARR_URL}}
+            key: {{HOMEPAGE_VAR_SONARR_KEY}}
+            enableQueue: true
+
+    - Radarr:
+        icon: radarr
+        href: {{HOMEPAGE_VAR_RADARR_URL}}
+        widget:
+            type: radarr
+            url: {{HOMEPAGE_VAR_RADARR_URL}}
+            key: {{HOMEPAGE_VAR_RADARR_KEY}}
+            enableQueue: true
+
+    - Prowlarr:
+        icon: prowlarr
+        href: {{HOMEPAGE_VAR_PROWLARR_URL}}
+        widget:
+            type: prowlarr
+            url: {{HOMEPAGE_VAR_PROWLARR_URL}}
+            key: {{HOMEPAGE_VAR_PROWLARR_KEY}}
+
     - Local Docker Logs:
         icon: dozzle
         href: {{HOMEPAGE_VAR_LOCAL_DOCKER_LOGS_URL}}
