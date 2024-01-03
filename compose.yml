@@ -4,6 +4,12 @@ services:
     restart: unless-stopped
     environment:
       - ROOT_DOMAIN=${ROOT_DOMAIN}
+      - HEALTH_CHECK_URL=${HEALTH_CHECK_URL}
+      - PROWLARR_URL=${PROWLARR_URL}
+      - NAS_URL=${DISKSTATION_URL}
+      - SONARR_URL=${SONARR_URL}
+      - RADARR_URL=${RADARR_URL}
+      - PLEX_URL=${PLEX_URL}
       - CF_API_EMAIL=${CF_API_EMAIL}
       - CF_API_KEY=${CF_API_KEY}
     networks:
@@ -14,6 +20,7 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - ./traefik/traefik.yml:/etc/traefik/traefik.yml:ro
+      - ./traefik/dynamic_conf.yml:/etc/traefik/dynamic_conf.yml:ro
       - letsencrypt:/letsencrypt
     healthcheck:
       test: [ "CMD", "traefik", "healthcheck", "--ping" ]
@@ -107,34 +114,34 @@ services:
     volumes:
       - ./iSponsorBlockTV/config.json:/app/data/config.json
 
-  pihole:
-    container_name: pihole
-    image: pihole/pihole:latest
-    ports:
-      - "53:53/tcp"
-      - "53:53/udp"
-      - "67:67/udp"
-    expose:
-      - 80
-    environment:
-      TZ: 'Europe/Warsaw'
-      DNSMASQ_LISTENING: 'all'
-    volumes:
-      - './etc-pihole:/etc/pihole'
-      - './etc-dnsmasq.d:/etc/dnsmasq.d'
-    cap_add:
-      - NET_ADMIN
-    restart: unless-stopped
-    networks:
-      - proxy
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.pihole.rule=Host(`pihole.${ROOT_DOMAIN}`)"
-      - "traefik.http.routers.pihole.entrypoints=https"
-      - "traefik.http.routers.pihole.tls.certresolver=le"
-      - "traefik.http.services.pihole.loadbalancer.server.port=80"
-    depends_on:
-      - traefik
+#  pihole:
+#    container_name: pihole
+#    image: pihole/pihole:latest
+#    ports:
+#      - "53:53/tcp"
+#      - "53:53/udp"
+#      - "67:67/udp"
+#    expose:
+#      - 80
+#    environment:
+#      TZ: 'Europe/Warsaw'
+#      DNSMASQ_LISTENING: 'all'
+#    volumes:
+#      - './etc-pihole:/etc/pihole'
+#      - './etc-dnsmasq.d:/etc/dnsmasq.d'
+#    cap_add:
+#      - NET_ADMIN
+#    restart: unless-stopped
+#    networks:
+#      - proxy
+#    labels:
+#      - "traefik.enable=true"
+#      - "traefik.http.routers.pihole.rule=Host(`pihole.${ROOT_DOMAIN}`)"
+#      - "traefik.http.routers.pihole.entrypoints=https"
+#      - "traefik.http.routers.pihole.tls.certresolver=le"
+#      - "traefik.http.services.pihole.loadbalancer.server.port=80"
+#    depends_on:
+#      - traefik
 
   dozzle:
     container_name: dozzle

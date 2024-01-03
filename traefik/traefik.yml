@@ -14,6 +14,9 @@ providers:
   docker:
     exposedByDefault: false
     watch: true
+  file:
+    filename: /etc/traefik/dynamic_conf.yml
+    watch: true
 
 entryPoints:
   web:

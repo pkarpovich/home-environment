@@ -1,0 +1,74 @@
+http:
+  routers:
+    nas-router:
+      rule: "Host(`nas.{{env "ROOT_DOMAIN"}}`)"
+      entryPoints: [ "https" ]
+      service: "nas-service"
+      tls:
+        certResolver: le
+
+    health-check-router:
+      rule: "Host(`ping.{{env "ROOT_DOMAIN"}}`)"
+      entryPoints: [ "https" ]
+      service: "health-check-service"
+      tls:
+        certResolver: le
+
+    sonarr-router:
+      rule: "Host(`sonarr.{{env "ROOT_DOMAIN"}}`)"
+      entryPoints: [ "https" ]
+      service: "sonarr-service"
+      tls:
+        certResolver: le
+
+    radarr-router:
+      rule: "Host(`radarr.{{env "ROOT_DOMAIN"}}`)"
+      entryPoints: [ "https" ]
+      service: "radarr-service"
+      tls:
+        certResolver: le
+
+    prowlarr-router:
+      rule: "Host(`prowlarr.{{env "ROOT_DOMAIN"}}`)"
+      entryPoints: [ "https" ]
+      service: "prowlarr-service"
+      tls:
+        certResolver: le
+
+    plex-router:
+      rule: "Host(`plex.{{env "ROOT_DOMAIN"}}`)"
+      entryPoints: [ "https" ]
+      service: "plex-service"
+      tls:
+        certResolver: le
+
+  services:
+    nas-service:
+      loadBalancer:
+        servers:
+          - url: "{{env "NAS_URL"}}"
+
+    health-check-service:
+      loadBalancer:
+        servers:
+          - url: "{{env "HEALTH_CHECK_URL"}}"
+
+    sonarr-service:
+      loadBalancer:
+        servers:
+          - url: "{{env "SONARR_URL"}}"
+
+    radarr-service:
+      loadBalancer:
+        servers:
+          - url: "{{env "RADARR_URL"}}"
+
+    prowlarr-service:
+      loadBalancer:
+        servers:
+          - url: "{{env "PROWLARR_URL"}}"
+
+    plex-service:
+      loadBalancer:
+        servers:
+          - url: "{{env "PLEX_URL"}}"
