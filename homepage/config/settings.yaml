@@ -1,14 +1,21 @@
 ---
 # For configuration options and examples, please see:
 # https://gethomepage.dev/en/configs/settings
+statusStyle: "dot"
 layout:
-  Services:
+  Media Management:
+    icon: radarr-light
     style: row
-    columns: 2
+    columns: 3
 
-  Zima:
-    style: row
-    columns: 4
+  Network and Data Management:
+    style: column
+
+  Monitoring:
+    style: column
+
+  Smart Home Integration:
+    style: column
 
 providers:
   openweathermap: openweathermapapikey

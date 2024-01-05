@@ -49,7 +49,7 @@ services:
     networks:
       - proxy
     environment:
-      - HOMEPAGE_VAR_DISKSTATION_URL=${DISKSTATION_URL}
+      - HOMEPAGE_VAR_DISKSTATION_URL=${DISKSTATION_DOMAIN}
       - HOMEPAGE_VAR_DISKSTATION_USER=${DISKSTATION_USER}
       - HOMEPAGE_VAR_DISKSTATION_PASSWORD=${DISKSTATION_PASSWORD}
       - HOMEPAGE_VAR_HOMEBRIDGE_URL=${HOMEBRIDGE_URL}
@@ -61,17 +61,17 @@ services:
       - HOMEPAGE_VAR_PI_HOLE_URL=${PI_HOLE_URL}
       - HOMEPAGE_VAR_PI_HOLE_KEY=${PI_HOLE_KEY}
       - HOMEPAGE_VAR_LOCAL_DOCKER_LOGS_URL=${LOCAL_DOCKER_LOGS_URL}
-      - HOMEPAGE_VAR_PLEX_URL=${PLEX_URL}
+      - HOMEPAGE_VAR_PLEX_URL=${PLEX_DOMAIN}
       - HOMEPAGE_VAR_PLEX_KEY=${PLEX_KEY}
       - HOMEPAGE_VAR_TRAEFIK_URL=${TRAEFIK_URL}
-      - HOMEPAGE_VAR_TRAEFIK_USER=${TRAEFIK_USER}
-      - HOMEPAGE_VAR_TRAEFIK_PASSWORD=${TRAEFIK_PASSWORD}
-      - HOMEPAGE_VAR_SONARR_URL=${SONARR_URL}
+      - HOMEPAGE_VAR_SONARR_URL=${SONARR_DOMAIN}
       - HOMEPAGE_VAR_SONARR_KEY=${SONARR_KEY}
-      - HOMEPAGE_VAR_RADARR_URL=${RADARR_URL}
+      - HOMEPAGE_VAR_RADARR_URL=${RADARR_DOMAIN}
       - HOMEPAGE_VAR_RADARR_KEY=${RADARR_KEY}
-      - HOMEPAGE_VAR_PROWLARR_URL=${PROWLARR_URL}
+      - HOMEPAGE_VAR_PROWLARR_URL=${PROWLARR_DOMAIN}
       - HOMEPAGE_VAR_PROWLARR_KEY=${PROWLARR_KEY}
+      - HOMEPAGE_VAR_HEALTH_CHECK_URL=${HEALTH_CHECK_DOMAIN}
+      - HOMEPAGE_VAR_HEALTH_CHECK_SLUG=${HEALTH_CHECK_SLUG}
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.homepage.rule=Host(`home.${ROOT_DOMAIN}`)"
@@ -114,34 +114,34 @@ services:
     volumes:
       - ./iSponsorBlockTV/config.json:/app/data/config.json
 
-#  pihole:
-#    container_name: pihole
-#    image: pihole/pihole:latest
-#    ports:
-#      - "53:53/tcp"
-#      - "53:53/udp"
-#      - "67:67/udp"
-#    expose:
-#      - 80
-#    environment:
-#      TZ: 'Europe/Warsaw'
-#      DNSMASQ_LISTENING: 'all'
-#    volumes:
-#      - './etc-pihole:/etc/pihole'
-#      - './etc-dnsmasq.d:/etc/dnsmasq.d'
-#    cap_add:
-#      - NET_ADMIN
-#    restart: unless-stopped
-#    networks:
-#      - proxy
-#    labels:
-#      - "traefik.enable=true"
-#      - "traefik.http.routers.pihole.rule=Host(`pihole.${ROOT_DOMAIN}`)"
-#      - "traefik.http.routers.pihole.entrypoints=https"
-#      - "traefik.http.routers.pihole.tls.certresolver=le"
-#      - "traefik.http.services.pihole.loadbalancer.server.port=80"
-#    depends_on:
-#      - traefik
+  pihole:
+    container_name: pihole
+    image: pihole/pihole:latest
+    ports:
+      - "53:53/tcp"
+      - "53:53/udp"
+      - "67:67/udp"
+    expose:
+      - 80
+    environment:
+      TZ: 'Europe/Warsaw'
+      DNSMASQ_LISTENING: 'all'
+    volumes:
+      - './etc-pihole:/etc/pihole'
+      - './etc-dnsmasq.d:/etc/dnsmasq.d'
+    cap_add:
+      - NET_ADMIN
+    restart: unless-stopped
+    networks:
+      - proxy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.pihole.rule=Host(`pihole.${ROOT_DOMAIN}`)"
+      - "traefik.http.routers.pihole.entrypoints=https"
+      - "traefik.http.routers.pihole.tls.certresolver=le"
+      - "traefik.http.services.pihole.loadbalancer.server.port=80"
+    depends_on:
+      - traefik
 
   dozzle:
     container_name: dozzle
