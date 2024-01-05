@@ -2,11 +2,24 @@
 # For configuration options and examples, please see:
 # https://gethomepage.dev/en/configs/widgets
 
+- datetime:
+    text_size: xl
+    format:
+        dateStyle: long
+        timeStyle: long
+        hour12: true
+
+- openmeteo:
+    label: {{HOMEPAGE_VAR_OPENMETEO_LABEL}}
+    latitude: {{HOMEPAGE_VAR_OPENMETEO_LATITUDE}}
+    longitude: {{HOMEPAGE_VAR_OPENMETEO_LONGITUDE}}
+    timezone: {{HOMEPAGE_VAR_OPENMETEO_TIMEZONE}}
+    units: metric
+    cache: 30
+
 - resources:
     cpu: true
     memory: true
+    cputemp: true
+    uptime: true
     disk: /
-
-- search:
-    provider: duckduckgo
-    target: _blank

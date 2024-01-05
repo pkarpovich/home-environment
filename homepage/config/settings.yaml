@@ -2,6 +2,7 @@
 # For configuration options and examples, please see:
 # https://gethomepage.dev/en/configs/settings
 statusStyle: "dot"
+headerStyle: boxed
 layout:
   Media Management:
     icon: radarr-light
@@ -17,6 +18,3 @@ layout:
   Smart Home Integration:
     style: column
 
-providers:
-  openweathermap: openweathermapapikey
-  weatherapi: weatherapiapikey
