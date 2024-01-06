@@ -2,13 +2,13 @@ global:
   checkNewVersion: true
 
 log:
-  level: WARN
+  level: INFO
 
 api:
   insecure: true
   dashboard: true
 
-ping: {}
+ping: { }
 
 providers:
   docker:
@@ -19,14 +19,8 @@ providers:
     watch: true
 
 entryPoints:
-  web:
+  http:
     address: :80
-    http:
-      redirections:
-        entryPoint:
-          to: https
-          scheme: https
-          permanent: true
 
   https:
     address: :443
@@ -42,8 +36,10 @@ certificatesResolvers:
   le:
     acme:
       dnsChallenge:
-          provider: cloudflare
-          resolvers:
-            - "1.1.1.1:53"
-            - "1.0.0.1:53"
+        provider: cloudflare
+        resolvers:
+          - "1.1.1.1:53"
+          - "1.0.0.1:53"
       storage: /letsencrypt/acme.json
+
+accessLog: { }
