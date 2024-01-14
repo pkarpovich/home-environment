@@ -42,6 +42,13 @@ http:
       tls:
         certResolver: le
 
+    kira-client-router:
+      rule: "Host(`kira.{{env "ROOT_DOMAIN"}}`)"
+      entryPoints: [ "https" ]
+      service: "kira-client-service"
+      tls:
+        certResolver: le
+
   services:
     nas-service:
       loadBalancer:
@@ -72,3 +79,8 @@ http:
       loadBalancer:
         servers:
           - url: "{{env "PLEX_URL"}}"
+
+    kira-client-service:
+      loadBalancer:
+        servers:
+          - url: "{{env "KIRA_CLIENT_URL"}}"
