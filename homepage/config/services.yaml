@@ -1,33 +1,4 @@
 - Media Management:
-    - Sonarr:
-        icon: sonarr
-        href: {{HOMEPAGE_VAR_SONARR_URL}}
-        siteMonitor: {{HOMEPAGE_VAR_SONARR_URL}}
-        widget:
-          type: sonarr
-          url: {{HOMEPAGE_VAR_SONARR_URL}}
-          key: {{HOMEPAGE_VAR_SONARR_KEY}}
-          enableQueue: false
-
-    - Radarr:
-        icon: radarr
-        href: {{HOMEPAGE_VAR_RADARR_URL}}
-        siteMonitor: {{HOMEPAGE_VAR_RADARR_URL}}
-        widget:
-          type: radarr
-          url: {{HOMEPAGE_VAR_RADARR_URL}}
-          key: {{HOMEPAGE_VAR_RADARR_KEY}}
-          enableQueue: false
-
-    - Prowlarr:
-        icon: prowlarr
-        href: {{HOMEPAGE_VAR_PROWLARR_URL}}
-        siteMonitor: {{HOMEPAGE_VAR_PROWLARR_URL}}
-        widget:
-          type: prowlarr
-          url: {{HOMEPAGE_VAR_PROWLARR_URL}}
-          key: {{HOMEPAGE_VAR_PROWLARR_KEY}}
-
     - Plex:
         icon: plex
         href: {{HOMEPAGE_VAR_PLEX_URL}}
@@ -76,6 +47,15 @@
           url: {{HOMEPAGE_VAR_PI_HOLE_URL}}
           key: {{HOMEPAGE_VAR_PI_HOLE_KEY}}
 
+    - Gitea:
+        icon: gitea
+        href: {{HOMEPAGE_VAR_GITEA_URL}}
+        siteMonitor: {{HOMEPAGE_VAR_GITEA_URL}}
+        widget:
+          type: gitea
+          url: {{HOMEPAGE_VAR_GITEA_URL}}
+          key: {{HOMEPAGE_VAR_GITEA_KEY}}
+
 - Monitoring:
     - Local Docker Logs:
         icon: dozzle
@@ -91,16 +71,6 @@
           type: uptimekuma
           url: {{HOMEPAGE_VAR_HEALTH_CHECK_URL}}
           slug: {{HOMEPAGE_VAR_HEALTH_CHECK_SLUG}}
-
-    - Zima Grafana:
-        icon: grafana
-        href: {{HOMEPAGE_VAR_ZIMA_GRAFANA_URL}}
-        siteMonitor: {{HOMEPAGE_VAR_ZIMA_GRAFANA_URL}}
-        widget:
-          type: grafana
-          url: {{HOMEPAGE_VAR_ZIMA_GRAFANA_URL}}
-          username: {{HOMEPAGE_VAR_ZIMA_GRAFANA_USER}}
-          password: {{HOMEPAGE_VAR_ZIMA_GRAFANA_PASSWORD}}
 
 
 - Smart Home Integration:
