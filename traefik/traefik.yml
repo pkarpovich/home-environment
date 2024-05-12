@@ -19,6 +19,9 @@ providers:
     watch: true
 
 entryPoints:
+  smtp:
+    address: :25
+
   http:
     address: :80
 
