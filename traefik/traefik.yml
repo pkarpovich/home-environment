@@ -27,6 +27,8 @@ entryPoints:
 
   https:
     address: :443
+    http3:
+      advertisedPort: 443
     http:
       tls:
         certResolver: le

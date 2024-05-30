@@ -1,6 +1,6 @@
 services:
   traefik:
-    image: traefik:v2.10
+    image: traefik:v3.0
     restart: unless-stopped
     environment:
       - ROOT_DOMAIN=${ROOT_DOMAIN}
@@ -16,7 +16,8 @@ services:
     ports:
       - 25:25
       - 80:80
-      - 443:443
+      - "443:443/tcp"
+      - "443:443/udp"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - ./traefik/traefik.yml:/etc/traefik/traefik.yml:ro
