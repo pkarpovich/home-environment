@@ -48,3 +48,8 @@ certificatesResolvers:
       storage: /letsencrypt/acme.json
 
 accessLog: { }
+
+tracing:
+  otlp:
+    http:
+      endpoint: http://jaeger:4318/v1/traces
