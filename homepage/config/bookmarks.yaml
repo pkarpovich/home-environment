@@ -1,3 +1,5 @@
----
-# For configuration options and examples, please see:
-# https://gethomepage.dev/en/configs/bookmarks
+- Turtles:
+  - Omni Turtle Search:
+    - abbr: OS
+      href: https://omni-search.pkarpovich.space
+      description: Search the web with the power of the turtle!
