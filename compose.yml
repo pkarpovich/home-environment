@@ -1,5 +1,6 @@
 include:
   - path: compose-traefik.yml
+  - path: compose-grafana.yml
 
 services:
   homepage:

@@ -1,0 +1,74 @@
+services:
+  grafana:
+    restart: unless-stopped
+    container_name: grafana
+    image: grafana/grafana:latest
+    environment:
+      - GF_SECURITY_ADMIN_USER=pkarpovich
+      - GF_SECURITY_ADMIN_PASSWORD=wTest100*
+    networks:
+      - proxy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.grafana.rule=Host(`grafana.${ROOT_DOMAIN}`)"
+      - "traefik.http.routers.grafana.entrypoints=https"
+      - "traefik.http.routers.grafana.tls.certresolver=le"
+      - "traefik.http.services.grafana.loadbalancer.server.port=3000"
+    volumes:
+      - grafana:/var/lib/grafana
+
+  influxdb:
+    restart: unless-stopped
+    container_name: influxdb
+    image: influxdb:2.7-alpine
+    environment:
+      - DOCKER_INFLUXDB_INIT_MODE=setup
+      - DOCKER_INFLUXDB_INIT_ORG=${INFLUX_ORGANIZATION}
+      - DOCKER_INFLUXDB_INIT_BUCKET=${INFLUX_BUCKET}
+      - DOCKER_INFLUXDB_INIT_RETENTION=1w
+      - DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=${INFLUX_TOKEN}
+    volumes:
+      - influxdb:/var/lib/influxdb2
+    networks:
+      - proxy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.influx.rule=Host(`influx.${ROOT_DOMAIN}`)"
+      - "traefik.http.routers.influx.entrypoints=https"
+      - "traefik.http.routers.influx.tls.certresolver=le"
+      - "traefik.http.services.influx.loadbalancer.server.port=8086"
+
+  telegraf:
+    container_name: telegraf
+    restart: unless-stopped
+    image: telegraf:1.31-alpine
+    volumes:
+      - ./telegraf.conf:/etc/telegraf/telegraf.conf:ro
+    networks:
+      - proxy
+    environment:
+      - INFLUX_HOSTNAME=influxdb
+      - INFLUX_URL=http://influxdb:8086
+      - INFLUX_ORGANIZATION=${INFLUX_ORGANIZATION}
+      - INFLUX_BUCKET=${INFLUX_BUCKET}
+      - INFLUX_TOKEN=${INFLUX_TOKEN}
+      - OPENWEATHER_API_KEY=${OPENWEATHER_API_KEY}
+      - OPENWEATHER_CITY_ID=${OPENWEATHER_CITY_ID}
+
+  whoami:
+    image: mendhak/http-https-echo:33
+    networks:
+      - proxy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.whoami.rule=Host(`info.${ROOT_DOMAIN}`)"
+      - "traefik.http.routers.whoami.entrypoints=https"
+      - "traefik.http.routers.whoami.tls.certresolver=le"
+
+networks:
+  proxy:
+    external: true
+
+volumes:
+  grafana:
+  influxdb:
