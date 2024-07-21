@@ -1,50 +1,28 @@
 services:
-  sonarr:
-    image: linuxserver/sonarr:latest
-    container_name: sonarr
+  tautulli:
+    container_name: tautulli
+    image: ghcr.io/tautulli/tautulli
+    restart: unless-stopped
     environment:
-      - PUID=0
-      - PGID=0
+      - PUID=1000
+      - PGID=1000
       - TZ=Europe/Warsaw
     volumes:
-      - /volume2/docker/sonarr:/config
-      - /volume2/media:/data
-    ports:
-      - 8989:8989
-    network_mode: synobridge
-    security_opt:
-      - no-new-privileges:true
-    restart: always
+      - tautili:/config
+    networks:
+      - proxy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.tautulli.rule=Host(`tautulli.${ROOT_DOMAIN}`)"
+      - "traefik.http.routers.tautulli.entrypoints=https"
+      - "traefik.http.routers.tautulli.tls.certresolver=le"
+      - "traefik.http.services.tautulli.loadbalancer.server.port=8181"
+    depends_on:
+      - traefik
 
-  radarr:
-    image: linuxserver/radarr:latest
-    container_name: radarr
-    environment:
-      - PUID=0
-      - PGID=0
-      - TZ=Europe/Warsaw
-    volumes:
-      - /volume2/docker/radarr:/config
-      - /volume2/media:/data
-    ports:
-      - 7878:7878
-    network_mode: synobridge
-    security_opt:
-      - no-new-privileges:true
-    restart: always
+volumes:
+  tautili:
 
-  prowlarr:
-    image: linuxserver/prowlarr:latest
-    container_name: prowlarr
-    environment:
-      - PUID=0
-      - PGID=0
-      - TZ=Europe/Warsaw
-    volumes:
-      - /volume2/docker/prowlarr:/config
-    ports:
-      - 9696:9696
-    network_mode: synobridge
-    security_opt:
-      - no-new-privileges:true
-    restart: always
+networks:
+  proxy:
+    external: true

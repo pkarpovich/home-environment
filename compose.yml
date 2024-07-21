@@ -1,6 +1,7 @@
 include:
   - path: compose-traefik.yml
   - path: compose-grafana.yml
+  - path: compose-media.yml
 
 services:
   homepage:
@@ -39,6 +40,9 @@ services:
       - HOMEPAGE_VAR_GRAFANA_USER=${GRAFANA_USER}
       - HOMEPAGE_VAR_GRAFANA_PASSWORD=${GRAFANA_PASSWORD}
       - HOMEPAGE_VAR_INFLUX_URL=${INFLUX_URL}
+      - HOMEPAGE_VAR_TAUTULLI_URL=${TAUTULLI_URL}
+      - HOMEPAGE_VAR_TAUTULLI_RAW_URL=${TAUTULLI_RAW_URL}
+      - HOMEPAGE_VAR_TAUTULLI_KEY=${TAUTULLI_KEY}
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.homepage.rule=Host(`home.${ROOT_DOMAIN}`)"

@@ -19,6 +19,18 @@
           username: {{HOMEPAGE_VAR_DISKSTATION_USER}}
           password: {{HOMEPAGE_VAR_DISKSTATION_PASSWORD}}
 
+    - Statistics for Plex:
+        icon: tautulli
+        href: {{HOMEPAGE_VAR_TAUTULLI_URL}}
+        siteMonitor: {{HOMEPAGE_VAR_TAUTULLI_RAW_URL}}
+        widget:
+          type: tautulli
+          url: {{HOMEPAGE_VAR_TAUTULLI_RAW_URL}}
+          key: {{HOMEPAGE_VAR_TAUTULLI_KEY}}
+          enableUser: true
+          showEpisodeNumber: true
+          expandOneStreamToTwoRows: true
+
 - Network and Data Management:
     - Disk Station:
         icon: synology-dsm
@@ -57,12 +69,6 @@
           key: {{HOMEPAGE_VAR_GITEA_KEY}}
 
 - Monitoring:
-    - Local Docker Logs:
-        icon: dozzle
-        href: {{HOMEPAGE_VAR_LOCAL_DOCKER_LOGS_URL}}
-        description: Local Docker Logs
-        siteMonitor: {{HOMEPAGE_VAR_LOCAL_DOCKER_LOGS_URL}}
-
     - Health Check:
         icon: uptime-kuma
         href: {{HOMEPAGE_VAR_HEALTH_CHECK_URL}}
@@ -82,9 +88,17 @@
           username: {{HOMEPAGE_VAR_GRAFANA_USER}}
           password: {{HOMEPAGE_VAR_GRAFANA_PASSWORD}}
 
+
+    - Local Docker Logs:
+        icon: dozzle
+        href: {{HOMEPAGE_VAR_LOCAL_DOCKER_LOGS_URL}}
+        description: Local Docker Logs
+        siteMonitor: {{HOMEPAGE_VAR_LOCAL_DOCKER_LOGS_URL}}
+
     - Influx:
         icon: influxdb
         href: {{HOMEPAGE_VAR_INFLUX_URL}}
+        description: Real-time analytics and monitoring
         siteMonitor: {{HOMEPAGE_VAR_INFLUX_URL}}
 
 

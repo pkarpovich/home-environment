@@ -56,6 +56,7 @@ services:
       - OPENWEATHER_CITY_ID=${OPENWEATHER_CITY_ID}
 
   whoami:
+    container_name: whoami
     image: mendhak/http-https-echo:33
     networks:
       - proxy
