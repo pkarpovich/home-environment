@@ -9,16 +9,6 @@
           key: {{HOMEPAGE_VAR_PLEX_KEY}}
           fields: [ "albums", "movies", "tv" ]
 
-    - Download Station:
-        icon: synology-download-station
-        href: {{HOMEPAGE_VAR_DISKSTATION_URL}}
-        siteMonitor: {{HOMEPAGE_VAR_DISKSTATION_URL}}
-        widget:
-          type: downloadstation
-          url: {{HOMEPAGE_VAR_DISKSTATION_URL}}
-          username: {{HOMEPAGE_VAR_DISKSTATION_USER}}
-          password: {{HOMEPAGE_VAR_DISKSTATION_PASSWORD}}
-
     - Statistics for Plex:
         icon: tautulli
         href: {{HOMEPAGE_VAR_TAUTULLI_URL}}
@@ -30,6 +20,16 @@
           enableUser: true
           showEpisodeNumber: true
           expandOneStreamToTwoRows: true
+
+    - Download Station:
+        icon: synology-download-station
+        href: {{HOMEPAGE_VAR_DISKSTATION_URL}}
+        siteMonitor: {{HOMEPAGE_VAR_DISKSTATION_URL}}
+        widget:
+          type: downloadstation
+          url: {{HOMEPAGE_VAR_DISKSTATION_URL}}
+          username: {{HOMEPAGE_VAR_DISKSTATION_USER}}
+          password: {{HOMEPAGE_VAR_DISKSTATION_PASSWORD}}
 
 - Network and Data Management:
     - Disk Station:
@@ -121,3 +121,9 @@
           type: whatsupdocker
           url: {{HOMEPAGE_VAR_WUD_URL}}
 
+- Turtles:
+    - Omni Turtle Search:
+        icon: searx-light
+        href: https://omni-search.pkarpovich.space
+        siteMonitor: https://omni-search.pkarpovich.space
+        description: Search the web with the power of the turtle!
