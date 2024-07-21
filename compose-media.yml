@@ -9,6 +9,8 @@ services:
       - TZ=Europe/Warsaw
     volumes:
       - tautili:/config
+    ports:
+      - 8181:8181
     networks:
       - proxy
     labels:
@@ -17,8 +19,6 @@ services:
       - "traefik.http.routers.tautulli.entrypoints=https"
       - "traefik.http.routers.tautulli.tls.certresolver=le"
       - "traefik.http.services.tautulli.loadbalancer.server.port=8181"
-    depends_on:
-      - traefik
 
 volumes:
   tautili:
