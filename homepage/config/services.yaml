@@ -113,3 +113,11 @@
           username: {{HOMEPAGE_VAR_HOMEBRIDGE_USER}}
           password: {{HOMEPAGE_VAR_HOMEBRIDGE_PASSWORD}}
 
+    - What's Up Docker:
+        icon: whats-up-docker-light
+        href: {{HOMEPAGE_VAR_WUD_URL}}
+        siteMonitor: {{HOMEPAGE_VAR_WUD_URL}}
+        widget:
+          type: whatsupdocker
+          url: {{HOMEPAGE_VAR_WUD_URL}}
+
