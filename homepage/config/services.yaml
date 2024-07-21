@@ -72,6 +72,21 @@
           url: {{HOMEPAGE_VAR_HEALTH_CHECK_URL}}
           slug: {{HOMEPAGE_VAR_HEALTH_CHECK_SLUG}}
 
+    - Grafana:
+        icon: grafana
+        href: {{HOMEPAGE_VAR_GRAFANA_URL}}
+        siteMonitor: {{HOMEPAGE_VAR_GRAFANA_URL}}
+        widget:
+          type: grafana
+          url: {{HOMEPAGE_VAR_GRAFANA_URL}}
+          username: {{HOMEPAGE_VAR_GRAFANA_USER}}
+          password: {{HOMEPAGE_VAR_GRAFANA_PASSWORD}}
+
+    - Influx:
+        icon: influxdb
+        href: {{HOMEPAGE_VAR_INFLUX_URL}}
+        siteMonitor: {{HOMEPAGE_VAR_INFLUX_URL}}
+
 
 - Smart Home Integration:
     - Pi Homebridge:
