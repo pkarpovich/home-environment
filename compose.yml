@@ -150,14 +150,6 @@ services:
 networks:
   homekit:
     external: true
-    driver: macvlan
-    driver_opts:
-      parent: eth0
-    ipam:
-      config:
-        - subnet: 192.168.198.0/24
-          gateway: 192.168.198.1
-          ip_range: 192.168.198.16/32
   proxy:
     external: true
 
