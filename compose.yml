@@ -149,6 +149,7 @@ services:
 
 networks:
   homekit:
+    external: true
     driver: macvlan
     driver_opts:
       parent: eth0
