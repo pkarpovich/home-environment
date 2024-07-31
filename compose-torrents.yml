@@ -1,0 +1,28 @@
+services:
+  qbittorrent:
+    image: linuxserver/qbittorrent:latest
+    container_name: qbittorrent
+    environment:
+      - PUID=0
+      - PGID=0
+      - TZ=Europe/Warsaw
+      - WEBUI_PORT=8090
+    volumes:
+      - /volume2/docker/qbittorrent/volumes:/config
+      - /volume2/media:/downloads
+    ports:
+      - 9854:9854/tcp
+      - 9854:9854/udp
+      - 8090:8090/tcp
+    network_mode: synobridge
+    restart: unless-stopped
+
+  flood:
+    image: jesec/flood:master
+    container_name: flood
+    network_mode: synobridge
+    volumes:
+      - /volume2/docker/qbittorrent/ui:/data
+    ports:
+      - "5245:3000"
+    restart: unless-stopped
