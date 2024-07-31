@@ -31,6 +31,26 @@
           username: {{HOMEPAGE_VAR_DISKSTATION_USER}}
           password: {{HOMEPAGE_VAR_DISKSTATION_PASSWORD}}
 
+    - qBittorrent:
+        icon: qbittorrent
+        href: {{HOMEPAGE_VAR_TORRENTS_URL}}
+        siteMonitor: {{HOMEPAGE_VAR_TORRENTS_URL}}
+        widget:
+          type: qbittorrent
+          url: {{HOMEPAGE_VAR_TORRENTS_URL}}
+          username: {{HOMEPAGE_VAR_TORRENTS_USER}}
+          password: {{HOMEPAGE_VAR_TORRENTS_PASS}}
+
+    - Torrents UI:
+        icon: flood
+        href: {{HOMEPAGE_VAR_TORRENTS_UI_URL}}
+        siteMonitor: {{HOMEPAGE_VAR_TORRENTS_UI_URL}}
+        widget:
+          type: flood
+          url: {{HOMEPAGE_VAR_TORRENTS_UI_URL}}
+          username: {{HOMEPAGE_VAR_TORRENTS_UI_USER}}
+          password: {{HOMEPAGE_VAR_TORRENTS_UI_PASS}}
+
 - Network and Data Management:
     - Disk Station:
         icon: synology-dsm

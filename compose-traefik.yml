@@ -10,6 +10,8 @@ services:
       - GITEA_URL=${GITEA_URL}
       - PLEX_URL=${PLEX_URL}
       - KIRA_CLIENT_URL=${KIRA_CLIENT_URL}
+      - TORRENT_URL=${TORRENT_URL}
+      - TORRENT_UI_URL=${TORRENT_UI_URL}
       - CF_API_EMAIL=${CF_API_EMAIL}
       - CF_API_KEY=${CF_API_KEY}
     networks:

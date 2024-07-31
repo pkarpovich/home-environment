@@ -35,6 +35,20 @@ http:
       tls:
         certResolver: le
 
+    qbittorrent-router:
+      rule: "Host(`torrents.{{env "ROOT_DOMAIN"}}`)"
+      entryPoints: [ "https" ]
+      service: "qbittorrent-service"
+      tls:
+        certResolver: le
+
+    flood-router:
+      rule: "Host(`torrents-ui.{{env "ROOT_DOMAIN"}}`)"
+      entryPoints: [ "https" ]
+      service: "flood-service"
+      tls:
+        certResolver: le
+
   services:
     nas-service:
       loadBalancer:
@@ -60,3 +74,13 @@ http:
       loadBalancer:
         servers:
           - url: "{{env "GITEA_URL"}}"
+
+    qbittorrent-service:
+      loadBalancer:
+        servers:
+          - url: "{{env "TORRENT_URL"}}"
+
+    flood-service:
+      loadBalancer:
+        servers:
+          - url: "{{env "TORRENT_UI_URL"}}"
