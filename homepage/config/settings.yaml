@@ -22,7 +22,7 @@ layout:
     style: column
 
   Turtles:
-    icon: freepbx
+    icon: https://magnet-feed-sync.pkarpovich.space/group-logo.png
     style: row
     columns: 3
 

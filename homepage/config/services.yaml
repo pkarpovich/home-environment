@@ -147,3 +147,9 @@
         href: https://omni-search.pkarpovich.space
         siteMonitor: https://omni-search.pkarpovich.space
         description: Search the web with the power of the turtle!
+
+    - Magnet Feed Sync:
+        icon: https://magnet-feed-sync.pkarpovich.space/logo.png
+        href: https://magnet-feed-sync.pkarpovich.space/?debug=true
+        siteMonitor: https://magnet-feed-sync.pkarpovich.space/?debug=true
+        description: Stay current with your downloads!
