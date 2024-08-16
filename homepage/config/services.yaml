@@ -153,3 +153,9 @@
         href: https://magnet-feed-sync.pkarpovich.space/?debug=true
         siteMonitor: https://magnet-feed-sync.pkarpovich.space/?debug=true
         description: Stay current with your downloads!
+
+    - Content Oracle:
+        icon: https://content-oracle.pkarpovich.space/favicon.ico
+        href: https://content-oracle.pkarpovich.space
+        siteMonitor: https://content-oracle.pkarpovich.space
+        description: The oracle turtle knows what’s next on your watchlist!
