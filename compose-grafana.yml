@@ -41,7 +41,7 @@ services:
   telegraf:
     container_name: telegraf
     restart: unless-stopped
-    image: telegraf:1.31-alpine
+    image: telegraf:1.33-alpine
     volumes:
       - ./.config/telegraf.conf:/etc/telegraf/telegraf.conf:ro
     networks:

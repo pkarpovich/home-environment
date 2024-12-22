@@ -1,7 +1,7 @@
 services:
   traefik:
     container_name: traefik
-    image: traefik:v3.0
+    image: traefik:v3.2
     restart: unless-stopped
     environment:
       - ROOT_DOMAIN=${ROOT_DOMAIN}
