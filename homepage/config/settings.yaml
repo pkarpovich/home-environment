@@ -5,7 +5,7 @@ statusStyle: "dot"
 headerStyle: boxed
 layout:
   Media Management:
-    icon: radarr-light
+    icon: radarr
     style: row
     columns: 3
 
