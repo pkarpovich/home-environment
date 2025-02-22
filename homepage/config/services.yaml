@@ -54,8 +54,8 @@
     - Twitch:
         icon: twitch
         description: Twitch VOD and Live Stream archiving platform
-        href: { { HOMEPAGE_VAR_TWITCH_URL } }
-        siteMonitor: { { HOMEPAGE_VAR_TWITCH_URL } }
+        href: {{HOMEPAGE_VAR_TWITCH_URL}}
+        siteMonitor: {{HOMEPAGE_VAR_TWITCH_URL}}
 
 - Network and Data Management:
     - Disk Station:
