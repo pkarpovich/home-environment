@@ -51,6 +51,12 @@
           username: {{HOMEPAGE_VAR_TORRENTS_UI_USER}}
           password: {{HOMEPAGE_VAR_TORRENTS_UI_PASS}}
 
+    - Twitch:
+        icon: twitch
+        description: Twitch VOD and Live Stream archiving platform
+        href: { { HOMEPAGE_VAR_TWITCH_URL } }
+        siteMonitor: { { HOMEPAGE_VAR_TWITCH_URL } }
+
 - Network and Data Management:
     - Disk Station:
         icon: synology-dsm
@@ -76,6 +82,7 @@
         siteMonitor: {{HOMEPAGE_VAR_PI_HOLE_URL}}
         widget:
           type: pihole
+          version: 6
           url: {{HOMEPAGE_VAR_PI_HOLE_URL}}
           key: {{HOMEPAGE_VAR_PI_HOLE_KEY}}
 
