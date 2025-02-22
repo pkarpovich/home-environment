@@ -1,7 +1,7 @@
 services:
   traefik:
     container_name: traefik
-    image: traefik:v3.2
+    image: traefik:v3.3
     restart: unless-stopped
     environment:
       - ROOT_DOMAIN=${ROOT_DOMAIN}
@@ -12,6 +12,7 @@ services:
       - KIRA_CLIENT_URL=${KIRA_CLIENT_URL}
       - TORRENT_URL=${TORRENT_URL}
       - TORRENT_UI_URL=${TORRENT_UI_URL}
+      - TWITCH_URL=${TWITCH_URL}
       - CF_API_EMAIL=${CF_API_EMAIL}
       - CF_API_KEY=${CF_API_KEY}
     networks:
@@ -27,7 +28,7 @@ services:
       - ./traefik/dynamic_conf.yml:/etc/traefik/dynamic_conf.yml:ro
       - letsencrypt:/letsencrypt
     healthcheck:
-      test: [ "CMD", "traefik", "healthcheck", "--ping" ]
+      test: ["CMD", "traefik", "healthcheck", "--ping"]
       interval: 10s
       timeout: 5s
       retries: 3

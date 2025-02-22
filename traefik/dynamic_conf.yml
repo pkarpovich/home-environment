@@ -49,6 +49,13 @@ http:
       tls:
         certResolver: le
 
+    twitch-router:
+      rule: "Host(`twitch.{{env "ROOT_DOMAIN"}}`)"
+      entryPoints: [ "https" ]
+      service: "twitch-service"
+      tls:
+        certResolver: le
+
   services:
     nas-service:
       loadBalancer:
@@ -84,3 +91,8 @@ http:
       loadBalancer:
         servers:
           - url: "{{env "TORRENT_UI_URL"}}"
+
+    twitch-service:
+      loadBalancer:
+        servers:
+          - url: "{{env "TWITCH_URL"}}"
