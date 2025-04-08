@@ -1,4 +1,4 @@
-- Media Management:
+- Media Library & Downloads:
     - Plex:
         icon: plex
         href: {{HOMEPAGE_VAR_PLEX_URL}}
@@ -51,13 +51,24 @@
           username: {{HOMEPAGE_VAR_TORRENTS_UI_USER}}
           password: {{HOMEPAGE_VAR_TORRENTS_UI_PASS}}
 
+- Streaming & Devices:
     - Twitch:
         icon: twitch
         description: Twitch VOD and Live Stream archiving platform
         href: {{HOMEPAGE_VAR_TWITCH_URL}}
         siteMonitor: {{HOMEPAGE_VAR_TWITCH_URL}}
 
-- Network and Data Management:
+    - Sonos:
+        icon: solidtime-light
+        description: Stream and control your Sonos system from the web app
+        href: https://play.sonos.com/en-us/web-app
+
+    - Tailscale:
+        icon: tailscale
+        description: Securely connect your devices to your network
+        href: https://login.tailscale.com/admin/machines
+
+- Server & Network Tools:
     - Disk Station:
         icon: synology-dsm
         href: {{HOMEPAGE_VAR_DISKSTATION_URL}}
@@ -95,7 +106,7 @@
           url: {{HOMEPAGE_VAR_GITEA_URL}}
           key: {{HOMEPAGE_VAR_GITEA_KEY}}
 
-- Monitoring:
+- System Monitoring:
     - Health Check:
         icon: uptime-kuma
         href: {{HOMEPAGE_VAR_HEALTH_CHECK_URL}}
@@ -129,7 +140,7 @@
         siteMonitor: {{HOMEPAGE_VAR_INFLUX_URL}}
 
 
-- Smart Home Integration:
+- Smart Home Automation:
     - Pi Homebridge:
         icon: homebridge
         href: {{HOMEPAGE_VAR_HOMEBRIDGE_URL}}
@@ -148,7 +159,7 @@
           type: whatsupdocker
           url: {{HOMEPAGE_VAR_WUD_URL}}
 
-- Turtles:
+- Turtle Apps:
     - Omni Turtle Search:
         icon: https://omni-search.pkarpovich.space/icon.png
         href: https://omni-search.pkarpovich.space

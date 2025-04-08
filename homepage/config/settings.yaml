@@ -4,25 +4,29 @@
 statusStyle: "dot"
 headerStyle: boxed
 layout:
-  Media Management:
+  Media Library & Downloads:
     icon: radarr
     style: row
     columns: 3
 
-  Network and Data Management:
-    icon: truenas-scale
-    style: column
-
-  Monitoring:
-    icon: mongodb
-    style: column
-
-  Smart Home Integration:
-    icon: selfhosted-light
-    style: column
-
-  Turtles:
-    icon: https://magnet-feed-sync.pkarpovich.space/group-logo.png
+  Streaming & Devices:
+    icon: jellyfin
     style: row
     columns: 3
 
+  Server & Network Tools:
+    icon: truenas-scale
+    style: column
+
+  System Monitoring:
+    icon: mongodb
+    style: column
+
+  Smart Home Automation:
+    icon: selfhosted-light
+    style: column
+
+  Turtle Apps:
+    icon: https://magnet-feed-sync.pkarpovich.space/group-logo.png
+    style: row
+    columns: 3
