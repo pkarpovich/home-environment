@@ -52,6 +52,7 @@ services:
       - HOMEPAGE_VAR_TORRENTS_UI_USER=${TORRENTS_UI_USER}
       - HOMEPAGE_VAR_TORRENTS_UI_PASS=${TORRENTS_UI_PASS}
       - HOMEPAGE_VAR_TWITCH_URL=${TWITCH_DOMAIN}
+      - HOMEPAGE_VAR_PHOENIX_URL=https://phoenix.${ROOT_DOMAIN}
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.homepage.rule=Host(`home.${ROOT_DOMAIN}`)"

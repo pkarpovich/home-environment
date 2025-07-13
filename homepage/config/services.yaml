@@ -139,6 +139,12 @@
         description: Real-time analytics and monitoring
         siteMonitor: {{HOMEPAGE_VAR_INFLUX_URL}}
 
+    - Phoenix:
+        icon: si-apache
+        href: {{HOMEPAGE_VAR_PHOENIX_URL}}
+        description: AI Observability & Evaluation
+        siteMonitor: {{HOMEPAGE_VAR_PHOENIX_URL}}
+
 
 - Smart Home Automation:
     - Pi Homebridge:
