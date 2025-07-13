@@ -158,7 +158,7 @@
           password: {{HOMEPAGE_VAR_HOMEBRIDGE_PASSWORD}}
 
     - What's Up Docker:
-        icon: whats-up-docker-light
+        icon: whats-up-docker
         href: {{HOMEPAGE_VAR_WUD_URL}}
         siteMonitor: {{HOMEPAGE_VAR_WUD_URL}}
         widget:
