@@ -168,6 +168,28 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
 
+  phoenix:
+    container_name: phoenix
+    image: arizephoenix/phoenix:latest
+    restart: unless-stopped
+    expose:
+      - 6006
+      - 4317
+    environment:
+      - PHOENIX_WORKING_DIR=/mnt/data
+    volumes:
+      - ./volumes/phoenix:/mnt/data
+    networks:
+      - proxy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.phoenix.rule=Host(`phoenix.${ROOT_DOMAIN}`)"
+      - "traefik.http.routers.phoenix.entrypoints=https"
+      - "traefik.http.routers.phoenix.tls.certresolver=le"
+      - "traefik.http.services.phoenix.loadbalancer.server.port=6006"
+    depends_on:
+      - traefik
+
 networks:
   homekit:
     external: true
