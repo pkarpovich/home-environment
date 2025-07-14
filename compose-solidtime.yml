@@ -70,9 +70,7 @@ services:
       - QUEUE_CONNECTION=database
       - FILESYSTEM_DISK=local
     volumes:
-      - ./volumes/solidtime/storage:/var/www/html/storage
-      - ./volumes/solidtime/logs:/var/www/html/storage/logs
-      - ./volumes/solidtime/app-storage:/var/www/html/storage/app
+      - solidtime-app-storage:/var/www/html/storage
     networks:
       - solidtime-internal
     depends_on:
@@ -99,9 +97,7 @@ services:
       - QUEUE_CONNECTION=database
       - FILESYSTEM_DISK=local
     volumes:
-      - ./volumes/solidtime/storage:/var/www/html/storage
-      - ./volumes/solidtime/logs:/var/www/html/storage/logs
-      - ./volumes/solidtime/app-storage:/var/www/html/storage/app
+      - solidtime-app-storage:/var/www/html/storage
     networks:
       - solidtime-internal
     depends_on:
