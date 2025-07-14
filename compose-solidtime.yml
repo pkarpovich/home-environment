@@ -10,6 +10,7 @@ services:
       - APP_KEY=${SOLIDTIME_APP_KEY}
       - APP_URL=https://solidtime.${ROOT_DOMAIN}
       - APP_FORCE_HTTPS=true
+      - SUPER_ADMINS=${SOLIDTIME_SUPER_ADMINS}
       - DB_CONNECTION=pgsql
       - DB_HOST=solidtime-db
       - DB_PORT=5432
