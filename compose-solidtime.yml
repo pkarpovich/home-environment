@@ -11,6 +11,9 @@ services:
       - APP_URL=https://solidtime.${ROOT_DOMAIN}
       - APP_FORCE_HTTPS=true
       - SUPER_ADMINS=${SOLIDTIME_SUPER_ADMINS}
+      - PASSPORT_PRIVATE_KEY=${SOLIDTIME_PASSPORT_PRIVATE_KEY}
+      - PASSPORT_PUBLIC_KEY=${SOLIDTIME_PASSPORT_PUBLIC_KEY}
+      - AUTO_DB_MIGRATE=true
       - DB_CONNECTION=pgsql
       - DB_HOST=solidtime-db
       - DB_PORT=5432
@@ -60,6 +63,8 @@ services:
       - APP_ENV=production
       - APP_DEBUG=false
       - APP_KEY=${SOLIDTIME_APP_KEY}
+      - PASSPORT_PRIVATE_KEY=${SOLIDTIME_PASSPORT_PRIVATE_KEY}
+      - PASSPORT_PUBLIC_KEY=${SOLIDTIME_PASSPORT_PUBLIC_KEY}
       - DB_CONNECTION=pgsql
       - DB_HOST=solidtime-db
       - DB_PORT=5432
@@ -87,6 +92,8 @@ services:
       - APP_ENV=production
       - APP_DEBUG=false
       - APP_KEY=${SOLIDTIME_APP_KEY}
+      - PASSPORT_PRIVATE_KEY=${SOLIDTIME_PASSPORT_PRIVATE_KEY}
+      - PASSPORT_PUBLIC_KEY=${SOLIDTIME_PASSPORT_PUBLIC_KEY}
       - DB_CONNECTION=pgsql
       - DB_HOST=solidtime-db
       - DB_PORT=5432
