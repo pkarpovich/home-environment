@@ -89,6 +89,7 @@ services:
     restart: unless-stopped
     environment:
       - CONTAINER_MODE=worker
+      - WORKER_COMMAND=php /var/www/html/artisan queue:work
       - APP_ENV=production
       - APP_DEBUG=false
       - APP_KEY=${SOLIDTIME_APP_KEY}
