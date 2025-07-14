@@ -6,7 +6,10 @@ services:
     restart: unless-stopped
     environment:
       - APP_ENV=production
+      - APP_DEBUG=false
+      - APP_KEY=${SOLIDTIME_APP_KEY}
       - APP_URL=https://solidtime.${ROOT_DOMAIN}
+      - APP_FORCE_HTTPS=true
       - DB_CONNECTION=pgsql
       - DB_HOST=solidtime-db
       - DB_PORT=5432
@@ -26,6 +29,10 @@ services:
       - MAIL_FROM_ADDRESS=${MAIL_FROM_ADDRESS}
       - MAIL_FROM_NAME="Solidtime"
       - GOTENBERG_URL=http://solidtime-gotenberg:3000
+      - LOG_CHANNEL=stderr_daily
+      - LOG_LEVEL=debug
+      - TRUSTED_PROXIES=*
+      - PUBLIC_FILESYSTEM_DISK=public
     volumes:
       - ./volumes/solidtime/storage:/var/www/html/storage
       - ./volumes/solidtime/logs:/var/www/html/storage/logs
@@ -39,7 +46,7 @@ services:
       - "traefik.http.routers.solidtime.rule=Host(`solidtime.${ROOT_DOMAIN}`)"
       - "traefik.http.routers.solidtime.entrypoints=https"
       - "traefik.http.routers.solidtime.tls.certresolver=le"
-      - "traefik.http.services.solidtime.loadbalancer.server.port=8080"
+      - "traefik.http.services.solidtime.loadbalancer.server.port=8000"
     depends_on:
       - solidtime-db
       - traefik
@@ -52,6 +59,8 @@ services:
     environment:
       - CONTAINER_MODE=scheduler
       - APP_ENV=production
+      - APP_DEBUG=false
+      - APP_KEY=${SOLIDTIME_APP_KEY}
       - DB_CONNECTION=pgsql
       - DB_HOST=solidtime-db
       - DB_PORT=5432
@@ -79,6 +88,8 @@ services:
     environment:
       - CONTAINER_MODE=worker
       - APP_ENV=production
+      - APP_DEBUG=false
+      - APP_KEY=${SOLIDTIME_APP_KEY}
       - DB_CONNECTION=pgsql
       - DB_HOST=solidtime-db
       - DB_PORT=5432
