@@ -2,7 +2,6 @@ include:
   - path: compose-traefik.yml
   - path: compose-grafana.yml
   - path: compose-media.yml
-  - path: compose-solidtime.yml
 
 services:
   homepage:
@@ -183,8 +182,10 @@ services:
       - ./volumes/phoenix:/mnt/data
     networks:
       - proxy
+      - telemetry
     labels:
       - "traefik.enable=true"
+      - "traefik.docker.network=proxy"
       - "traefik.http.routers.phoenix.rule=Host(`phoenix.${ROOT_DOMAIN}`)"
       - "traefik.http.routers.phoenix.entrypoints=https"
       - "traefik.http.routers.phoenix.tls.certresolver=le"
@@ -196,6 +197,8 @@ networks:
   homekit:
     external: true
   proxy:
+    external: true
+  telemetry:
     external: true
 
 volumes:
