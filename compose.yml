@@ -158,17 +158,6 @@ services:
       - "traefik.http.routers.whatsupdocker.entrypoints=https"
       - "traefik.http.routers.whatsupdocker.tls.certresolver=le"
 
-  gitea-runner:
-    container_name: gitea-runner
-    image: gitea/act_runner:latest
-    restart: unless-stopped
-    environment:
-      - GITEA_INSTANCE_URL=${GITEA_URL}
-      - GITEA_RUNNER_REGISTRATION_TOKEN=${GITEA_RUNNER_REGISTRATION_TOKEN}
-      - GITEA_RUNNER_NAME=pi-runner
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-
   phoenix:
     container_name: phoenix
     image: arizephoenix/phoenix:version-11.7
