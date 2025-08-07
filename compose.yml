@@ -160,7 +160,7 @@ services:
 
   phoenix:
     container_name: phoenix
-    image: arizephoenix/phoenix:version-11.20
+    image: arizephoenix/phoenix:version-11.7
     restart: unless-stopped
     expose:
       - 6006
