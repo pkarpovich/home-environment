@@ -6,6 +6,13 @@ services:
     environment:
       - GF_SECURITY_ADMIN_USER=pkarpovich
       - GF_SECURITY_ADMIN_PASSWORD=wTest100*
+      - GF_SMTP_ENABLED=true
+      - GF_SMTP_HOST=${SMTP_HOST}
+      - GF_SMTP_USER=${SMTP_USER}
+      - GF_SMTP_PASSWORD=${SMTP_PASSWORD}
+      - GF_SMTP_FROM_ADDRESS=${SMTP_FROM_ADDRESS}
+      - GF_SMTP_FROM_NAME=Grafana
+      - GF_SMTP_SKIP_VERIFY=false
     networks:
       - proxy
     labels:
