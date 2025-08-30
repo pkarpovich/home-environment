@@ -1,3 +1,69 @@
+@import url("https://fonts.googleapis.com/css2?family=Victor+Mono:ital,wght@0,100..700;1,100..700&display=swap");
+
+* {
+    font-family: "Victor Mono", monospace;
+    line-height: 1.5;
+    font-weight: 400;
+    letter-spacing: -0.02em;
+}
+
+#simple_icon {
+    .service-card {
+        height: inherit;
+    }
+
+    .service-title {
+        a {
+            width: 48px !important;
+            height: 48px !important;
+        }
+    }
+    .service-title-text {
+        display: none;
+    }
+}
+
+ul:has(#simple_icon) {
+    grid-template-columns: none;
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+}
+
+.service {
+    /* margin-bottom: 8px; */
+}
+
+.service-card {
+    height: 110px;
+}
+
+.subgroup {
+    .service-card {
+        margin-bottom: 0px;
+    }
+}
+
+.service-block {
+    height: 60px;
+    border-radius: 8px;
+    padding: 4px;
+}
+
+.container {
+    max-width: 90rem !important;
+}
+
 .services-group {
-    margin-bottom: 20px;
+    margin-bottom: 8px !important;
+}
+
+#simple_widget {
+    .service-title-text {
+        visibility: hidden !important;
+    }
+}
+
+#footer {
+    display: none !important;
 }

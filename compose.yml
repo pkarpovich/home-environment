@@ -53,6 +53,9 @@ services:
       - HOMEPAGE_VAR_TORRENTS_UI_PASS=${TORRENTS_UI_PASS}
       - HOMEPAGE_VAR_TWITCH_URL=${TWITCH_DOMAIN}
       - HOMEPAGE_VAR_PHOENIX_URL=https://phoenix.${ROOT_DOMAIN}
+      - HOMEPAGE_VAR_UNIFI_CONTROLLER_KEY=${UNIFI_CONTROLLER_KEY}
+      - HOMEPAGE_VAR_PROMETHEUS_URL=${PROMETHEUS_URL}
+      - HOMEPAGE_VAR_WINDY_EMBED_WIDGET_URL=${WINDY_EMBED_WIDGET_URL}
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.homepage.rule=Host(`home.${ROOT_DOMAIN}`)"

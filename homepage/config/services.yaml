@@ -1,113 +1,111 @@
-- Media Library & Downloads:
-    - Plex:
-        icon: plex
-        href: {{HOMEPAGE_VAR_PLEX_URL}}
-        siteMonitor: {{HOMEPAGE_VAR_PLEX_URL}}
+- Media Hub:
+    - Plex Subgroup:
+      - Plex:
+          icon: plex
+          href: {{HOMEPAGE_VAR_PLEX_URL}}
+          siteMonitor: {{HOMEPAGE_VAR_PLEX_URL}}
+          widget:
+            type: plex
+            url: {{HOMEPAGE_VAR_PLEX_URL}}
+            key: {{HOMEPAGE_VAR_PLEX_KEY}}
+            fields: [ "albums", "movies", "tv" ]
+      - Statistics for Plex:
+          icon: tautulli
+          href: {{HOMEPAGE_VAR_TAUTULLI_URL}}
+          siteMonitor: {{HOMEPAGE_VAR_TAUTULLI_RAW_URL}}
+          widget:
+            type: tautulli
+            url: {{HOMEPAGE_VAR_TAUTULLI_RAW_URL}}
+            key: {{HOMEPAGE_VAR_TAUTULLI_KEY}}
+            enableUser: true
+            showEpisodeNumber: true
+            expandOneStreamToTwoRows: true
+    - Synology:
+      - Disk Station:
+          icon: synology-dsm
+          href: {{HOMEPAGE_VAR_DISKSTATION_URL}}
+          siteMonitor: {{HOMEPAGE_VAR_DISKSTATION_URL}}
+          widget:
+            type: diskstation
+            url: {{HOMEPAGE_VAR_DISKSTATION_URL}}
+            username: {{HOMEPAGE_VAR_DISKSTATION_USER}}
+            password: {{HOMEPAGE_VAR_DISKSTATION_PASSWORD}}
+      - Download Station:
+          icon: synology-download-station
+          href: {{HOMEPAGE_VAR_DISKSTATION_URL}}
+          siteMonitor: {{HOMEPAGE_VAR_DISKSTATION_URL}}
+          widget:
+            type: downloadstation
+            url: {{HOMEPAGE_VAR_DISKSTATION_URL}}
+            username: {{HOMEPAGE_VAR_DISKSTATION_USER}}
+            password: {{HOMEPAGE_VAR_DISKSTATION_PASSWORD}}
+    - Torrents:
+      - qBittorrent:
+          icon: qbittorrent
+          href: {{HOMEPAGE_VAR_TORRENTS_URL}}
+          siteMonitor: {{HOMEPAGE_VAR_TORRENTS_URL}}
+          widget:
+            type: qbittorrent
+            url: {{HOMEPAGE_VAR_TORRENTS_URL}}
+            username: {{HOMEPAGE_VAR_TORRENTS_USER}}
+            password: {{HOMEPAGE_VAR_TORRENTS_PASS}}
+      - Torrents UI:
+          icon: flood
+          href: {{HOMEPAGE_VAR_TORRENTS_UI_URL}}
+          siteMonitor: {{HOMEPAGE_VAR_TORRENTS_UI_URL}}
+          widget:
+            type: flood
+            url: {{HOMEPAGE_VAR_TORRENTS_UI_URL}}
+            username: {{HOMEPAGE_VAR_TORRENTS_UI_USER}}
+            password: {{HOMEPAGE_VAR_TORRENTS_UI_PASS}}
+- Network & Storage:
+    - Unifi Controller:
+        icon: unifi
+        href: https://unifi.ui.com
+        siteMonitor: https://192.168.198.1
         widget:
-          type: plex
-          url: {{HOMEPAGE_VAR_PLEX_URL}}
-          key: {{HOMEPAGE_VAR_PLEX_KEY}}
-          fields: [ "albums", "movies", "tv" ]
-
-    - Statistics for Plex:
-        icon: tautulli
-        href: {{HOMEPAGE_VAR_TAUTULLI_URL}}
-        siteMonitor: {{HOMEPAGE_VAR_TAUTULLI_RAW_URL}}
-        widget:
-          type: tautulli
-          url: {{HOMEPAGE_VAR_TAUTULLI_RAW_URL}}
-          key: {{HOMEPAGE_VAR_TAUTULLI_KEY}}
-          enableUser: true
-          showEpisodeNumber: true
-          expandOneStreamToTwoRows: true
-
-    - Download Station:
-        icon: synology-download-station
-        href: {{HOMEPAGE_VAR_DISKSTATION_URL}}
-        siteMonitor: {{HOMEPAGE_VAR_DISKSTATION_URL}}
-        widget:
-          type: downloadstation
-          url: {{HOMEPAGE_VAR_DISKSTATION_URL}}
-          username: {{HOMEPAGE_VAR_DISKSTATION_USER}}
-          password: {{HOMEPAGE_VAR_DISKSTATION_PASSWORD}}
-
-    - qBittorrent:
-        icon: qbittorrent
-        href: {{HOMEPAGE_VAR_TORRENTS_URL}}
-        siteMonitor: {{HOMEPAGE_VAR_TORRENTS_URL}}
-        widget:
-          type: qbittorrent
-          url: {{HOMEPAGE_VAR_TORRENTS_URL}}
-          username: {{HOMEPAGE_VAR_TORRENTS_USER}}
-          password: {{HOMEPAGE_VAR_TORRENTS_PASS}}
-
-    - Torrents UI:
-        icon: flood
-        href: {{HOMEPAGE_VAR_TORRENTS_UI_URL}}
-        siteMonitor: {{HOMEPAGE_VAR_TORRENTS_UI_URL}}
-        widget:
-          type: flood
-          url: {{HOMEPAGE_VAR_TORRENTS_UI_URL}}
-          username: {{HOMEPAGE_VAR_TORRENTS_UI_USER}}
-          password: {{HOMEPAGE_VAR_TORRENTS_UI_PASS}}
-
-- Streaming & Devices:
-    - Twitch:
-        icon: twitch
-        description: Twitch VOD and Live Stream archiving platform
-        href: {{HOMEPAGE_VAR_TWITCH_URL}}
-        siteMonitor: {{HOMEPAGE_VAR_TWITCH_URL}}
-
-    - Sonos:
-        icon: solidtime-light
-        description: Stream and control your Sonos system from the web app
-        href: https://play.sonos.com/en-us/web-app
-
-    - Tailscale:
-        icon: tailscale
-        description: Securely connect your devices to your network
-        href: https://login.tailscale.com/admin/machines
-
-- Server & Network Tools:
-    - Disk Station:
-        icon: synology-dsm
-        href: {{HOMEPAGE_VAR_DISKSTATION_URL}}
-        siteMonitor: {{HOMEPAGE_VAR_DISKSTATION_URL}}
-        widget:
-          type: diskstation
-          url: {{HOMEPAGE_VAR_DISKSTATION_URL}}
-          username: {{HOMEPAGE_VAR_DISKSTATION_USER}}
-          password: {{HOMEPAGE_VAR_DISKSTATION_PASSWORD}}
-
-    - Traefik:
-        icon: traefik
-        href: {{HOMEPAGE_VAR_TRAEFIK_URL}}
-        siteMonitor: {{HOMEPAGE_VAR_TRAEFIK_URL}}
-        widget:
-          type: traefik
-          url: {{HOMEPAGE_VAR_TRAEFIK_URL}}
-
-    - Pi Hole:
-        icon: pi-hole
-        href: "{{HOMEPAGE_VAR_PI_HOLE_URL}}/admin"
-        siteMonitor: {{HOMEPAGE_VAR_PI_HOLE_URL}}
-        widget:
-          type: pihole
-          version: 6
-          url: {{HOMEPAGE_VAR_PI_HOLE_URL}}
-          key: {{HOMEPAGE_VAR_PI_HOLE_KEY}}
-
-    - Gitea:
-        icon: gitea
-        href: {{HOMEPAGE_VAR_GITEA_URL}}
-        siteMonitor: {{HOMEPAGE_VAR_GITEA_URL}}
-        widget:
-          type: gitea
-          url: {{HOMEPAGE_VAR_GITEA_URL}}
-          key: {{HOMEPAGE_VAR_GITEA_KEY}}
-
-- System Monitoring:
-    - Health Check:
+          type: unifi
+          url: https://192.168.198.1
+          key: {{HOMEPAGE_VAR_UNIFI_CONTROLLER_KEY}}
+          fields: ["uptime", "wan", "lan_users", "wlan_users"]
+    - Network:
+      - Traefik:
+          icon: traefik
+          href: {{HOMEPAGE_VAR_TRAEFIK_URL}}
+          siteMonitor: {{HOMEPAGE_VAR_TRAEFIK_URL}}
+          widget:
+            type: traefik
+            url: {{HOMEPAGE_VAR_TRAEFIK_URL}}
+      - Pi Hole:
+          icon: pi-hole
+          href: "{{HOMEPAGE_VAR_PI_HOLE_URL}}/admin"
+          siteMonitor: {{HOMEPAGE_VAR_PI_HOLE_URL}}
+          widget:
+            type: pihole
+            version: 6
+            url: {{HOMEPAGE_VAR_PI_HOLE_URL}}
+            key: {{HOMEPAGE_VAR_PI_HOLE_KEY}}
+    - DNS:
+      - Pi Homebridge:
+          icon: homebridge
+          href: {{HOMEPAGE_VAR_HOMEBRIDGE_URL}}
+          siteMonitor: {{HOMEPAGE_VAR_HOMEBRIDGE_URL}}
+          widget:
+            type: homebridge
+            url: {{HOMEPAGE_VAR_HOMEBRIDGE_URL}}
+            username: {{HOMEPAGE_VAR_HOMEBRIDGE_USER}}
+            password: {{HOMEPAGE_VAR_HOMEBRIDGE_PASSWORD}}
+      - Gitea:
+          icon: gitea
+          href: {{HOMEPAGE_VAR_GITEA_URL}}
+          siteMonitor: {{HOMEPAGE_VAR_GITEA_URL}}
+          widget:
+            type: gitea
+            fields: ["repositories", "issues", "pulls"]
+            url: {{HOMEPAGE_VAR_GITEA_URL}}
+            key: {{HOMEPAGE_VAR_GITEA_KEY}}
+- Observability & Health:
+     - Health Check:
         icon: uptime-kuma
         href: {{HOMEPAGE_VAR_HEALTH_CHECK_URL}}
         siteMonitor: {{HOMEPAGE_VAR_HEALTH_CHECK_URL}}
@@ -116,70 +114,76 @@
           url: {{HOMEPAGE_VAR_HEALTH_CHECK_URL}}
           slug: {{HOMEPAGE_VAR_HEALTH_CHECK_SLUG}}
 
-    - Grafana:
-        icon: grafana
-        href: {{HOMEPAGE_VAR_GRAFANA_URL}}
-        siteMonitor: {{HOMEPAGE_VAR_GRAFANA_URL}}
-        widget:
-          type: grafana
-          url: {{HOMEPAGE_VAR_GRAFANA_URL}}
-          username: {{HOMEPAGE_VAR_GRAFANA_USER}}
-          password: {{HOMEPAGE_VAR_GRAFANA_PASSWORD}}
-
-
-    - Local Docker Logs:
-        icon: dozzle
-        href: {{HOMEPAGE_VAR_LOCAL_DOCKER_LOGS_URL}}
-        description: Local Docker Logs
-        siteMonitor: {{HOMEPAGE_VAR_LOCAL_DOCKER_LOGS_URL}}
-
-    - Influx:
-        icon: influxdb
-        href: {{HOMEPAGE_VAR_INFLUX_URL}}
-        description: Real-time analytics and monitoring
-        siteMonitor: {{HOMEPAGE_VAR_INFLUX_URL}}
-
-    - Phoenix:
-        icon: si-apache
-        href: {{HOMEPAGE_VAR_PHOENIX_URL}}
-        description: AI Observability & Evaluation
-        siteMonitor: {{HOMEPAGE_VAR_PHOENIX_URL}}
-
-
-- Smart Home Automation:
-    - Pi Homebridge:
-        icon: homebridge
-        href: {{HOMEPAGE_VAR_HOMEBRIDGE_URL}}
-        siteMonitor: {{HOMEPAGE_VAR_HOMEBRIDGE_URL}}
-        widget:
-          type: homebridge
-          url: {{HOMEPAGE_VAR_HOMEBRIDGE_URL}}
-          username: {{HOMEPAGE_VAR_HOMEBRIDGE_USER}}
-          password: {{HOMEPAGE_VAR_HOMEBRIDGE_PASSWORD}}
-
-    - What's Up Docker:
+     - What's Up Docker:
         icon: whats-up-docker
         href: {{HOMEPAGE_VAR_WUD_URL}}
         siteMonitor: {{HOMEPAGE_VAR_WUD_URL}}
         widget:
           type: whatsupdocker
           url: {{HOMEPAGE_VAR_WUD_URL}}
-
-- Turtle Apps:
+     - Grafana:
+        icon: grafana
+        href: {{HOMEPAGE_VAR_GRAFANA_URL}}
+        siteMonitor: {{HOMEPAGE_VAR_GRAFANA_URL}}
+        widget:
+          type: grafana
+          fields: ["dashboards", "datasources"]
+          url: {{HOMEPAGE_VAR_GRAFANA_URL}}
+          username: {{HOMEPAGE_VAR_GRAFANA_USER}}
+          password: {{HOMEPAGE_VAR_GRAFANA_PASSWORD}}
+     - Prometheus:
+        icon: prometheus
+        href: {{HOMEPAGE_VAR_PROMETHEUS_URL}}
+        siteMonitor: {{HOMEPAGE_VAR_PROMETHEUS_URL}}
+        widget:
+          type: prometheus
+          url: {{HOMEPAGE_VAR_PROMETHEUS_URL}}
+- Bookmarks:
+    - Influx:
+        id: simple_icon
+        icon: influxdb
+        href: {{HOMEPAGE_VAR_INFLUX_URL}}
+    - Local Docker Logs:
+        id: simple_icon
+        icon: dozzle
+        href: {{HOMEPAGE_VAR_LOCAL_DOCKER_LOGS_URL}}
+    - Phoenix:
+        id: simple_icon
+        icon: si-apache
+        href: {{HOMEPAGE_VAR_PHOENIX_URL}}
+    - Twitch:
+        id: simple_icon
+        icon: twitch
+        href: {{HOMEPAGE_VAR_TWITCH_URL}}
+    - Sonos:
+        id: simple_icon
+        icon: solidtime-light
+        href: https://play.sonos.com/en-us/web-app
+    - Torrents Search:
+        id: simple_icon
+        icon: webtorrent
+        href: https://search.extto.com/
+    - LLM Tools:
+        id: simple_icon
+        icon: claude-ai
+        href: https://shir-man.com/
     - Omni Turtle Search:
+        id: simple_icon
         icon: https://omni-search.pkarpovich.space/icon.png
         href: https://omni-search.pkarpovich.space
-        siteMonitor: https://omni-search.pkarpovich.space
-        description: Search the web with the power of the turtle!
-
     - Magnet Feed Sync:
+        id: simple_icon
         icon: https://magnet-feed-sync.pkarpovich.space/logo.png
         href: https://magnet-feed-sync.pkarpovich.space/?debug=true
-        siteMonitor: https://magnet-feed-sync.pkarpovich.space/?debug=true
-        description: Stay current with your downloads!
-
     - Content Oracle:
+        id: simple_icon
         icon: https://content-oracle.pkarpovich.space/favicon.ico
         href: https://content-oracle.pkarpovich.space
-        siteMonitor: https://content-oracle.pkarpovich.space
-        description: The oracle turtle knows what’s next on your watchlist!
+- Weather:
+    - Windy:
+        id: simple_widget
+        widget:
+          type: iframe
+          name: myIframe
+          allowFullscreen: false
+          src: {{HOMEPAGE_VAR_WINDY_EMBED_WIDGET_URL}}

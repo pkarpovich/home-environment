@@ -1,32 +1,47 @@
----
-# For configuration options and examples, please see:
-# https://gethomepage.dev/en/configs/settings
-statusStyle: "dot"
-headerStyle: boxed
+useEqualHeights: true
+color: neutral
 layout:
-  Media Library & Downloads:
-    icon: radarr
-    style: row
+  Media Hub:
+    icon: mediathekview
+    style: columns
+    Plex Subgroup:
+      header: false
+      style: row
+      columns: 2
+    Synology:
+      header: false
+      style: row
+      columns: 2
+    Torrents:
+      header: false
+      style: row
+      columns: 2
+    Media Bookmarks:
+      header: false
+      style: row
+      columns: 10
+  Network & Storage:
+    icon: pi-alert
+    style: columns
     columns: 3
+    Network:
+      style: row
+      columns: 2
+      header: false
+    DNS:
+      style: row
+      columns: 2
+      header: false
 
-  Streaming & Devices:
-    icon: jellyfin
+  Observability & Health:
+    icon: sh-fitbit-health-dashboard
     style: row
-    columns: 3
-
-  Server & Network Tools:
-    icon: truenas-scale
-    style: column
-
-  System Monitoring:
-    icon: mongodb
-    style: column
-
-  Smart Home Automation:
-    icon: selfhosted-light
-    style: column
-
-  Turtle Apps:
-    icon: https://magnet-feed-sync.pkarpovich.space/group-logo.png
-    style: row
-    columns: 3
+    columns: 4
+  Weather:
+    style: columns
+    columns: 4
+    header: false
+  Bookmarks:
+    header: false
+    style: columns
+    columns: 10

@@ -1,0 +1,21 @@
+---
+# - Turtle Apps:
+#     - Omni Turtle Search:
+#       - icon: https://omni-search.pkarpovich.space/icon.png
+#         href: https://omni-search.pkarpovich.space
+
+#     - Magnet Feed Sync:
+#       - icon: https://magnet-feed-sync.pkarpovich.space/logo.png
+#         href: https://magnet-feed-sync.pkarpovich.space/?debug=true
+
+#     - Content Oracle:
+#       - icon: https://content-oracle.pkarpovich.space/favicon.ico
+#         href: https://content-oracle.pkarpovich.space
+
+# - Media Bookmarks:
+#     - Twitch:
+#       - icon: twitch
+#         href: {{HOMEPAGE_VAR_TWITCH_URL}}
+#     - Sonos:
+#       - icon: solidtime-light
+#         href: https://play.sonos.com/en-us/web-app
