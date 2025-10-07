@@ -1,0 +1,50 @@
+services:
+  mcpjungle-db:
+    image: postgres:latest
+    container_name: mcpjungle-db
+    environment:
+      POSTGRES_USER: mcpjungle
+      POSTGRES_PASSWORD: mcpjungle
+      POSTGRES_DB: mcpjungle
+    volumes:
+      - mcpjungle_db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "PGPASSWORD=mcpjungle pg_isready -U mcpjungle"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    networks:
+      - proxy
+
+  mcpjungle:
+    image: mcpjungle/mcpjungle:${MCPJUNGLE_IMAGE_TAG:-latest-stdio}
+    container_name: mcpjungle-server
+    environment:
+      DATABASE_URL: postgres://mcpjungle:mcpjungle@mcpjungle-db:5432/mcpjungle
+      SERVER_MODE: ${MCPJUNGLE_SERVER_MODE:-development}
+      OTEL_ENABLED: ${MCPJUNGLE_OTEL_ENABLED:-false}
+    expose:
+      - 8080
+    depends_on:
+      mcpjungle-db:
+        condition: service_healthy
+      traefik:
+        condition: service_started
+    restart: unless-stopped
+    networks:
+      - proxy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=proxy"
+      - "traefik.http.routers.mcpjungle.rule=Host(`mcpjungle.${ROOT_DOMAIN}`)"
+      - "traefik.http.routers.mcpjungle.entrypoints=https"
+      - "traefik.http.routers.mcpjungle.tls.certresolver=le"
+      - "traefik.http.services.mcpjungle.loadbalancer.server.port=8080"
+
+networks:
+  proxy:
+    external: true
+
+volumes:
+  mcpjungle_db_data:

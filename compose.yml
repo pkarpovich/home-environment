@@ -2,6 +2,7 @@ include:
   - path: compose-traefik.yml
   - path: compose-grafana.yml
   - path: compose-media.yml
+  - path: compose-mcpjungle.yml
 
 services:
   homepage:
