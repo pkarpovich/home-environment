@@ -1,0 +1,6 @@
+http:
+  use_x_forwarded_for: true
+  trusted_proxies:
+    - 172.26.0.0/16
+
+default_config:

@@ -8,6 +8,7 @@ services:
       - 8123
     volumes:
       - ./volumes/homeassistant:/config
+      - ./homeassistant/configuration.yaml:/config/configuration.yaml:ro
       - /etc/localtime:/etc/localtime:ro
       - /run/dbus:/run/dbus:ro
     networks:
