@@ -3,6 +3,7 @@ include:
   - path: compose-grafana.yml
   - path: compose-media.yml
   - path: compose-mcpjungle.yml
+  - path: compose-homeassistant.yml
 
 services:
   homepage:
