@@ -4,6 +4,9 @@ services:
     image: ghcr.io/home-assistant/home-assistant:stable
     restart: unless-stopped
     privileged: true
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
     expose:
       - 8123
     volumes:
