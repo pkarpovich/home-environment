@@ -35,9 +35,13 @@ services:
     container_name: matter-server
     image: ghcr.io/home-assistant-libs/python-matter-server:stable
     restart: unless-stopped
-    network_mode: host
     security_opt:
       - apparmor:unconfined
+    networks:
+      - proxy
+      - homekit
+    expose:
+      - 5580
     volumes:
       - ./volumes/matter-server:/data
       - /run/dbus:/run/dbus:ro
