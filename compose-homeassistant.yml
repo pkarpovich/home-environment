@@ -4,29 +4,17 @@ services:
     image: ghcr.io/home-assistant/home-assistant:stable
     restart: unless-stopped
     privileged: true
+    network_mode: host
     cap_add:
       - NET_ADMIN
       - NET_RAW
-    expose:
-      - 8123
     volumes:
-      - ./volumes/homeassistant:/config
-      - ./homeassistant/configuration.yaml:/config/configuration.yaml:ro
+      - ./homeassistant:/config
       - /etc/localtime:/etc/localtime:ro
       - /run/dbus:/run/dbus:ro
-    networks:
-      - proxy
-      - homekit
     environment:
       TZ: 'Europe/Warsaw'
       DISABLE_JEMALLOC: 'true'
-    labels:
-      - "traefik.enable=true"
-      - "traefik.docker.network=proxy"
-      - "traefik.http.routers.homeassistant.rule=Host(`homeassistant.${ROOT_DOMAIN}`)"
-      - "traefik.http.routers.homeassistant.entrypoints=https"
-      - "traefik.http.routers.homeassistant.tls.certresolver=le"
-      - "traefik.http.services.homeassistant.loadbalancer.server.port=8123"
     depends_on:
       - traefik
       - matter-server
