@@ -13,6 +13,7 @@ services:
       - TORRENT_URL=${TORRENT_URL}
       - TORRENT_UI_URL=${TORRENT_UI_URL}
       - TWITCH_URL=${TWITCH_URL}
+      - HOMEASSISTANT_URL=${HOMEASSISTANT_URL}
       - CF_API_EMAIL=${CF_API_EMAIL}
       - CF_API_KEY=${CF_API_KEY}
     networks:

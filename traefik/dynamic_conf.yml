@@ -56,6 +56,13 @@ http:
       tls:
         certResolver: le
 
+    homeassistant-router:
+      rule: "Host(`homeassistant.{{env "ROOT_DOMAIN"}}`)"
+      entryPoints: [ "https" ]
+      service: "homeassistant-service"
+      tls:
+        certResolver: le
+
   services:
     nas-service:
       loadBalancer:
@@ -96,3 +103,8 @@ http:
       loadBalancer:
         servers:
           - url: "{{env "TWITCH_URL"}}"
+
+    homeassistant-service:
+      loadBalancer:
+        servers:
+          - url: "{{env "HOMEASSISTANT_URL"}}"
