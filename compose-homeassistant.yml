@@ -9,15 +9,18 @@ services:
       - NET_ADMIN
       - NET_RAW
     volumes:
-      - ./homeassistant:/config
+      - ./volumes/homeassistant:/config
       - /etc/localtime:/etc/localtime:ro
-      - /run/dbus:/run/dbus:ro
+      - /run/dbus:/run/dbus:rw
+    devices:
+      - /dev/bus/usb:/dev/bus/usb
     environment:
       TZ: 'Europe/Warsaw'
       DISABLE_JEMALLOC: 'true'
     depends_on:
       - traefik
       - matter-server
+      - music-assistant
 
   matter-server:
     container_name: matter-server
@@ -29,3 +32,13 @@ services:
     volumes:
       - ./volumes/matter-server:/data
       - /run/dbus:/run/dbus:ro
+
+  music-assistant:
+    container_name: music-assistant
+    image: ghcr.io/music-assistant/server:latest
+    restart: unless-stopped
+    network_mode: host
+    volumes:
+      - ./volumes/music-assistant:/data
+    environment:
+      TZ: 'Europe/Warsaw'
