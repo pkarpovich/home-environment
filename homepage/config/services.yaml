@@ -76,15 +76,6 @@
           widget:
             type: traefik
             url: {{HOMEPAGE_VAR_TRAEFIK_URL}}
-      - Pi Hole:
-          icon: pi-hole
-          href: "{{HOMEPAGE_VAR_PI_HOLE_URL}}/admin"
-          siteMonitor: {{HOMEPAGE_VAR_PI_HOLE_URL}}
-          widget:
-            type: pihole
-            version: 6
-            url: {{HOMEPAGE_VAR_PI_HOLE_URL}}
-            key: {{HOMEPAGE_VAR_PI_HOLE_KEY}}
     - DNS:
       - Home Assistant:
           icon: home-assistant

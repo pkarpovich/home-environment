@@ -23,21 +23,9 @@ scrape_configs:
     static_configs:
       - targets: ['homepage:3000']
 
-  - job_name: 'homebridge'
-    static_configs:
-      - targets: ['homebridge:8581']
-
-  - job_name: 'pihole'
-    static_configs:
-      - targets: ['pihole:80']
-
   - job_name: 'dozzle'
     static_configs:
       - targets: ['dozzle:8080']
-
-  - job_name: 'whatsupdocker'
-    static_configs:
-      - targets: ['wud:3000']
 
   - job_name: 'phoenix'
     static_configs:

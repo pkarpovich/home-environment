@@ -22,8 +22,6 @@ services:
       - HOMEPAGE_VAR_DISKSTATION_URL=${DISKSTATION_DOMAIN}
       - HOMEPAGE_VAR_DISKSTATION_USER=${DISKSTATION_USER}
       - HOMEPAGE_VAR_DISKSTATION_PASSWORD=${DISKSTATION_PASSWORD}
-      - HOMEPAGE_VAR_PI_HOLE_URL=${PI_HOLE_URL}
-      - HOMEPAGE_VAR_PI_HOLE_KEY=${PI_HOLE_KEY}
       - HOMEPAGE_VAR_LOCAL_DOCKER_LOGS_URL=${LOCAL_DOCKER_LOGS_URL}
       - HOMEPAGE_VAR_PLEX_URL=${PLEX_DOMAIN}
       - HOMEPAGE_VAR_PLEX_KEY=${PLEX_KEY}
@@ -72,34 +70,15 @@ services:
     volumes:
       - ./iSponsorBlockTV/config.json:/app/data/config.json
 
-  pihole:
-    container_name: pihole
-    image: pihole/pihole:latest
+  coredns:
+    container_name: coredns
+    image: coredns/coredns
     ports:
       - "53:53/tcp"
       - "53:53/udp"
-      - "67:67/udp"
-    expose:
-      - 80
-    environment:
-      TZ: 'Europe/Warsaw'
-      DNSMASQ_LISTENING: 'all'
     volumes:
-      - './etc-pihole:/etc/pihole'
-      - './etc-dnsmasq.d:/etc/dnsmasq.d'
-    cap_add:
-      - NET_ADMIN
+      - ./coredns/Corefile:/Corefile:ro
     restart: unless-stopped
-    networks:
-      - proxy
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.pihole.rule=Host(`pihole.${ROOT_DOMAIN}`)"
-      - "traefik.http.routers.pihole.entrypoints=https"
-      - "traefik.http.routers.pihole.tls.certresolver=le"
-      - "traefik.http.services.pihole.loadbalancer.server.port=80"
-    depends_on:
-      - traefik
 
   dozzle:
     container_name: dozzle
