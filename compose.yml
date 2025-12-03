@@ -22,9 +22,6 @@ services:
       - HOMEPAGE_VAR_DISKSTATION_URL=${DISKSTATION_DOMAIN}
       - HOMEPAGE_VAR_DISKSTATION_USER=${DISKSTATION_USER}
       - HOMEPAGE_VAR_DISKSTATION_PASSWORD=${DISKSTATION_PASSWORD}
-      - HOMEPAGE_VAR_HOMEBRIDGE_URL=${HOMEBRIDGE_URL}
-      - HOMEPAGE_VAR_HOMEBRIDGE_USER=${HOMEBRIDGE_USER}
-      - HOMEPAGE_VAR_HOMEBRIDGE_PASSWORD=${HOMEBRIDGE_PASSWORD}
       - HOMEPAGE_VAR_PI_HOLE_URL=${PI_HOLE_URL}
       - HOMEPAGE_VAR_PI_HOLE_KEY=${PI_HOLE_KEY}
       - HOMEPAGE_VAR_LOCAL_DOCKER_LOGS_URL=${LOCAL_DOCKER_LOGS_URL}
@@ -58,37 +55,13 @@ services:
       - HOMEPAGE_VAR_UNIFI_CONTROLLER_KEY=${UNIFI_CONTROLLER_KEY}
       - HOMEPAGE_VAR_PROMETHEUS_URL=${PROMETHEUS_URL}
       - HOMEPAGE_VAR_WINDY_EMBED_WIDGET_URL=${WINDY_EMBED_WIDGET_URL}
+      - HOMEPAGE_VAR_HOMEASSISTANT_URL=${HOMEASSISTANT_DOMAIN}
+      - HOMEPAGE_VAR_HOMEASSISTANT_KEY=${HOMEASSISTANT_KEY}
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.homepage.rule=Host(`home.${ROOT_DOMAIN}`)"
       - "traefik.http.routers.homepage.entrypoints=https"
       - "traefik.http.routers.homepage.tls.certresolver=le"
-    depends_on:
-      - traefik
-
-  homebridge:
-    image: homebridge/homebridge:latest
-    container_name: homebridge
-    restart: unless-stopped
-    networks:
-      - homekit
-      - proxy
-    dns:
-      - 1.1.1.1
-    volumes:
-      - ./volumes/homebridge:/homebridge
-    logging:
-      driver: json-file
-      options:
-        max-size: "10mb"
-        max-file: "1"
-    labels:
-      - "traefik.enable=true"
-      - "traefik.docker.network=proxy"
-      - "traefik.http.routers.homebridge.rule=Host(`homebridge.${ROOT_DOMAIN}`)"
-      - "traefik.http.routers.homebridge.entrypoints=https"
-      - "traefik.http.routers.homebridge.tls.certresolver=le"
-      - "traefik.http.services.homebridge.loadbalancer.server.port=8581"
     depends_on:
       - traefik
 
@@ -188,8 +161,6 @@ services:
       - traefik
 
 networks:
-  homekit:
-    external: true
   proxy:
     external: true
   telemetry:

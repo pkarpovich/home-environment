@@ -58,6 +58,16 @@
             url: {{HOMEPAGE_VAR_TORRENTS_UI_URL}}
             username: {{HOMEPAGE_VAR_TORRENTS_UI_USER}}
             password: {{HOMEPAGE_VAR_TORRENTS_UI_PASS}}
+- Smart Home:
+    - Home Assistant:
+        icon: home-assistant
+        href: {{HOMEPAGE_VAR_HOMEASSISTANT_URL}}
+        siteMonitor: {{HOMEPAGE_VAR_HOMEASSISTANT_URL}}
+        widget:
+          type: homeassistant
+          url: {{HOMEPAGE_VAR_HOMEASSISTANT_URL}}
+          key: {{HOMEPAGE_VAR_HOMEASSISTANT_KEY}}
+
 - Network & Storage:
     - Unifi Controller:
         icon: unifi
@@ -86,15 +96,6 @@
             url: {{HOMEPAGE_VAR_PI_HOLE_URL}}
             key: {{HOMEPAGE_VAR_PI_HOLE_KEY}}
     - DNS:
-      - Pi Homebridge:
-          icon: homebridge
-          href: {{HOMEPAGE_VAR_HOMEBRIDGE_URL}}
-          siteMonitor: {{HOMEPAGE_VAR_HOMEBRIDGE_URL}}
-          widget:
-            type: homebridge
-            url: {{HOMEPAGE_VAR_HOMEBRIDGE_URL}}
-            username: {{HOMEPAGE_VAR_HOMEBRIDGE_USER}}
-            password: {{HOMEPAGE_VAR_HOMEBRIDGE_PASSWORD}}
       - Gitea:
           icon: gitea
           href: {{HOMEPAGE_VAR_GITEA_URL}}
