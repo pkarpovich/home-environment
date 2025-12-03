@@ -43,7 +43,6 @@ services:
       - HOMEPAGE_VAR_TAUTULLI_URL=${TAUTULLI_URL}
       - HOMEPAGE_VAR_TAUTULLI_RAW_URL=${TAUTULLI_RAW_URL}
       - HOMEPAGE_VAR_TAUTULLI_KEY=${TAUTULLI_KEY}
-      - HOMEPAGE_VAR_WUD_URL=${WUD_URL}
       - HOMEPAGE_VAR_TORRENTS_URL=${TORRENTS_DOMAIN}
       - HOMEPAGE_VAR_TORRENTS_USER=${TORRENTS_USER}
       - HOMEPAGE_VAR_TORRENTS_PASS=${TORRENTS_PASS}
@@ -121,20 +120,6 @@ services:
       - "traefik.http.routers.dozzle.tls.certresolver=le"
     depends_on:
       - traefik
-
-  whatsupdocker:
-    container_name: wud
-    image: fmartinou/whats-up-docker:latest
-    restart: unless-stopped
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-    networks:
-      - proxy
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.whatsupdocker.rule=Host(`wud.${ROOT_DOMAIN}`)"
-      - "traefik.http.routers.whatsupdocker.entrypoints=https"
-      - "traefik.http.routers.whatsupdocker.tls.certresolver=le"
 
   phoenix:
     container_name: phoenix

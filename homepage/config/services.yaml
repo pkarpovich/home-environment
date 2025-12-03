@@ -115,13 +115,6 @@
           url: {{HOMEPAGE_VAR_HEALTH_CHECK_URL}}
           slug: {{HOMEPAGE_VAR_HEALTH_CHECK_SLUG}}
 
-     - What's Up Docker:
-        icon: whats-up-docker
-        href: {{HOMEPAGE_VAR_WUD_URL}}
-        siteMonitor: {{HOMEPAGE_VAR_WUD_URL}}
-        widget:
-          type: whatsupdocker
-          url: {{HOMEPAGE_VAR_WUD_URL}}
      - Grafana:
         icon: grafana
         href: {{HOMEPAGE_VAR_GRAFANA_URL}}
