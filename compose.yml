@@ -11,7 +11,7 @@ services:
     container_name: homepage
     restart: unless-stopped
     dns:
-      - 192.168.198.3
+      - 172.30.0.53
     expose:
       - 3000
     volumes:
@@ -19,6 +19,7 @@ services:
       - ./homepage/config:/app/config
     networks:
       - proxy
+      - dns
     environment:
       - HOMEPAGE_ALLOWED_HOSTS=${HOMEPAGE_ALLOWED_HOSTS}
       - HOMEPAGE_VAR_DISKSTATION_URL=${DISKSTATION_DOMAIN}
@@ -74,13 +75,16 @@ services:
 
   coredns:
     container_name: coredns
-    image: coredns/coredns
+    image: coredns/coredns:1.11.3
     ports:
       - "53:53/tcp"
       - "53:53/udp"
     volumes:
       - ./coredns/Corefile:/Corefile:ro
     restart: unless-stopped
+    networks:
+      dns:
+        ipv4_address: 172.30.0.53
 
   dozzle:
     container_name: dozzle
@@ -131,6 +135,11 @@ networks:
     external: true
   telemetry:
     external: true
+  dns:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.30.0.0/24
 
 volumes:
   letsencrypt:
