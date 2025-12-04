@@ -1,6 +1,6 @@
 services:
   mcpjungle-db:
-    image: postgres:latest
+    image: postgres:17
     container_name: mcpjungle-db
     environment:
       POSTGRES_USER: mcpjungle
