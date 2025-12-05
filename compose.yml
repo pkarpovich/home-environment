@@ -10,8 +10,8 @@ services:
     image: ghcr.io/gethomepage/homepage:latest
     container_name: homepage
     restart: unless-stopped
-    dns:
-      - 192.168.198.3
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     expose:
       - 3000
     volumes:
@@ -81,6 +81,8 @@ services:
     volumes:
       - ./coredns/Corefile:/Corefile:ro
     restart: unless-stopped
+    networks:
+      - proxy
 
   dozzle:
     container_name: dozzle

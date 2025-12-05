@@ -3,8 +3,8 @@ services:
     container_name: traefik
     image: traefik:v3.3
     restart: unless-stopped
-    dns:
-      - 192.168.198.3
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     environment:
       - ROOT_DOMAIN=${ROOT_DOMAIN}
       - HEALTH_CHECK_URL=${HEALTH_CHECK_URL}
