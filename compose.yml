@@ -13,7 +13,7 @@ services:
     extra_hosts:
       - "host.docker.internal:host-gateway"
     dns:
-      - 172.26.0.1
+      - 192.168.198.3
     expose:
       - 3000
     volumes:
@@ -77,14 +77,10 @@ services:
   coredns:
     container_name: coredns
     image: coredns/coredns:1.11.3
-    ports:
-      - "53:53/tcp"
-      - "53:53/udp"
+    network_mode: host
     volumes:
       - ./coredns/Corefile:/Corefile:ro
     restart: unless-stopped
-    networks:
-      - proxy
 
   dozzle:
     container_name: dozzle

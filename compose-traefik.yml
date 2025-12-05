@@ -6,7 +6,7 @@ services:
     extra_hosts:
       - "host.docker.internal:host-gateway"
     dns:
-      - 172.26.0.1
+      - 192.168.198.3
     environment:
       - ROOT_DOMAIN=${ROOT_DOMAIN}
       - HEALTH_CHECK_URL=${HEALTH_CHECK_URL}
