@@ -1,15 +1,5 @@
 pkarpovich.space {
-    template IN A {
-        match "^.*\.pkarpovich\.space\.$"
-        answer "{{ .Name }} 60 IN A 192.168.198.3"
-        fallthrough
-    }
-    template IN A {
-        match "^pkarpovich\.space\.$"
-        answer "{{ .Name }} 60 IN A 192.168.198.3"
-        fallthrough
-    }
-    forward . 1.1.1.1 1.0.0.1
+    file /pkarpovich.space.zone
 }
 
 . {

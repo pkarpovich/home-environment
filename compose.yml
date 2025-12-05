@@ -82,6 +82,7 @@ services:
       - "53:53/udp"
     volumes:
       - ./coredns/Corefile:/Corefile:ro
+      - ./coredns/pkarpovich.space.zone:/pkarpovich.space.zone:ro
     restart: unless-stopped
 
   dozzle:
