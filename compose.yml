@@ -77,7 +77,9 @@ services:
   coredns:
     container_name: coredns
     image: coredns/coredns:1.11.3
-    network_mode: host
+    ports:
+      - "53:53/tcp"
+      - "53:53/udp"
     volumes:
       - ./coredns/Corefile:/Corefile:ro
     restart: unless-stopped
