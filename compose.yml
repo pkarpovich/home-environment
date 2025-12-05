@@ -12,6 +12,8 @@ services:
     restart: unless-stopped
     extra_hosts:
       - "host.docker.internal:host-gateway"
+    dns:
+      - 172.26.0.1
     expose:
       - 3000
     volumes:
