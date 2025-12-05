@@ -10,8 +10,11 @@ services:
     image: ghcr.io/gethomepage/homepage:latest
     container_name: homepage
     restart: unless-stopped
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     dns:
-      - 172.30.0.53
+      - 192.168.198.3
+      - 1.1.1.1
     expose:
       - 3000
     volumes:
@@ -19,7 +22,6 @@ services:
       - ./homepage/config:/app/config
     networks:
       - proxy
-      - dns
     environment:
       - HOMEPAGE_ALLOWED_HOSTS=${HOMEPAGE_ALLOWED_HOSTS}
       - HOMEPAGE_VAR_DISKSTATION_URL=${DISKSTATION_DOMAIN}
@@ -76,15 +78,10 @@ services:
   coredns:
     container_name: coredns
     image: coredns/coredns:1.11.3
-    ports:
-      - "53:53/tcp"
-      - "53:53/udp"
+    network_mode: host
     volumes:
       - ./coredns/Corefile:/Corefile:ro
     restart: unless-stopped
-    networks:
-      dns:
-        ipv4_address: 172.30.0.53
 
   dozzle:
     container_name: dozzle
@@ -135,11 +132,6 @@ networks:
     external: true
   telemetry:
     external: true
-  dns:
-    driver: bridge
-    ipam:
-      config:
-        - subnet: 172.30.0.0/24
 
 volumes:
   letsencrypt:
