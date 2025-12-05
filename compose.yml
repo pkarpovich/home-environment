@@ -12,8 +12,6 @@ services:
     restart: unless-stopped
     extra_hosts:
       - "host.docker.internal:host-gateway"
-    dns:
-      - 192.168.198.3
     expose:
       - 3000
     volumes:
@@ -73,17 +71,6 @@ services:
     network_mode: host
     volumes:
       - ./iSponsorBlockTV/config.json:/app/data/config.json
-
-  coredns:
-    container_name: coredns
-    image: coredns/coredns:1.11.3
-    ports:
-      - "53:53/tcp"
-      - "53:53/udp"
-    volumes:
-      - ./coredns/Corefile:/Corefile:ro
-      - ./coredns/pkarpovich.space.zone:/pkarpovich.space.zone:ro
-    restart: unless-stopped
 
   dozzle:
     container_name: dozzle

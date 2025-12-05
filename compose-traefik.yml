@@ -5,8 +5,6 @@ services:
     restart: unless-stopped
     extra_hosts:
       - "host.docker.internal:host-gateway"
-    dns:
-      - 192.168.198.3
     environment:
       - ROOT_DOMAIN=${ROOT_DOMAIN}
       - HEALTH_CHECK_URL=${HEALTH_CHECK_URL}
