@@ -10,6 +10,8 @@ services:
     image: ghcr.io/gethomepage/homepage:latest
     container_name: homepage
     restart: unless-stopped
+    dns:
+      - 192.168.198.3
     expose:
       - 3000
     volumes:
