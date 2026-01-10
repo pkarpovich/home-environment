@@ -4,6 +4,7 @@ include:
   - path: compose-media.yml
   - path: compose-mcpjungle.yml
   - path: compose-homeassistant.yml
+  - path: compose-gatus.yml
 
 services:
   homepage:

@@ -1,0 +1,235 @@
+alerting:
+  telegram:
+    token: ${TELEGRAM_TOKEN}
+    id: ${TELEGRAM_CHAT_ID}
+    default-alert:
+      enabled: true
+      failure-threshold: 3
+      success-threshold: 2
+      send-on-resolved: true
+
+endpoints:
+  # Infrastructure
+  - name: Zima Pi
+    group: Infrastructure
+    url: "icmp://192.168.198.3"
+    interval: 1m
+    conditions:
+      - "[CONNECTED] == true"
+    alerts:
+      - type: telegram
+
+  - name: pkarpovich.space DNS
+    group: Infrastructure
+    url: "dns://192.168.198.3?type=A&name=pkarpovich.space"
+    interval: 5m
+    conditions:
+      - "[DNS_RCODE] == NOERROR"
+    alerts:
+      - type: telegram
+
+  - name: Turtle's relay (SMTP)
+    group: Infrastructure
+    url: "tcp://192.168.198.3:2525"
+    interval: 1m
+    conditions:
+      - "[CONNECTED] == true"
+    alerts:
+      - type: telegram
+
+  # Local Services
+  - name: Live Stream Forwarder
+    group: Local
+    url: "http://192.168.198.3/live-stream/health"
+    interval: 1m
+    conditions:
+      - "[STATUS] == 200"
+      - "[BODY].status == ok"
+    alerts:
+      - type: telegram
+
+  # Bit Adventure
+  - name: BA Landing Page
+    group: Bit Adventure
+    url: "https://bit-adventure.com/api/health"
+    interval: 1m
+    conditions:
+      - "[STATUS] == 200"
+      - "[BODY].status == ok"
+      - "[CERTIFICATE_EXPIRATION] > 48h"
+    alerts:
+      - type: telegram
+
+  - name: BA Strapi Server
+    group: Bit Adventure
+    url: "https://admin.bit-adventure.com/_health"
+    interval: 1m
+    conditions:
+      - "[STATUS] == 200"
+      - "[CERTIFICATE_EXPIRATION] > 48h"
+    alerts:
+      - type: telegram
+
+  # External Services
+  - name: Esport Syncer
+    group: External
+    url: "https://esport-syncer.pkarpovich.dev/health"
+    interval: 1m
+    conditions:
+      - "[STATUS] == 200"
+      - "[BODY].events >= 50"
+      - "[CERTIFICATE_EXPIRATION] > 48h"
+    alerts:
+      - type: telegram
+
+  - name: Playlist Synchronizer
+    group: External
+    url: "https://playlist-sync.pkarpovich.dev/health"
+    interval: 6m
+    conditions:
+      - "[STATUS] == 200"
+      - "[BODY].status == UP"
+      - "[CERTIFICATE_EXPIRATION] > 48h"
+    alerts:
+      - type: telegram
+
+  - name: Content Oracle
+    group: External
+    url: "https://content-oracle.pkarpovich.space/api/health"
+    interval: 6m
+    conditions:
+      - "[STATUS] == 200"
+      - "[BODY].message == OK"
+      - "[BODY].youtube == true"
+      - "[CERTIFICATE_EXPIRATION] > 48h"
+    alerts:
+      - type: telegram
+
+  - name: Magnet Feed Sync API
+    group: External
+    url: "https://magnet-feed-sync.pkarpovich.space/api/health"
+    interval: 1m
+    conditions:
+      - "[STATUS] == 200"
+      - "[BODY].message == OK"
+      - "[CERTIFICATE_EXPIRATION] > 48h"
+    alerts:
+      - type: telegram
+
+  - name: Turtle Hub (NATS)
+    group: External
+    url: "https://turtle-hub.pkarpovich.space/nats/connz"
+    interval: 1m
+    conditions:
+      - "[STATUS] == 200"
+      - "[BODY].num_connections >= 18"
+      - "[CERTIFICATE_EXPIRATION] > 48h"
+    alerts:
+      - type: telegram
+
+  - name: Turtle's relay (HTTP)
+    group: External
+    url: "https://relay.pkarpovich.space/health"
+    interval: 1m
+    conditions:
+      - "[STATUS] == 200"
+      - "[BODY].ok == true"
+      - "[CERTIFICATE_EXPIRATION] > 48h"
+    alerts:
+      - type: telegram
+
+  # Turtle Bots (via watchmen endpoint)
+  - name: Content Insight Turtle
+    group: Turtle Bots
+    url: "https://watchmen.pkarpovich.space/health"
+    method: POST
+    body: '{"username": "content_insight_turtle_bot", "message": "/ping"}'
+    headers:
+      Content-Type: application/json
+    interval: 1h
+    conditions:
+      - "[STATUS] == 200"
+      - "[CERTIFICATE_EXPIRATION] > 48h"
+    alerts:
+      - type: telegram
+
+  - name: Find Contact Turtle
+    group: Turtle Bots
+    url: "https://watchmen.pkarpovich.space/health"
+    method: POST
+    body: '{"username": "find_contact_turtle_bot", "message": "/ping"}'
+    headers:
+      Content-Type: application/json
+    interval: 1h
+    conditions:
+      - "[STATUS] == 200"
+      - "[CERTIFICATE_EXPIRATION] > 48h"
+    alerts:
+      - type: telegram
+
+  - name: Link Keeper Turtle Bot
+    group: Turtle Bots
+    url: "https://watchmen.pkarpovich.space/health"
+    method: POST
+    body: '{"username": "turtle_link_keeper_bot", "message": "/ping"}'
+    headers:
+      Content-Type: application/json
+    interval: 1h
+    conditions:
+      - "[STATUS] == 200"
+      - "[CERTIFICATE_EXPIRATION] > 48h"
+    alerts:
+      - type: telegram
+
+  - name: Little Turtle
+    group: Turtle Bots
+    url: "https://watchmen.pkarpovich.space/health"
+    method: POST
+    body: '{"username": "young_turtle_in_hat_bot", "message": "/ping"}'
+    headers:
+      Content-Type: application/json
+    interval: 1h
+    conditions:
+      - "[STATUS] == 200"
+      - "[CERTIFICATE_EXPIRATION] > 48h"
+    alerts:
+      - type: telegram
+
+  - name: Turtle's Magnet Feed Sync
+    group: Turtle Bots
+    url: "https://watchmen.pkarpovich.space/health"
+    method: POST
+    body: '{"username": "turtle_magnet_feed_sync_bot", "message": "/ping"}'
+    headers:
+      Content-Type: application/json
+    interval: 1h
+    conditions:
+      - "[STATUS] == 200"
+      - "[CERTIFICATE_EXPIRATION] > 48h"
+    alerts:
+      - type: telegram
+
+  - name: Turtle's relay (Bot)
+    group: Turtle Bots
+    url: "https://watchmen.pkarpovich.space/health"
+    method: POST
+    body: '{"username": "turtle_relay_bot", "message": "/ping"}'
+    headers:
+      Content-Type: application/json
+    interval: 1h
+    conditions:
+      - "[STATUS] == 200"
+      - "[CERTIFICATE_EXPIRATION] > 48h"
+    alerts:
+      - type: telegram
+
+  # Watchmen Health (generic health check)
+  - name: Watchmen Health
+    group: Turtle Bots
+    url: "https://watchmen.pkarpovich.space/health"
+    interval: 1h
+    conditions:
+      - "[STATUS] == 200"
+      - "[CERTIFICATE_EXPIRATION] > 48h"
+    alerts:
+      - type: telegram

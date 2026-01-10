@@ -7,13 +7,6 @@ http:
       tls:
         certResolver: le
 
-    health-check-router:
-      rule: "Host(`ping.{{env "ROOT_DOMAIN"}}`)"
-      entryPoints: [ "https" ]
-      service: "health-check-service"
-      tls:
-        certResolver: le
-
     plex-router:
       rule: "Host(`plex.{{env "ROOT_DOMAIN"}}`)"
       entryPoints: [ "https" ]
@@ -68,11 +61,6 @@ http:
       loadBalancer:
         servers:
           - url: "{{env "NAS_URL"}}"
-
-    health-check-service:
-      loadBalancer:
-        servers:
-          - url: "{{env "HEALTH_CHECK_URL"}}"
 
     plex-service:
       loadBalancer:

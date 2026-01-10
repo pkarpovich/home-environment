@@ -1,0 +1,21 @@
+services:
+  gatus:
+    container_name: gatus
+    image: twinproduction/gatus:latest
+    restart: unless-stopped
+    expose:
+      - 8080
+    volumes:
+      - ./gatus/config.yml:/config/config.yaml:ro
+    environment:
+      - TELEGRAM_TOKEN=${TELEGRAM_BOT_TOKEN}
+      - TELEGRAM_CHAT_ID=${TELEGRAM_CHAT_ID}
+    networks:
+      - proxy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.gatus.rule=Host(`ping.${ROOT_DOMAIN}`)"
+      - "traefik.http.routers.gatus.entrypoints=https"
+      - "traefik.http.routers.gatus.tls.certresolver=le"
+    depends_on:
+      - traefik
