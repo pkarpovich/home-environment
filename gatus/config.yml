@@ -98,7 +98,7 @@ endpoints:
 
   - name: Content Oracle
     group: External
-    url: "https://content-oracle.pkarpovich.space/api/health"
+    url: "https://turtle-hub.pkarpovich.space/content-oracle/api/health"
     interval: 6m
     conditions:
       - "[STATUS] == 200"
