@@ -152,7 +152,7 @@ endpoints:
     interval: 1h
     conditions:
       - "[STATUS] == 200"
-      - "[BODY].reply contains Pong"
+      - "[BODY].reply == pat(*Pong*)"
       - "[CERTIFICATE_EXPIRATION] > 48h"
     alerts:
       - type: telegram
@@ -167,7 +167,7 @@ endpoints:
     interval: 1h
     conditions:
       - "[STATUS] == 200"
-      - "[BODY].reply contains Pong"
+      - "[BODY].reply == pat(*Pong*)"
       - "[CERTIFICATE_EXPIRATION] > 48h"
     alerts:
       - type: telegram
@@ -182,7 +182,7 @@ endpoints:
     interval: 1h
     conditions:
       - "[STATUS] == 200"
-      - "[BODY].reply contains Pong"
+      - "[BODY].reply == pat(*Pong*)"
       - "[CERTIFICATE_EXPIRATION] > 48h"
     alerts:
       - type: telegram
