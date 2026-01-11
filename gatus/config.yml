@@ -21,8 +21,11 @@ endpoints:
 
   - name: pkarpovich.space DNS
     group: Infrastructure
-    url: "dns://192.168.198.3?type=A&name=pkarpovich.space"
+    url: "192.168.198.3"
     interval: 5m
+    dns:
+      query-name: "pkarpovich.space"
+      query-type: "A"
     conditions:
       - "[DNS_RCODE] == NOERROR"
     alerts:
