@@ -96,13 +96,13 @@
             key: {{HOMEPAGE_VAR_GITEA_KEY}}
 - Observability & Health:
      - Health Check:
-        icon: uptime-kuma
+        icon: gatus
         href: {{HOMEPAGE_VAR_HEALTH_CHECK_URL}}
         siteMonitor: {{HOMEPAGE_VAR_HEALTH_CHECK_URL}}
         widget:
-          type: uptimekuma
-          url: {{HOMEPAGE_VAR_HEALTH_CHECK_URL}}
-          slug: {{HOMEPAGE_VAR_HEALTH_CHECK_SLUG}}
+          type: gatus
+          url: http://gatus:8080
+          fields: ["up", "down", "uptime"]
 
      - Grafana:
         icon: grafana
