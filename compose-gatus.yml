@@ -7,10 +7,12 @@ services:
       - 8080
     volumes:
       - ./gatus/config.yml:/config/config.yaml:ro
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     environment:
       - TELEGRAM_TOKEN=${TELEGRAM_BOT_TOKEN}
       - TELEGRAM_CHAT_ID=${TELEGRAM_CHAT_ID}
-      - HA_HOST=${HA_HOST}
+      - HA_HOST=host.docker.internal
       - HA_TOKEN=${HA_TOKEN}
     networks:
       - proxy
