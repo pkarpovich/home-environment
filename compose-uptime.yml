@@ -1,9 +1,0 @@
-services:
-  uptime:
-    container_name: uptime
-    image: louislam/uptime-kuma:1-alpine
-    restart: unless-stopped
-    ports:
-      - 3001:3001
-    volumes:
-      - /volume2/docker/uptime-kuma:/app/data
