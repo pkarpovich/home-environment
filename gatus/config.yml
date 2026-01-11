@@ -142,48 +142,6 @@ endpoints:
       - type: telegram
 
   # Turtle Bots (via watchmen endpoint)
-  - name: Content Insight Turtle
-    group: Turtle Bots
-    url: "https://watchmen.pkarpovich.space/health"
-    method: POST
-    body: '{"username": "content_insight_turtle_bot", "message": "/ping"}'
-    headers:
-      Content-Type: application/json
-    interval: 1h
-    conditions:
-      - "[STATUS] == 200"
-      - "[CERTIFICATE_EXPIRATION] > 48h"
-    alerts:
-      - type: telegram
-
-  - name: Find Contact Turtle
-    group: Turtle Bots
-    url: "https://watchmen.pkarpovich.space/health"
-    method: POST
-    body: '{"username": "find_contact_turtle_bot", "message": "/ping"}'
-    headers:
-      Content-Type: application/json
-    interval: 1h
-    conditions:
-      - "[STATUS] == 200"
-      - "[CERTIFICATE_EXPIRATION] > 48h"
-    alerts:
-      - type: telegram
-
-  - name: Link Keeper Turtle Bot
-    group: Turtle Bots
-    url: "https://watchmen.pkarpovich.space/health"
-    method: POST
-    body: '{"username": "turtle_link_keeper_bot", "message": "/ping"}'
-    headers:
-      Content-Type: application/json
-    interval: 1h
-    conditions:
-      - "[STATUS] == 200"
-      - "[CERTIFICATE_EXPIRATION] > 48h"
-    alerts:
-      - type: telegram
-
   - name: Little Turtle
     group: Turtle Bots
     url: "https://watchmen.pkarpovich.space/health"
@@ -194,6 +152,7 @@ endpoints:
     interval: 1h
     conditions:
       - "[STATUS] == 200"
+      - '[BODY].reply == "🏓 Pong!"'
       - "[CERTIFICATE_EXPIRATION] > 48h"
     alerts:
       - type: telegram
@@ -208,6 +167,7 @@ endpoints:
     interval: 1h
     conditions:
       - "[STATUS] == 200"
+      - '[BODY].reply == "🏓 Pong!"'
       - "[CERTIFICATE_EXPIRATION] > 48h"
     alerts:
       - type: telegram
@@ -222,17 +182,19 @@ endpoints:
     interval: 1h
     conditions:
       - "[STATUS] == 200"
+      - '[BODY].reply == "🏓 Pong!"'
       - "[CERTIFICATE_EXPIRATION] > 48h"
     alerts:
       - type: telegram
 
-  # Watchmen Health (generic health check)
-  - name: Watchmen Health
+  # Watchmen Service (checks Telegram connection is alive)
+  - name: Watchmen Service
     group: Turtle Bots
-    url: "https://watchmen.pkarpovich.space/health"
-    interval: 1h
+    url: "https://watchmen.pkarpovich.space/status"
+    interval: 5m
     conditions:
       - "[STATUS] == 200"
+      - "[BODY].connected == true"
       - "[CERTIFICATE_EXPIRATION] > 48h"
     alerts:
       - type: telegram
