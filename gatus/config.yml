@@ -68,7 +68,7 @@ endpoints:
     url: "https://admin.bit-adventure.com/_health"
     interval: 1m
     conditions:
-      - "[STATUS] == 200"
+      - "[STATUS] == 204"
       - "[CERTIFICATE_EXPIRATION] > 48h"
     alerts:
       - type: telegram
