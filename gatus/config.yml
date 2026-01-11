@@ -103,7 +103,6 @@ endpoints:
     conditions:
       - "[STATUS] == 200"
       - "[BODY].message == OK"
-      - "[BODY].youtube == true"
       - "[CERTIFICATE_EXPIRATION] > 48h"
     alerts:
       - type: telegram
