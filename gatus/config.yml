@@ -40,6 +40,19 @@ endpoints:
     alerts:
       - type: telegram
 
+  # Smart Home
+  - name: Home Assistant Devices
+    group: Smart Home
+    url: "http://${HA_HOST}:8123/api/states/sensor.unavailable_devices_count"
+    interval: 5m
+    headers:
+      Authorization: "Bearer ${HA_TOKEN}"
+    conditions:
+      - "[STATUS] == 200"
+      - "[BODY].state == 0"
+    alerts:
+      - type: telegram
+
   # Local Services
   - name: Live Stream Forwarder
     group: Local
