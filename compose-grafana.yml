@@ -66,6 +66,10 @@ services:
     restart: unless-stopped
     container_name: prometheus
     image: prom/prometheus:latest
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --web.enable-remote-write-receiver
+      - --enable-feature=exemplar-storage
     volumes:
       - prometheus:/prometheus
       - ./.config/prometheus.yml:/etc/prometheus/prometheus.yml:ro
@@ -89,6 +93,37 @@ services:
       - "traefik.http.routers.whoami.entrypoints=https"
       - "traefik.http.routers.whoami.tls.certresolver=le"
 
+  tempo-init:
+    image: busybox:latest
+    user: root
+    entrypoint:
+      - chown
+      - "10001:10001"
+      - /var/tempo
+    volumes:
+      - tempo:/var/tempo
+
+  tempo:
+    restart: unless-stopped
+    container_name: tempo
+    image: grafana/tempo:latest
+    command: ["-config.file=/etc/tempo.yaml"]
+    depends_on:
+      tempo-init:
+        condition: service_completed_successfully
+    volumes:
+      - ./.config/tempo.yaml:/etc/tempo.yaml:ro
+      - ./.config/tempo-overrides.yaml:/etc/tempo-overrides.yaml:ro
+      - tempo:/var/tempo
+    networks:
+      - proxy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.tempo.rule=Host(`tempo.${ROOT_DOMAIN}`)"
+      - "traefik.http.routers.tempo.entrypoints=https"
+      - "traefik.http.routers.tempo.tls.certresolver=le"
+      - "traefik.http.services.tempo.loadbalancer.server.port=3200"
+
 networks:
   proxy:
     external: true
@@ -97,3 +132,4 @@ volumes:
   grafana:
   influxdb:
   prometheus:
+  tempo:
