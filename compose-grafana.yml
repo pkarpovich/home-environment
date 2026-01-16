@@ -115,6 +115,9 @@ services:
       - ./.config/tempo.yaml:/etc/tempo.yaml:ro
       - ./.config/tempo-overrides.yaml:/etc/tempo-overrides.yaml:ro
       - tempo:/var/tempo
+    ports:
+      - "4317:4317"
+      - "4318:4318"
     networks:
       - proxy
     labels:
