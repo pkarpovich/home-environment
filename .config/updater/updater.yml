@@ -1,9 +1,5 @@
 tasks:
   - name: turtle-hub
     command: |
-      ssh -o StrictHostKeyChecking=no pi@host.docker.internal '\
-        cd ~/turtle-hub && \
-        git pull && \
-        curl -sS http://localhost:9080/kv/turtle-hub/env > .env && \
-        docker compose -f compose.yml pull && \
-        docker compose -f compose.yml up -d'
+      echo "update turtle-hub"
+      ssh -o StrictHostKeyChecking=no pi@host.docker.internal "cd ~/turtle-hub && git pull && curl -sS http://localhost:9080/kv/turtle-hub/env > .env && docker compose -f compose.yml pull && docker compose -f compose.yml up -d"
