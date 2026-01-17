@@ -128,6 +128,26 @@ services:
       - "traefik.http.routers.tempo.tls.certresolver=le"
       - "traefik.http.services.tempo.loadbalancer.server.port=3200"
 
+  loki:
+    restart: unless-stopped
+    container_name: loki
+    image: grafana/loki:latest
+    command: ["-config.file=/etc/loki/loki-config.yml"]
+    volumes:
+      - ./.config/loki-config.yml:/etc/loki/loki-config.yml:ro
+      - loki:/loki
+    ports:
+      - "3100:3100"
+    networks:
+      - proxy
+      - default
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.loki.rule=Host(`loki.${ROOT_DOMAIN}`)"
+      - "traefik.http.routers.loki.entrypoints=https"
+      - "traefik.http.routers.loki.tls.certresolver=le"
+      - "traefik.http.services.loki.loadbalancer.server.port=3100"
+
 networks:
   proxy:
     external: true
@@ -137,3 +157,4 @@ volumes:
   influxdb:
   prometheus:
   tempo:
+  loki:
