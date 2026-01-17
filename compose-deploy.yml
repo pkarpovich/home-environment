@@ -5,8 +5,8 @@ services:
     restart: unless-stopped
     volumes:
       - ./volumes/stash:/data
-    expose:
-      - 8080
+    ports:
+      - "127.0.0.1:9080:8080"
     networks:
       - proxy
     environment:
@@ -22,8 +22,8 @@ services:
     image: ghcr.io/umputun/updater:latest
     restart: unless-stopped
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
       - ./.config/updater:/config:ro
+      - ./.config/updater/ssh:/root/.ssh:ro
     expose:
       - 8080
     networks:
