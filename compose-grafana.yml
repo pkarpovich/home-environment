@@ -120,6 +120,7 @@ services:
       - "4318:4318"
     networks:
       - proxy
+      - default
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.tempo.rule=Host(`tempo.${ROOT_DOMAIN}`)"
