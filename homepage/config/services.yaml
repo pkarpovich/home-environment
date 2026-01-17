@@ -165,6 +165,7 @@
 - Weather:
     - Windy:
         id: simple_widget
+        href: https://www.windy.com
         widget:
           type: iframe
           name: myIframe
