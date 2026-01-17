@@ -1,0 +1,7 @@
+tasks:
+  - name: turtle-hub
+    command: |
+      cd ~/turtle-hub
+      git pull
+      docker compose -f compose.yml pull
+      docker compose -f compose.yml up -d

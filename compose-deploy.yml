@@ -1,0 +1,38 @@
+services:
+  stash:
+    container_name: stash
+    image: ghcr.io/umputun/stash:latest
+    restart: unless-stopped
+    volumes:
+      - ./volumes/stash:/data
+    expose:
+      - 8080
+    networks:
+      - proxy
+    environment:
+      - STASH_ADMIN_PASSWD=${STASH_ADMIN_PASSWD}
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.stash.rule=Host(`stash.${ROOT_DOMAIN}`)"
+      - "traefik.http.routers.stash.entrypoints=https"
+      - "traefik.http.routers.stash.tls.certresolver=le"
+
+  updater:
+    container_name: updater
+    image: ghcr.io/umputun/updater:latest
+    restart: unless-stopped
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./.config/updater:/config:ro
+    expose:
+      - 8080
+    networks:
+      - proxy
+    environment:
+      - UPDATER_FILE=/config/updater.yml
+      - UPDATER_KEY=${UPDATER_KEY}
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.updater.rule=Host(`updater.${ROOT_DOMAIN}`)"
+      - "traefik.http.routers.updater.entrypoints=https"
+      - "traefik.http.routers.updater.tls.certresolver=le"

@@ -5,6 +5,7 @@ include:
   - path: compose-mcpjungle.yml
   - path: compose-homeassistant.yml
   - path: compose-gatus.yml
+  - path: compose-deploy.yml
 
 services:
   homepage:
