@@ -29,8 +29,10 @@ services:
     networks:
       - proxy
     environment:
-      - UPDATER_FILE=/config/updater.yml
-      - UPDATER_KEY=${UPDATER_KEY}
+      - CONF=/config/updater.yml
+      - KEY=${UPDATER_KEY}
+      - LISTEN=0.0.0.0:8080
+      - TZ=Europe/Warsaw
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.updater.rule=Host(`updater.${ROOT_DOMAIN}`)"
