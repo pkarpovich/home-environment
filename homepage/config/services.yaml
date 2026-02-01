@@ -162,6 +162,10 @@
         id: simple_icon
         icon: https://content-oracle.pkarpovich.space/favicon.ico
         href: https://content-oracle.pkarpovich.space
+    - Stash:
+        id: simple_icon
+        icon: si-dotenv
+        href: https://stash.pkarpovich.space
 - Weather:
     - Windy:
         id: simple_widget
