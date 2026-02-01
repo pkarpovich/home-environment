@@ -3,3 +3,8 @@ tasks:
     command: |
       echo "update turtle-hub"
       ssh -o StrictHostKeyChecking=no app@host.docker.internal 'cd /home/pi/turtle-hub && git pull && curl -sS http://localhost:9080/kv/turtle-hub/env > .env && docker compose -f compose.yml pull && docker compose -f compose.yml up -d'
+
+  - name: magnet-feed-sync
+    command: |
+      echo "update magnet-feed-sync"
+      ssh -o StrictHostKeyChecking=no app@host.docker.internal 'cd /home/pi/magnet-feed-sync && git pull && curl -sS http://localhost:9080/kv/magnet-feed-sync/env > .env && docker compose pull && docker compose up -d'
