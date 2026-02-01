@@ -7,4 +7,4 @@ tasks:
   - name: magnet-feed-sync
     command: |
       echo "update magnet-feed-sync"
-      ssh -o StrictHostKeyChecking=no app@host.docker.internal 'cd /home/pi/magnet-feed-sync && git pull && curl -sS http://localhost:9080/kv/magnet-feed-sync/env > .env && docker compose pull && docker compose up -d'
+      ssh -o StrictHostKeyChecking=no app@host.docker.internal 'cd /home/pi/magnet-feed-sync && git pull && curl -sS http://localhost:9080/kv/magnet-feed-sync/env > .env && docker compose -f compose.yaml pull && docker compose -f compose.yaml up -d'
