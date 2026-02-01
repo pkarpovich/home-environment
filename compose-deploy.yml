@@ -11,6 +11,7 @@ services:
       - proxy
     environment:
       - STASH_ADMIN_PASSWD=${STASH_ADMIN_PASSWD}
+      - STASH_DB=/data/stash.db
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.stash.rule=Host(`stash.${ROOT_DOMAIN}`)"
