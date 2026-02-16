@@ -64,6 +64,17 @@ endpoints:
     alerts:
       - type: telegram
 
+  - name: Tuclaw
+    group: Local
+    url: "http://192.168.199.72:9090/health"
+    interval: 1m
+    conditions:
+      - "[STATUS] == 200"
+      - "[BODY].status == ok"
+      - "[BODY].docker == ok"
+    alerts:
+      - type: telegram
+
   # Bit Adventure
   - name: BA Landing Page
     group: Bit Adventure
