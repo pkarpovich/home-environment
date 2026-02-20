@@ -1,7 +1,7 @@
 services:
   traefik:
     container_name: traefik
-    image: traefik:v3.3
+    image: traefik:v3.6
     restart: unless-stopped
     extra_hosts:
       - "host.docker.internal:host-gateway"
