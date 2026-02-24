@@ -56,6 +56,20 @@ http:
       tls:
         certResolver: le
 
+    tuclaw-router:
+      rule: "Host(`tuclaw.{{env "ROOT_DOMAIN"}}`)"
+      entryPoints: [ "https" ]
+      service: "tuclaw-service"
+      tls:
+        certResolver: le
+
+    tuclaw-voice-router:
+      rule: "Host(`tuclaw-voice.{{env "ROOT_DOMAIN"}}`)"
+      entryPoints: [ "https" ]
+      service: "tuclaw-voice-service"
+      tls:
+        certResolver: le
+
   services:
     nas-service:
       loadBalancer:
@@ -96,3 +110,13 @@ http:
       loadBalancer:
         servers:
           - url: "{{env "HOMEASSISTANT_URL"}}"
+
+    tuclaw-service:
+      loadBalancer:
+        servers:
+          - url: "http://192.168.199.72:9090"
+
+    tuclaw-voice-service:
+      loadBalancer:
+        servers:
+          - url: "http://192.168.199.72:8000"
