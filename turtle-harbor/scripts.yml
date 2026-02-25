@@ -1,5 +1,9 @@
 settings:
   log_dir: "./logs"
+  loki:
+    url: "http://192.168.198.3:3100"
+    labels:
+      host: "raspberry-pi"
 
 scripts:
   radio-t-checker:
