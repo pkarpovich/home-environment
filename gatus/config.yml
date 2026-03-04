@@ -8,6 +8,27 @@ alerting:
       success-threshold: 2
       send-on-resolved: true
 
+external-endpoints:
+  - name: Time Machine – MBP-2021
+    group: Backups
+    token: "${TM_MBP_2021_TOKEN}"
+    heartbeat:
+      interval: 48h
+    alerts:
+      - type: telegram
+        failure-threshold: 1
+        success-threshold: 1
+
+  - name: Time Machine – MBA-2022
+    group: Backups
+    token: "${TM_MBA_2022_TOKEN}"
+    heartbeat:
+      interval: 48h
+    alerts:
+      - type: telegram
+        failure-threshold: 1
+        success-threshold: 1
+
 endpoints:
   # Infrastructure
   - name: Zima Pi
