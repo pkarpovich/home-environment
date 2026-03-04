@@ -9,7 +9,7 @@ alerting:
       send-on-resolved: true
 
 external-endpoints:
-  - name: Time Machine – MBP-2021
+  - name: Time Machine MBP-2021
     group: Backups
     token: "${TM_MBP_2021_TOKEN}"
     heartbeat:
@@ -19,7 +19,7 @@ external-endpoints:
         failure-threshold: 1
         success-threshold: 1
 
-  - name: Time Machine – MBA-2022
+  - name: Time Machine MBA-2022
     group: Backups
     token: "${TM_MBA_2022_TOKEN}"
     heartbeat:
