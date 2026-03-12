@@ -6,6 +6,7 @@ include:
   - path: compose-homeassistant.yml
   - path: compose-gatus.yml
   - path: compose-deploy.yml
+  - path: compose-jackett.yml
 
 services:
   homepage:
