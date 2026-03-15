@@ -205,21 +205,6 @@ endpoints:
       - type: telegram
 
   # Turtle Bots (via watchmen endpoint)
-  - name: Little Turtle
-    group: Turtle Bots
-    url: "https://watchmen.pkarpovich.space/health"
-    method: POST
-    body: '{"username": "young_turtle_in_hat_bot", "message": "/ping"}'
-    headers:
-      Content-Type: application/json
-    interval: 1h
-    conditions:
-      - "[STATUS] == 200"
-      - "[BODY].reply == pat(*Pong*)"
-      - "[CERTIFICATE_EXPIRATION] > 48h"
-    alerts:
-      - type: telegram
-
   - name: Turtle's Magnet Feed Sync
     group: Turtle Bots
     url: "https://watchmen.pkarpovich.space/health"
