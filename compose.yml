@@ -59,6 +59,8 @@ services:
       - HOMEPAGE_VAR_WINDY_EMBED_WIDGET_URL=${WINDY_EMBED_WIDGET_URL}
       - HOMEPAGE_VAR_HOMEASSISTANT_URL=${HOMEASSISTANT_DOMAIN}
       - HOMEPAGE_VAR_HOMEASSISTANT_KEY=${HOMEASSISTANT_KEY}
+      - HOMEPAGE_VAR_AUDIOBOOKSHELF_URL=https://audiobookshelf.${ROOT_DOMAIN}
+      - HOMEPAGE_VAR_AUDIOBOOKSHELF_KEY=${AUDIOBOOKSHELF_KEY}
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.homepage.rule=Host(`home.${ROOT_DOMAIN}`)"

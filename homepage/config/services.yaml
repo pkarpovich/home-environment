@@ -39,6 +39,16 @@
             url: {{HOMEPAGE_VAR_DISKSTATION_URL}}
             username: {{HOMEPAGE_VAR_DISKSTATION_USER}}
             password: {{HOMEPAGE_VAR_DISKSTATION_PASSWORD}}
+    - Audiobooks:
+      - Audiobookshelf:
+          icon: audiobookshelf
+          href: {{HOMEPAGE_VAR_AUDIOBOOKSHELF_URL}}
+          siteMonitor: {{HOMEPAGE_VAR_AUDIOBOOKSHELF_URL}}
+          widget:
+            type: audiobookshelf
+            url: {{HOMEPAGE_VAR_AUDIOBOOKSHELF_URL}}
+            key: {{HOMEPAGE_VAR_AUDIOBOOKSHELF_KEY}}
+            fields: ["books", "podcasts"]
     - Torrents:
       - qBittorrent:
           icon: qbittorrent
