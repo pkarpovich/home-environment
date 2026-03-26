@@ -70,6 +70,13 @@ http:
       tls:
         certResolver: le
 
+    audiobookshelf-router:
+      rule: "Host(`audiobookshelf.{{env "ROOT_DOMAIN"}}`)"
+      entryPoints: [ "https" ]
+      service: "audiobookshelf-service"
+      tls:
+        certResolver: le
+
   services:
     nas-service:
       loadBalancer:
@@ -120,3 +127,8 @@ http:
       loadBalancer:
         servers:
           - url: "http://192.168.199.72:8000"
+
+    audiobookshelf-service:
+      loadBalancer:
+        servers:
+          - url: "http://192.168.198.2:13378"
