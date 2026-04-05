@@ -144,6 +144,10 @@ def step(state: str, miss_count: int, is_live: bool) -> tuple[str, int]:
     return state, miss_count
 
 
+def recording_filename(now: datetime) -> str:
+    return now.strftime("radio-t-%Y-%m-%d.mp3")
+
+
 def run() -> None:
     state = STATE_IDLE
     miss_count = 0
@@ -151,11 +155,21 @@ def run() -> None:
 
     while True:
         live = is_stream_live(STREAM_URL)
-        new_state, miss_count = step(state, miss_count, live)
+        prev_state = state
+        state, miss_count = step(state, miss_count, live)
 
-        if state != new_state:
-            log(f"state {state} -> {new_state}")
-        state = new_state
+        if prev_state != state:
+            log(f"state {prev_state} -> {state}")
+
+        if prev_state == STATE_IDLE and state == STATE_LIVE:
+            send_notification("Radio-T stream is live!", RELAY_URL, RELAY_SECRET)
+            now = datetime.now(timezone.utc)
+            filename = recording_filename(now)
+            filepath = os.path.join(RECORDING_DIR, filename)
+            os.makedirs(RECORDING_DIR, exist_ok=True)
+            log(f"recording to {filepath}")
+            record_stream(STREAM_URL, filepath, lambda: is_stream_live(STREAM_URL))
+            continue
 
         interval = POLL_LIVE if state == STATE_LIVE else poll_interval()
         log(f"state={state}, next check in {interval}s")
@@ -428,9 +442,69 @@ def run_tests() -> None:
             finally:
                 os.unlink(tmppath)
 
+    class TestRecordingFilename(unittest.TestCase):
+        def test_filename_fixed_at_detection_time(self):
+            now = datetime(2026, 4, 4, 20, 30, tzinfo=timezone.utc)
+            self.assertEqual(recording_filename(now), "radio-t-2026-04-04.mp3")
+            different = datetime(2026, 12, 25, 22, 0, tzinfo=timezone.utc)
+            self.assertEqual(recording_filename(different), "radio-t-2026-12-25.mp3")
+
+    class TestMainLoopIntegration(unittest.TestCase):
+        @patch("time.sleep")
+        @patch("os.makedirs")
+        @patch("__main__.record_stream")
+        @patch("__main__.send_notification")
+        @patch("__main__.is_stream_live")
+        def test_full_cycle_idle_to_live_to_idle(self, mock_is_live, mock_notify, mock_record, mock_makedirs, mock_sleep):
+            mock_is_live.side_effect = [True, False, False, SystemExit("done")]
+            mock_notify.return_value = True
+
+            with self.assertRaises(SystemExit):
+                run()
+
+            mock_notify.assert_called_once_with("Radio-T stream is live!", RELAY_URL, RELAY_SECRET)
+            mock_record.assert_called_once()
+            filepath_arg = mock_record.call_args[0][1]
+            self.assertTrue(filepath_arg.startswith(RECORDING_DIR))
+            self.assertTrue(filepath_arg.endswith(".mp3"))
+            mock_makedirs.assert_called_once_with(RECORDING_DIR, exist_ok=True)
+            self.assertEqual(mock_sleep.call_count, 2)
+
+        @patch("time.sleep")
+        @patch("os.makedirs")
+        @patch("__main__.record_stream")
+        @patch("__main__.send_notification")
+        @patch("__main__.is_stream_live")
+        def test_notification_sent_on_transition(self, mock_is_live, mock_notify, mock_record, mock_makedirs, mock_sleep):
+            mock_is_live.side_effect = [True, SystemExit("done")]
+            mock_notify.return_value = True
+
+            with self.assertRaises(SystemExit):
+                run()
+
+            mock_notify.assert_called_once_with("Radio-T stream is live!", RELAY_URL, RELAY_SECRET)
+            mock_record.assert_called_once()
+
+        @patch("time.sleep")
+        @patch("os.makedirs")
+        @patch("__main__.record_stream")
+        @patch("__main__.send_notification")
+        @patch("__main__.is_stream_live")
+        def test_filename_fixed_at_detection_time(self, mock_is_live, mock_notify, mock_record, mock_makedirs, mock_sleep):
+            mock_is_live.side_effect = [True, SystemExit("done")]
+            mock_notify.return_value = True
+
+            with self.assertRaises(SystemExit):
+                run()
+
+            filepath_arg = mock_record.call_args[0][1]
+            filename = os.path.basename(filepath_arg)
+            today = datetime.now(timezone.utc).strftime("radio-t-%Y-%m-%d.mp3")
+            self.assertEqual(filename, today)
+
     loader = unittest.TestLoader()
     suite = unittest.TestSuite()
-    for tc in [TestIsStreamLive, TestIsShowWindow, TestPollInterval, TestSendNotification, TestStep, TestRecordStream]:
+    for tc in [TestIsStreamLive, TestIsShowWindow, TestPollInterval, TestSendNotification, TestStep, TestRecordStream, TestRecordingFilename, TestMainLoopIntegration]:
         suite.addTests(loader.loadTestsFromTestCase(tc))
     runner = unittest.TextTestRunner(verbosity=2)
     result = runner.run(suite)

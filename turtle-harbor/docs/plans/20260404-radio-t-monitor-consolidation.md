@@ -100,11 +100,11 @@ Merge two existing scripts (`radio-t-checker.py` and `radio-t-recorder.py`) into
 
 ### Task 5: Main loop integration
 
-- [ ] On IDLE→LIVE transition in `run()`: call `send_notification()` + fix `recording_filename` at detection moment + create `RECORDING_DIR` + call `record_stream()` (blocking)
-- [ ] After `record_stream` returns: apply debounce logic for final IDLE transition
-- [ ] `recording_filename(now)` produces `radio-t-YYYY-MM-DD.mp3` from UTC detection date (fixed once per broadcast)
-- [ ] Write tests: `test_full_cycle_idle_to_live_to_idle`, `test_notification_sent_on_transition`, `test_filename_fixed_at_detection_time`
-- [ ] Run tests — pass
+- [x] On IDLE→LIVE transition in `run()`: call `send_notification()` + fix `recording_filename` at detection moment + create `RECORDING_DIR` + call `record_stream()` (blocking)
+- [x] After `record_stream` returns: apply debounce logic for final IDLE transition
+- [x] `recording_filename(now)` produces `radio-t-YYYY-MM-DD.mp3` from UTC detection date (fixed once per broadcast)
+- [x] Write tests: `test_full_cycle_idle_to_live_to_idle`, `test_notification_sent_on_transition`, `test_filename_fixed_at_detection_time`
+- [x] Run tests — pass
 
 ### Task 6: CLI + remove old scripts
 
