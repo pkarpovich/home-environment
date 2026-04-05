@@ -502,15 +502,50 @@ def run_tests() -> None:
             today = datetime.now(timezone.utc).strftime("radio-t-%Y-%m-%d.mp3")
             self.assertEqual(filename, today)
 
+    class TestEnvValidation(unittest.TestCase):
+        @patch.dict(os.environ, {"RELAY_SECRET": ""}, clear=False)
+        def test_missing_relay_secret_exits(self):
+            with self.assertRaises(SystemExit) as ctx:
+                validate_env()
+            self.assertEqual(ctx.exception.code, 1)
+
+        @patch.dict(os.environ, {"RELAY_SECRET": "some-secret"}, clear=False)
+        def test_valid_relay_secret_passes(self):
+            validate_env()
+
     loader = unittest.TestLoader()
     suite = unittest.TestSuite()
-    for tc in [TestIsStreamLive, TestIsShowWindow, TestPollInterval, TestSendNotification, TestStep, TestRecordStream, TestRecordingFilename, TestMainLoopIntegration]:
+    for tc in [TestIsStreamLive, TestIsShowWindow, TestPollInterval, TestSendNotification, TestStep, TestRecordStream, TestRecordingFilename, TestMainLoopIntegration, TestEnvValidation]:
         suite.addTests(loader.loadTestsFromTestCase(tc))
     runner = unittest.TextTestRunner(verbosity=2)
     result = runner.run(suite)
     sys.exit(0 if result.wasSuccessful() else 1)
 
 
-if __name__ == "__main__":
-    if "--test" in sys.argv:
+def validate_env() -> None:
+    if not os.environ.get("RELAY_SECRET", ""):
+        log("RELAY_SECRET env var is required")
+        sys.exit(1)
+
+
+def main() -> None:
+    import argparse
+
+    parser = argparse.ArgumentParser(description="Radio-T stream monitor with notifications and recording")
+    parser.add_argument("--test", action="store_true", help="run embedded unit tests")
+    args = parser.parse_args()
+
+    if args.test:
         run_tests()
+        return
+
+    validate_env()
+    run()
+
+
+if __name__ == "__main__":
+    try:
+        main()
+    except KeyboardInterrupt:
+        print("\r\033[K", end="")
+        sys.exit(130)

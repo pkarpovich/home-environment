@@ -108,11 +108,11 @@ Merge two existing scripts (`radio-t-checker.py` and `radio-t-recorder.py`) into
 
 ### Task 6: CLI + remove old scripts
 
-- [ ] Add `main()` with argparse: `--test` flag to run embedded tests
-- [ ] KeyboardInterrupt handling (matches existing scripts)
-- [ ] Validate required env vars (RELAY_SECRET) with clear error
-- [ ] Delete `scripts/radio-t-checker.py` and `scripts/radio-t-recorder.py`
-- [ ] Run `python radio-t-monitor.py --test` — full test suite passes
+- [x] Add `main()` with argparse: `--test` flag to run embedded tests
+- [x] KeyboardInterrupt handling (matches existing scripts)
+- [x] Validate required env vars (RELAY_SECRET) with clear error
+- [x] Delete `scripts/radio-t-checker.py` and `scripts/radio-t-recorder.py`
+- [x] Run `python radio-t-monitor.py --test` — full test suite passes
 
 ### Task 7: Update turtle-harbor `scripts.yml`
 
