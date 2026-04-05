@@ -123,12 +123,12 @@ Merge two existing scripts (`radio-t-checker.py` and `radio-t-recorder.py`) into
 
 ### Task 8: Verify acceptance criteria
 
-- [ ] All tests pass
-- [ ] `is_stream_live` correctly returns `False` for statuses 404, 400, 5xx
-- [ ] Debounce prevents false LIVE→IDLE transitions on network glitches
-- [ ] Reconnect correctly recovers from connection drops during broadcast
-- [ ] Recording filename remains stable throughout a broadcast
-- [ ] Old scripts removed, services switched to new script
+- [x] All tests pass
+- [x] `is_stream_live` correctly returns `False` for statuses 404, 400, 5xx
+- [x] Debounce prevents false LIVE→IDLE transitions on network glitches
+- [x] Reconnect correctly recovers from connection drops during broadcast
+- [x] Recording filename remains stable throughout a broadcast
+- [x] Old scripts removed, services switched to new script
 
 ## Technical Details
 
