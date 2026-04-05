@@ -6,18 +6,8 @@ settings:
       host: "raspberry-pi"
 
 scripts:
-  radio-t-checker:
-    command: "python radio-t-checker.py"
-    context: "./scripts"
-    venv: ".venv"
-    env_file: ".env"
-    env:
-      PYTHONUNBUFFERED: "1"
-    restart_policy: "always"
-    max_restarts: 5
-
-  radio-t-recorder:
-    command: "python radio-t-recorder.py"
+  radio-t-monitor:
+    command: "python radio-t-monitor.py"
     context: "./scripts"
     venv: ".venv"
     env_file: ".env"
