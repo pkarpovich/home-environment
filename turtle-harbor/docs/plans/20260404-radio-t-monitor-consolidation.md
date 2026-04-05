@@ -65,12 +65,12 @@ Merge two existing scripts (`radio-t-checker.py` and `radio-t-recorder.py`) into
 
 ### Task 1: Script skeleton + fixed `is_stream_live`
 
-- [ ] Create `scripts/radio-t-monitor.py` with module docstring, imports, env-based config
-- [ ] Define constants: `STATE_IDLE`, `STATE_LIVE`, `POLL_ACTIVE=30`, `POLL_PASSIVE=900`, `POLL_LIVE=300`, `USER_AGENT`
-- [ ] Implement `is_stream_live(url)`: **GET** instead of HEAD, check `200 <= status < 300`, close response without reading body, User-Agent header, timeout=10s
-- [ ] Implement `log(msg)` (with UTC timestamp)
-- [ ] Write tests: `test_live_200`, `test_not_live_404`, `test_not_live_400_bad_request` (regression for Hetzner bug), `test_not_live_500`, `test_not_live_timeout`, `test_not_live_network_error`
-- [ ] Run `python radio-t-monitor.py --test` — all tests pass
+- [x] Create `scripts/radio-t-monitor.py` with module docstring, imports, env-based config
+- [x] Define constants: `STATE_IDLE`, `STATE_LIVE`, `POLL_ACTIVE=30`, `POLL_PASSIVE=900`, `POLL_LIVE=300`, `USER_AGENT`
+- [x] Implement `is_stream_live(url)`: **GET** instead of HEAD, check `200 <= status < 300`, close response without reading body, User-Agent header, timeout=10s
+- [x] Implement `log(msg)` (with UTC timestamp)
+- [x] Write tests: `test_live_200`, `test_not_live_404`, `test_not_live_400_bad_request` (regression for Hetzner bug), `test_not_live_500`, `test_not_live_timeout`, `test_not_live_network_error`
+- [x] Run `python radio-t-monitor.py --test` — all tests pass
 
 ### Task 2: State machine with debounce
 
