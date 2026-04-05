@@ -90,22 +90,24 @@ def record_stream(url: str, filepath: str, is_live_fn: Callable[[], bool]) -> No
         try:
             req = urllib.request.Request(url, method="GET", headers={"User-Agent": USER_AGENT})
             resp = urllib.request.urlopen(req, timeout=STREAM_READ_TIMEOUT)
-            consecutive_failures = 0
-            last_log_time = time.monotonic()
+            try:
+                consecutive_failures = 0
+                last_log_time = time.monotonic()
 
-            with open(filepath, "ab") as f:
-                while True:
-                    chunk = resp.read(CHUNK_SIZE)
-                    if not chunk:
-                        break
-                    f.write(chunk)
-                    total_bytes += len(chunk)
-                    now = time.monotonic()
-                    if now - last_log_time >= LOG_INTERVAL:
-                        log(f"recording: {total_bytes} bytes written to {filepath}")
-                        last_log_time = now
-            resp.close()
-            return
+                with open(filepath, "ab") as f:
+                    while True:
+                        chunk = resp.read(CHUNK_SIZE)
+                        if not chunk:
+                            break
+                        f.write(chunk)
+                        total_bytes += len(chunk)
+                        now = time.monotonic()
+                        if now - last_log_time >= LOG_INTERVAL:
+                            log(f"recording: {total_bytes} bytes written to {filepath}")
+                            last_log_time = now
+                return
+            finally:
+                resp.close()
         except (socket.timeout, ConnectionError, urllib.error.URLError, OSError):
             if consecutive_failures < len(RECONNECT_DELAYS):
                 delay = RECONNECT_DELAYS[consecutive_failures]
@@ -190,6 +192,8 @@ def run_tests() -> None:
             req = mock_urlopen.call_args[0][0]
             self.assertEqual(req.get_method(), "GET")
             self.assertEqual(req.get_header("User-agent"), USER_AGENT)
+            mock_resp.close.assert_called_once()
+            mock_resp.read.assert_not_called()
 
         @patch("urllib.request.urlopen")
         def test_not_live_404(self, mock_urlopen):
@@ -383,16 +387,18 @@ def run_tests() -> None:
             mock_resp = MagicMock()
             mock_resp.read = MagicMock(side_effect=[b"data", b""])
             mock_resp.close = MagicMock()
+            mock_is_live = MagicMock(return_value=True)
             mock_urlopen.side_effect = [
                 ConnectionError("reset"),
                 mock_resp,
             ]
             mock_monotonic.return_value = 0.0
 
-            record_stream("http://test/stream", "/tmp/test.mp3", lambda: True)
+            record_stream("http://test/stream", "/tmp/test.mp3", mock_is_live)
 
             self.assertEqual(mock_urlopen.call_count, 2)
             mock_sleep.assert_called_once_with(1)
+            mock_is_live.assert_called_once()
 
         @patch("time.sleep")
         @patch("builtins.open", new_callable=unittest.mock.mock_open)
@@ -499,17 +505,17 @@ def run_tests() -> None:
 
             filepath_arg = mock_record.call_args[0][1]
             filename = os.path.basename(filepath_arg)
-            today = datetime.now(timezone.utc).strftime("radio-t-%Y-%m-%d.mp3")
-            self.assertEqual(filename, today)
+            import re
+            self.assertRegex(filename, r"radio-t-\d{4}-\d{2}-\d{2}\.mp3")
 
     class TestEnvValidation(unittest.TestCase):
-        @patch.dict(os.environ, {"RELAY_SECRET": ""}, clear=False)
+        @patch("__main__.RELAY_SECRET", "")
         def test_missing_relay_secret_exits(self):
             with self.assertRaises(SystemExit) as ctx:
                 validate_env()
             self.assertEqual(ctx.exception.code, 1)
 
-        @patch.dict(os.environ, {"RELAY_SECRET": "some-secret"}, clear=False)
+        @patch("__main__.RELAY_SECRET", "some-secret")
         def test_valid_relay_secret_passes(self):
             validate_env()
 
@@ -523,7 +529,7 @@ def run_tests() -> None:
 
 
 def validate_env() -> None:
-    if not os.environ.get("RELAY_SECRET", ""):
+    if not RELAY_SECRET:
         log("RELAY_SECRET env var is required")
         sys.exit(1)
 

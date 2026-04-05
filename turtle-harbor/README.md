@@ -6,8 +6,7 @@ Scripts managed by [turtle-harbor](https://github.com/pkarpovich/turtle-harbor) 
 
 | Script | Type | Description |
 |--------|------|-------------|
-| radio-t-checker | daemon | Monitors Radio-T stream, sends push notification when live |
-| radio-t-recorder | daemon | Records Radio-T stream to NAS |
+| radio-t-monitor | daemon | Monitors Radio-T stream, sends push notification and records when live |
 | twitch-nfo-generator | cron (hourly) | Generates Plex NFO files from Twitch recording metadata |
 
 ## Setup
@@ -66,7 +65,7 @@ Domain = localdomain
 Scripts read secrets from `scripts/.env` (not committed):
 
 ```bash
-# Required for radio-t-checker
+# Required for radio-t-monitor
 RELAY_SECRET=<relay-secret>
 
 # Optional overrides
@@ -80,10 +79,10 @@ STREAM_URL=https://stream.radio-t.com/  # default
 ```bash
 th ps                              # list scripts and status
 th up                              # start all scripts
-th up radio-t-checker              # start specific script
+th up radio-t-monitor              # start specific script
 th down                            # stop all scripts
-th logs radio-t-checker -n 50      # show last 50 log lines
-th logs radio-t-checker -f         # follow logs
+th logs radio-t-monitor -n 50      # show last 50 log lines
+th logs radio-t-monitor -f         # follow logs
 th reload                          # reload scripts.yml after changes
 ```
 
@@ -91,7 +90,7 @@ th reload                          # reload scripts.yml after changes
 
 ```bash
 curl http://192.168.198.3:9200/health              # all scripts
-curl http://192.168.198.3:9200/health/radio-t-checker  # specific script
+curl http://192.168.198.3:9200/health/radio-t-monitor  # specific script
 ```
 
 Returns 200 when all healthy, 503 if any script failed. Monitored by Gatus.
