@@ -2,11 +2,13 @@
 
 import json
 import os
+import socket
 import sys
 import time
 import urllib.request
 import urllib.error
 from datetime import datetime, timezone
+from typing import Callable
 
 
 STREAM_URL = os.environ.get("STREAM_URL", "https://stream.radio-t.com/")
@@ -71,6 +73,50 @@ def send_notification(message: str, relay_url: str, secret: str) -> bool:
 
     log(f"notification failed after {attempts} attempts, giving up")
     return False
+
+
+RECONNECT_DELAYS = [1, 3, 10]
+STREAM_READ_TIMEOUT = 30
+CHUNK_SIZE = 8192
+LOG_INTERVAL = 30
+
+
+def record_stream(url: str, filepath: str, is_live_fn: Callable[[], bool]) -> None:
+    total_bytes = 0
+    consecutive_failures = 0
+    max_failures = len(RECONNECT_DELAYS) + 1
+
+    while consecutive_failures < max_failures:
+        try:
+            req = urllib.request.Request(url, method="GET", headers={"User-Agent": USER_AGENT})
+            resp = urllib.request.urlopen(req, timeout=STREAM_READ_TIMEOUT)
+            consecutive_failures = 0
+            last_log_time = time.monotonic()
+
+            with open(filepath, "ab") as f:
+                while True:
+                    chunk = resp.read(CHUNK_SIZE)
+                    if not chunk:
+                        break
+                    f.write(chunk)
+                    total_bytes += len(chunk)
+                    now = time.monotonic()
+                    if now - last_log_time >= LOG_INTERVAL:
+                        log(f"recording: {total_bytes} bytes written to {filepath}")
+                        last_log_time = now
+            resp.close()
+            return
+        except (socket.timeout, ConnectionError, urllib.error.URLError, OSError):
+            if consecutive_failures < len(RECONNECT_DELAYS):
+                delay = RECONNECT_DELAYS[consecutive_failures]
+                log(f"stream connection lost, retrying in {delay}s ({consecutive_failures + 1}/{max_failures})")
+                time.sleep(delay)
+                if not is_live_fn():
+                    log("stream no longer live, stopping recording")
+                    return
+            consecutive_failures += 1
+
+    log(f"recording stopped after {max_failures} failed reconnects, {total_bytes} bytes total")
 
 
 def is_show_window(now: datetime | None = None) -> bool:
@@ -295,9 +341,96 @@ def run_tests() -> None:
             self.assertEqual(state, STATE_LIVE)
             self.assertEqual(miss, 0)
 
+    class TestRecordStream(unittest.TestCase):
+        @patch("time.sleep")
+        @patch("time.monotonic")
+        @patch("builtins.open", new_callable=unittest.mock.mock_open)
+        @patch("urllib.request.urlopen")
+        def test_writes_chunks_to_file(self, mock_urlopen, mock_file, mock_monotonic, mock_sleep):
+            mock_resp = MagicMock()
+            mock_resp.read = MagicMock(side_effect=[b"chunk1", b"chunk2", b""])
+            mock_resp.close = MagicMock()
+            mock_urlopen.return_value = mock_resp
+            mock_monotonic.return_value = 0.0
+
+            record_stream("http://test/stream", "/tmp/test.mp3", lambda: True)
+
+            mock_file.assert_called_once_with("/tmp/test.mp3", "ab")
+            handle = mock_file()
+            handle.write.assert_any_call(b"chunk1")
+            handle.write.assert_any_call(b"chunk2")
+            self.assertEqual(handle.write.call_count, 2)
+
+        @patch("time.sleep")
+        @patch("time.monotonic")
+        @patch("builtins.open", new_callable=unittest.mock.mock_open)
+        @patch("urllib.request.urlopen")
+        def test_reconnects_on_connection_error_while_live(self, mock_urlopen, mock_file, mock_monotonic, mock_sleep):
+            mock_resp = MagicMock()
+            mock_resp.read = MagicMock(side_effect=[b"data", b""])
+            mock_resp.close = MagicMock()
+            mock_urlopen.side_effect = [
+                ConnectionError("reset"),
+                mock_resp,
+            ]
+            mock_monotonic.return_value = 0.0
+
+            record_stream("http://test/stream", "/tmp/test.mp3", lambda: True)
+
+            self.assertEqual(mock_urlopen.call_count, 2)
+            mock_sleep.assert_called_once_with(1)
+
+        @patch("time.sleep")
+        @patch("builtins.open", new_callable=unittest.mock.mock_open)
+        @patch("urllib.request.urlopen")
+        def test_stops_recording_when_no_longer_live(self, mock_urlopen, mock_file, mock_sleep):
+            mock_urlopen.side_effect = ConnectionError("reset")
+
+            record_stream("http://test/stream", "/tmp/test.mp3", lambda: False)
+
+            self.assertEqual(mock_urlopen.call_count, 1)
+            mock_sleep.assert_called_once_with(1)
+
+        @patch("time.sleep")
+        @patch("builtins.open", new_callable=unittest.mock.mock_open)
+        @patch("urllib.request.urlopen")
+        def test_gives_up_after_four_failed_reconnects(self, mock_urlopen, mock_file, mock_sleep):
+            mock_urlopen.side_effect = ConnectionError("reset")
+
+            record_stream("http://test/stream", "/tmp/test.mp3", lambda: True)
+
+            self.assertEqual(mock_urlopen.call_count, 4)
+            self.assertEqual(mock_sleep.call_count, 3)
+            mock_sleep.assert_any_call(1)
+            mock_sleep.assert_any_call(3)
+            mock_sleep.assert_any_call(10)
+
+        @patch("time.sleep")
+        @patch("time.monotonic")
+        @patch("urllib.request.urlopen")
+        def test_appends_to_existing_file(self, mock_urlopen, mock_monotonic, mock_sleep):
+            mock_resp = MagicMock()
+            mock_resp.read = MagicMock(side_effect=[b"new_data", b""])
+            mock_resp.close = MagicMock()
+            mock_urlopen.return_value = mock_resp
+            mock_monotonic.return_value = 0.0
+
+            import tempfile
+            with tempfile.NamedTemporaryFile(delete=False, suffix=".mp3") as f:
+                f.write(b"existing_data")
+                tmppath = f.name
+
+            try:
+                record_stream("http://test/stream", tmppath, lambda: True)
+                with open(tmppath, "rb") as f:
+                    content = f.read()
+                self.assertEqual(content, b"existing_datanew_data")
+            finally:
+                os.unlink(tmppath)
+
     loader = unittest.TestLoader()
     suite = unittest.TestSuite()
-    for tc in [TestIsStreamLive, TestIsShowWindow, TestPollInterval, TestSendNotification, TestStep]:
+    for tc in [TestIsStreamLive, TestIsShowWindow, TestPollInterval, TestSendNotification, TestStep, TestRecordStream]:
         suite.addTests(loader.loadTestsFromTestCase(tc))
     runner = unittest.TextTestRunner(verbosity=2)
     result = runner.run(suite)

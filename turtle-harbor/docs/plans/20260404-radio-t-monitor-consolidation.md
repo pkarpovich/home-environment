@@ -91,12 +91,12 @@ Merge two existing scripts (`radio-t-checker.py` and `radio-t-recorder.py`) into
 
 ### Task 4: Stream recording with reconnect
 
-- [ ] Implement `record_stream(url, filepath, is_live_fn)`: open GET stream, write chunks to file in `"ab"` mode, log size every 30s
-- [ ] Read timeout = 30s (in urlopen), on socket.timeout / ConnectionError — **reconnect loop** with backoff (1s, 3s, 10s)
-- [ ] Between reconnect attempts call `is_live_fn()` — if `False`, stop recording and return control
-- [ ] After 3 failed reconnects in a row — treat stream as ended
-- [ ] Write tests: `test_writes_chunks_to_file`, `test_reconnects_on_connection_error_while_live`, `test_stops_recording_when_no_longer_live`, `test_gives_up_after_three_failed_reconnects`, `test_appends_to_existing_file`
-- [ ] Run tests — pass
+- [x] Implement `record_stream(url, filepath, is_live_fn)`: open GET stream, write chunks to file in `"ab"` mode, log size every 30s
+- [x] Read timeout = 30s (in urlopen), on socket.timeout / ConnectionError — **reconnect loop** with backoff (1s, 3s, 10s)
+- [x] Between reconnect attempts call `is_live_fn()` — if `False`, stop recording and return control
+- [x] After 3 failed reconnects in a row — treat stream as ended
+- [x] Write tests: `test_writes_chunks_to_file`, `test_reconnects_on_connection_error_while_live`, `test_stops_recording_when_no_longer_live`, `test_gives_up_after_three_failed_reconnects`, `test_appends_to_existing_file`
+- [x] Run tests — pass
 
 ### Task 5: Main loop integration
 
