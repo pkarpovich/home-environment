@@ -91,7 +91,6 @@ def record_stream(url: str, filepath: str, is_live_fn: Callable[[], bool]) -> No
             req = urllib.request.Request(url, method="GET", headers={"User-Agent": USER_AGENT})
             resp = urllib.request.urlopen(req, timeout=STREAM_READ_TIMEOUT)
             try:
-                consecutive_failures = 0
                 last_log_time = time.monotonic()
 
                 with open(filepath, "ab") as f:
@@ -100,6 +99,7 @@ def record_stream(url: str, filepath: str, is_live_fn: Callable[[], bool]) -> No
                         if not chunk:
                             break
                         f.write(chunk)
+                        consecutive_failures = 0
                         total_bytes += len(chunk)
                         now = time.monotonic()
                         if now - last_log_time >= LOG_INTERVAL:
@@ -424,6 +424,20 @@ def run_tests() -> None:
             mock_sleep.assert_any_call(1)
             mock_sleep.assert_any_call(3)
             mock_sleep.assert_any_call(10)
+
+        @patch("time.sleep")
+        @patch("builtins.open", new_callable=unittest.mock.mock_open)
+        @patch("urllib.request.urlopen")
+        def test_gives_up_when_read_always_fails(self, mock_urlopen, mock_file, mock_sleep):
+            mock_resp = MagicMock()
+            mock_resp.read = MagicMock(side_effect=OSError("read failed"))
+            mock_resp.close = MagicMock()
+            mock_urlopen.return_value = mock_resp
+
+            record_stream("http://test/stream", "/tmp/test.mp3", lambda: True)
+
+            self.assertEqual(mock_urlopen.call_count, 4)
+            self.assertEqual(mock_sleep.call_count, 3)
 
         @patch("time.sleep")
         @patch("time.monotonic")
