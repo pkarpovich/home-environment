@@ -83,11 +83,11 @@ Merge two existing scripts (`radio-t-checker.py` and `radio-t-recorder.py`) into
 
 ### Task 3: Notification with retry
 
-- [ ] Implement `send_notification(message, relay_url, secret)`: POST JSON `{"message": ...}` with `x-secret` header
-- [ ] Retry with exponential backoff: 3 attempts, delays 1s, 3s (after each failed attempt)
-- [ ] Catch-and-log: if all 3 attempts fail — log only, do not crash
-- [ ] Write tests: `test_notification_success_first_try`, `test_notification_retries_on_failure`, `test_notification_gives_up_after_three_attempts`, `test_notification_payload_format`
-- [ ] Run tests — pass
+- [x] Implement `send_notification(message, relay_url, secret)`: POST JSON `{"message": ...}` with `x-secret` header
+- [x] Retry with exponential backoff: 3 attempts, delays 1s, 3s (after each failed attempt)
+- [x] Catch-and-log: if all 3 attempts fail — log only, do not crash
+- [x] Write tests: `test_notification_success_first_try`, `test_notification_retries_on_failure`, `test_notification_gives_up_after_three_attempts`, `test_notification_payload_format`
+- [x] Run tests — pass
 
 ### Task 4: Stream recording with reconnect
 

@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import json
 import os
 import sys
 import time
@@ -39,6 +40,37 @@ def is_stream_live(url: str, timeout: float = 10.0) -> bool:
 def log(msg: str) -> None:
     ts = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")
     print(f"[{ts}] {msg}", flush=True)
+
+
+NOTIFICATION_RETRY_DELAYS = [1, 3]
+
+
+def send_notification(message: str, relay_url: str, secret: str) -> bool:
+    payload = json.dumps({"message": message}).encode("utf-8")
+    attempts = 1 + len(NOTIFICATION_RETRY_DELAYS)
+
+    for i in range(attempts):
+        try:
+            req = urllib.request.Request(
+                relay_url,
+                data=payload,
+                method="POST",
+                headers={
+                    "Content-Type": "application/json",
+                    "x-secret": secret,
+                },
+            )
+            resp = urllib.request.urlopen(req, timeout=10.0)
+            resp.close()
+            log(f"notification sent: {message}")
+            return True
+        except (urllib.error.URLError, OSError) as e:
+            log(f"notification attempt {i + 1}/{attempts} failed: {e}")
+            if i < len(NOTIFICATION_RETRY_DELAYS):
+                time.sleep(NOTIFICATION_RETRY_DELAYS[i])
+
+    log(f"notification failed after {attempts} attempts, giving up")
+    return False
 
 
 def is_show_window(now: datetime | None = None) -> bool:
@@ -165,6 +197,57 @@ def run_tests() -> None:
             mon = datetime(2026, 2, 23, 20, 0, tzinfo=timezone.utc)
             self.assertEqual(poll_interval(mon), POLL_PASSIVE)
 
+    class TestSendNotification(unittest.TestCase):
+        @patch("time.sleep")
+        @patch("urllib.request.urlopen")
+        def test_notification_success_first_try(self, mock_urlopen, mock_sleep):
+            mock_resp = MagicMock()
+            mock_resp.status = 200
+            mock_urlopen.return_value = mock_resp
+            result = send_notification("test msg", "http://relay/send", "s3cret")
+            self.assertTrue(result)
+            self.assertEqual(mock_urlopen.call_count, 1)
+            mock_sleep.assert_not_called()
+
+        @patch("time.sleep")
+        @patch("urllib.request.urlopen")
+        def test_notification_retries_on_failure(self, mock_urlopen, mock_sleep):
+            mock_resp = MagicMock()
+            mock_resp.status = 200
+            mock_urlopen.side_effect = [
+                urllib.error.URLError("connection refused"),
+                mock_resp,
+            ]
+            result = send_notification("test msg", "http://relay/send", "s3cret")
+            self.assertTrue(result)
+            self.assertEqual(mock_urlopen.call_count, 2)
+            mock_sleep.assert_called_once_with(1)
+
+        @patch("time.sleep")
+        @patch("urllib.request.urlopen")
+        def test_notification_gives_up_after_three_attempts(self, mock_urlopen, mock_sleep):
+            mock_urlopen.side_effect = urllib.error.URLError("connection refused")
+            result = send_notification("test msg", "http://relay/send", "s3cret")
+            self.assertFalse(result)
+            self.assertEqual(mock_urlopen.call_count, 3)
+            self.assertEqual(mock_sleep.call_count, 2)
+            mock_sleep.assert_any_call(1)
+            mock_sleep.assert_any_call(3)
+
+        @patch("time.sleep")
+        @patch("urllib.request.urlopen")
+        def test_notification_payload_format(self, mock_urlopen, mock_sleep):
+            mock_resp = MagicMock()
+            mock_resp.status = 200
+            mock_urlopen.return_value = mock_resp
+            send_notification("Radio-T is live!", "http://relay/send", "s3cret")
+            req = mock_urlopen.call_args[0][0]
+            self.assertEqual(req.get_method(), "POST")
+            self.assertEqual(req.get_header("Content-type"), "application/json")
+            self.assertEqual(req.get_header("X-secret"), "s3cret")
+            body = json.loads(req.data.decode("utf-8"))
+            self.assertEqual(body, {"message": "Radio-T is live!"})
+
     class TestStep(unittest.TestCase):
         def test_idle_to_live_on_first_positive(self):
             new_state, miss = step(STATE_IDLE, 0, True)
@@ -214,7 +297,7 @@ def run_tests() -> None:
 
     loader = unittest.TestLoader()
     suite = unittest.TestSuite()
-    for tc in [TestIsStreamLive, TestIsShowWindow, TestPollInterval, TestStep]:
+    for tc in [TestIsStreamLive, TestIsShowWindow, TestPollInterval, TestSendNotification, TestStep]:
         suite.addTests(loader.loadTestsFromTestCase(tc))
     runner = unittest.TextTestRunner(verbosity=2)
     result = runner.run(suite)
