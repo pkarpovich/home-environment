@@ -116,10 +116,10 @@ Merge two existing scripts (`radio-t-checker.py` and `radio-t-recorder.py`) into
 
 ### Task 7: Update turtle-harbor `scripts.yml`
 
-- [ ] Remove `radio-t-checker` and `radio-t-recorder` entries from `scripts.yml`
-- [ ] Add single `radio-t-monitor` entry mirroring their config (context: `./scripts`, venv, env_file, `PYTHONUNBUFFERED=1`, `restart_policy: always`, `max_restarts: 5`)
-- [ ] Verify `.env` already contains `RELAY_SECRET` and `RECORDING_DIR` (both previously used by old scripts); add them if missing
-- [ ] No tests needed — config-only change
+- [x] Remove `radio-t-checker` and `radio-t-recorder` entries from `scripts.yml`
+- [x] Add single `radio-t-monitor` entry mirroring their config (context: `./scripts`, venv, env_file, `PYTHONUNBUFFERED=1`, `restart_policy: always`, `max_restarts: 5`)
+- [x] Verify `.env` already contains `RELAY_SECRET` and `RECORDING_DIR` (both previously used by old scripts); add them if missing
+- [x] No tests needed — config-only change
 
 ### Task 8: Verify acceptance criteria
 
