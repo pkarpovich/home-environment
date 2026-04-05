@@ -81,44 +81,70 @@ CHUNK_SIZE = 8192
 LOG_INTERVAL = 30
 
 
-def record_stream(url: str, filepath: str, is_live_fn: Callable[[], bool]) -> None:
+def record_stream(url: str, filepath: str, is_live_fn: Callable[[], bool]) -> bool:
     total_bytes = 0
     consecutive_failures = 0
     max_failures = len(RECONNECT_DELAYS) + 1
 
     while consecutive_failures < max_failures:
+        bytes_this_attempt = 0
         try:
             req = urllib.request.Request(url, method="GET", headers={"User-Agent": USER_AGENT})
             resp = urllib.request.urlopen(req, timeout=STREAM_READ_TIMEOUT)
             try:
                 last_log_time = time.monotonic()
 
-                with open(filepath, "ab") as f:
+                try:
+                    f = open(filepath, "ab")
+                except OSError as e:
+                    log(f"storage error opening {filepath}: {e}")
+                    return False
+
+                close_failed = False
+                try:
                     while True:
                         chunk = resp.read(CHUNK_SIZE)
                         if not chunk:
                             break
-                        f.write(chunk)
+                        try:
+                            f.write(chunk)
+                        except OSError as e:
+                            log(f"storage error writing to {filepath}: {e}")
+                            return False
                         consecutive_failures = 0
+                        bytes_this_attempt += len(chunk)
                         total_bytes += len(chunk)
                         now = time.monotonic()
                         if now - last_log_time >= LOG_INTERVAL:
                             log(f"recording: {total_bytes} bytes written to {filepath}")
                             last_log_time = now
-                return
+                finally:
+                    try:
+                        f.close()
+                    except OSError as e:
+                        log(f"storage error closing {filepath}: {e}")
+                        close_failed = True
+
+                if close_failed:
+                    return False
+                if bytes_this_attempt > 0:
+                    return True
             finally:
                 resp.close()
         except (socket.timeout, ConnectionError, urllib.error.URLError, OSError):
-            if consecutive_failures < len(RECONNECT_DELAYS):
-                delay = RECONNECT_DELAYS[consecutive_failures]
-                log(f"stream connection lost, retrying in {delay}s ({consecutive_failures + 1}/{max_failures})")
-                time.sleep(delay)
-                if not is_live_fn():
-                    log("stream no longer live, stopping recording")
-                    return
-            consecutive_failures += 1
+            pass
+
+        if consecutive_failures < len(RECONNECT_DELAYS):
+            delay = RECONNECT_DELAYS[consecutive_failures]
+            log(f"stream connection lost, retrying in {delay}s ({consecutive_failures + 1}/{max_failures})")
+            time.sleep(delay)
+            if not is_live_fn():
+                log("stream no longer live, stopping recording")
+                return True
+        consecutive_failures += 1
 
     log(f"recording stopped after {max_failures} failed reconnects, {total_bytes} bytes total")
+    return True
 
 
 def is_show_window(now: datetime | None = None) -> bool:
@@ -153,6 +179,7 @@ def recording_filename(now: datetime) -> str:
 def run() -> None:
     state = STATE_IDLE
     miss_count = 0
+    filepath = None
     log(f"starting monitor, stream_url={STREAM_URL}")
 
     while True:
@@ -169,9 +196,30 @@ def run() -> None:
             filename = recording_filename(now)
             filepath = os.path.join(RECORDING_DIR, filename)
             os.makedirs(RECORDING_DIR, exist_ok=True)
+
+        if state == STATE_LIVE and live and filepath:
             log(f"recording to {filepath}")
-            record_stream(STREAM_URL, filepath, lambda: is_stream_live(STREAM_URL))
+            storage_error = False
+            while True:
+                resumable = record_stream(STREAM_URL, filepath, lambda: is_stream_live(STREAM_URL))
+                if not resumable:
+                    log("recording stopped due to storage error, not retrying")
+                    storage_error = True
+                    break
+                still_live = is_stream_live(STREAM_URL)
+                if not still_live:
+                    time.sleep(POLL_ACTIVE)
+                    still_live = is_stream_live(STREAM_URL)
+                if not still_live:
+                    break
+                log("stream still live after recording interruption, resuming")
+            if storage_error:
+                filepath = None
+            miss_count = 0 if storage_error else 1
             continue
+
+        if state == STATE_IDLE:
+            filepath = None
 
         interval = POLL_LIVE if state == STATE_LIVE else poll_interval()
         log(f"state={state}, next check in {interval}s")
@@ -488,7 +536,7 @@ def run_tests() -> None:
             self.assertTrue(filepath_arg.startswith(RECORDING_DIR))
             self.assertTrue(filepath_arg.endswith(".mp3"))
             mock_makedirs.assert_called_once_with(RECORDING_DIR, exist_ok=True)
-            self.assertEqual(mock_sleep.call_count, 2)
+            self.assertEqual(mock_sleep.call_count, 1)
 
         @patch("time.sleep")
         @patch("os.makedirs")
@@ -522,6 +570,187 @@ def run_tests() -> None:
             import re
             self.assertRegex(filename, r"radio-t-\d{4}-\d{2}-\d{2}\.mp3")
 
+    class TestRecordStreamStorageErrors(unittest.TestCase):
+        @patch("time.sleep")
+        @patch("builtins.open")
+        @patch("urllib.request.urlopen")
+        def test_stops_on_storage_error_opening_file(self, mock_urlopen, mock_open, mock_sleep):
+            mock_resp = MagicMock()
+            mock_resp.close = MagicMock()
+            mock_urlopen.return_value = mock_resp
+            mock_open.side_effect = OSError("Permission denied")
+
+            result = record_stream("http://test/stream", "/tmp/test.mp3", lambda: True)
+
+            self.assertFalse(result)
+            self.assertEqual(mock_urlopen.call_count, 1)
+            mock_sleep.assert_not_called()
+
+        @patch("time.sleep")
+        @patch("time.monotonic")
+        @patch("builtins.open", new_callable=unittest.mock.mock_open)
+        @patch("urllib.request.urlopen")
+        def test_stops_on_storage_error_writing(self, mock_urlopen, mock_file, mock_monotonic, mock_sleep):
+            mock_resp = MagicMock()
+            mock_resp.read = MagicMock(side_effect=[b"data"])
+            mock_resp.close = MagicMock()
+            mock_urlopen.return_value = mock_resp
+            mock_monotonic.return_value = 0.0
+
+            handle = mock_file()
+            handle.write.side_effect = OSError("No space left on device")
+
+            result = record_stream("http://test/stream", "/tmp/test.mp3", lambda: True)
+
+            self.assertFalse(result)
+            self.assertEqual(mock_urlopen.call_count, 1)
+            mock_sleep.assert_not_called()
+
+        @patch("time.sleep")
+        @patch("time.monotonic")
+        @patch("builtins.open", new_callable=unittest.mock.mock_open)
+        @patch("urllib.request.urlopen")
+        def test_stops_on_storage_error_closing(self, mock_urlopen, mock_file, mock_monotonic, mock_sleep):
+            mock_resp = MagicMock()
+            mock_resp.read = MagicMock(side_effect=[b"data", b""])
+            mock_resp.close = MagicMock()
+            mock_urlopen.return_value = mock_resp
+            mock_monotonic.return_value = 0.0
+
+            handle = mock_file()
+            handle.close.side_effect = OSError("No space left on device")
+
+            result = record_stream("http://test/stream", "/tmp/test.mp3", lambda: True)
+
+            self.assertFalse(result)
+            self.assertEqual(mock_urlopen.call_count, 1)
+            mock_sleep.assert_not_called()
+
+    class TestRecordStreamEmptyResponse(unittest.TestCase):
+        @patch("time.sleep")
+        @patch("builtins.open", new_callable=unittest.mock.mock_open)
+        @patch("urllib.request.urlopen")
+        def test_empty_response_triggers_backoff(self, mock_urlopen, mock_file, mock_sleep):
+            mock_resp = MagicMock()
+            mock_resp.read = MagicMock(return_value=b"")
+            mock_resp.close = MagicMock()
+            mock_urlopen.return_value = mock_resp
+
+            record_stream("http://test/stream", "/tmp/test.mp3", lambda: True)
+
+            self.assertEqual(mock_urlopen.call_count, 4)
+            self.assertEqual(mock_sleep.call_count, 3)
+            mock_sleep.assert_any_call(1)
+            mock_sleep.assert_any_call(3)
+            mock_sleep.assert_any_call(10)
+
+        @patch("time.sleep")
+        @patch("builtins.open", new_callable=unittest.mock.mock_open)
+        @patch("urllib.request.urlopen")
+        def test_empty_response_stops_when_no_longer_live(self, mock_urlopen, mock_file, mock_sleep):
+            mock_resp = MagicMock()
+            mock_resp.read = MagicMock(return_value=b"")
+            mock_resp.close = MagicMock()
+            mock_urlopen.return_value = mock_resp
+
+            result = record_stream("http://test/stream", "/tmp/test.mp3", lambda: False)
+
+            self.assertTrue(result)
+            self.assertEqual(mock_urlopen.call_count, 1)
+            mock_sleep.assert_called_once_with(1)
+
+    class TestRecordingRetryOnInterruption(unittest.TestCase):
+        @patch("time.sleep")
+        @patch("os.makedirs")
+        @patch("__main__.record_stream")
+        @patch("__main__.send_notification")
+        @patch("__main__.is_stream_live")
+        def test_retries_recording_when_stream_stays_live(self, mock_is_live, mock_notify, mock_record, mock_makedirs, mock_sleep):
+            mock_is_live.side_effect = [True, True, False, False, False, SystemExit("done")]
+            mock_notify.return_value = True
+
+            with self.assertRaises(SystemExit):
+                run()
+
+            mock_notify.assert_called_once()
+            self.assertEqual(mock_record.call_count, 2)
+
+        @patch("time.sleep")
+        @patch("os.makedirs")
+        @patch("__main__.record_stream")
+        @patch("__main__.send_notification")
+        @patch("__main__.is_stream_live")
+        def test_resumes_recording_on_transient_false_negative(self, mock_is_live, mock_notify, mock_record, mock_makedirs, mock_sleep):
+            mock_is_live.side_effect = [
+                True,
+                False, True,
+                False, False,
+                SystemExit("done"),
+            ]
+            mock_notify.return_value = True
+
+            with self.assertRaises(SystemExit):
+                run()
+
+            mock_notify.assert_called_once()
+            self.assertEqual(mock_record.call_count, 2)
+
+        @patch("time.sleep")
+        @patch("os.makedirs")
+        @patch("__main__.record_stream")
+        @patch("__main__.send_notification")
+        @patch("__main__.is_stream_live")
+        def test_does_not_retry_recording_on_storage_error(self, mock_is_live, mock_notify, mock_record, mock_makedirs, mock_sleep):
+            mock_is_live.side_effect = [True, False, SystemExit("done")]
+            mock_notify.return_value = True
+            mock_record.return_value = False
+
+            with self.assertRaises(SystemExit):
+                run()
+
+            mock_notify.assert_called_once()
+            mock_record.assert_called_once()
+
+    class TestRecordingReentersFromLiveState(unittest.TestCase):
+        @patch("time.sleep")
+        @patch("os.makedirs")
+        @patch("__main__.record_stream")
+        @patch("__main__.send_notification")
+        @patch("__main__.is_stream_live")
+        def test_re_enters_recording_after_post_debounce_false_negative(self, mock_is_live, mock_notify, mock_record, mock_makedirs, mock_sleep):
+            mock_is_live.side_effect = [
+                True,
+                False, False,
+                True,
+                False, False,
+                False,
+                SystemExit("done"),
+            ]
+            mock_notify.return_value = True
+
+            with self.assertRaises(SystemExit):
+                run()
+
+            mock_notify.assert_called_once()
+            self.assertEqual(mock_record.call_count, 2)
+
+    class TestStorageErrorDebounce(unittest.TestCase):
+        @patch("time.sleep")
+        @patch("os.makedirs")
+        @patch("__main__.record_stream")
+        @patch("__main__.send_notification")
+        @patch("__main__.is_stream_live")
+        def test_storage_error_no_renotification_on_single_false(self, mock_is_live, mock_notify, mock_record, mock_makedirs, mock_sleep):
+            mock_is_live.side_effect = [True, False, True, SystemExit("done")]
+            mock_notify.return_value = True
+            mock_record.return_value = False
+
+            with self.assertRaises(SystemExit):
+                run()
+
+            mock_notify.assert_called_once()
+            mock_record.assert_called_once()
+
     class TestEnvValidation(unittest.TestCase):
         @patch("__main__.RELAY_SECRET", "")
         def test_missing_relay_secret_exits(self):
@@ -535,7 +764,7 @@ def run_tests() -> None:
 
     loader = unittest.TestLoader()
     suite = unittest.TestSuite()
-    for tc in [TestIsStreamLive, TestIsShowWindow, TestPollInterval, TestSendNotification, TestStep, TestRecordStream, TestRecordingFilename, TestMainLoopIntegration, TestEnvValidation]:
+    for tc in [TestIsStreamLive, TestIsShowWindow, TestPollInterval, TestSendNotification, TestStep, TestRecordStream, TestRecordStreamStorageErrors, TestRecordStreamEmptyResponse, TestRecordingFilename, TestMainLoopIntegration, TestRecordingRetryOnInterruption, TestRecordingReentersFromLiveState, TestStorageErrorDebounce, TestEnvValidation]:
         suite.addTests(loader.loadTestsFromTestCase(tc))
     runner = unittest.TextTestRunner(verbosity=2)
     result = runner.run(suite)
