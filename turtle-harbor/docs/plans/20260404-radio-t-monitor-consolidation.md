@@ -74,12 +74,12 @@ Merge two existing scripts (`radio-t-checker.py` and `radio-t-recorder.py`) into
 
 ### Task 2: State machine with debounce
 
-- [ ] Implement `run()` with `IDLE`/`LIVE` state and `miss_count` counter
-- [ ] LIVE→IDLE transition only after **N=2 consecutive** negative checks (debounce against network glitches)
-- [ ] IDLE→LIVE on first positive check (fast detection of broadcast start)
-- [ ] Extract `is_show_window(now)` and `poll_interval(now)` (logic identical to existing)
-- [ ] Write tests: `test_idle_to_live_on_first_positive`, `test_live_to_idle_requires_two_misses`, `test_single_miss_does_not_flap`, `test_debounce_resets_on_positive`
-- [ ] Run tests — pass
+- [x] Implement `run()` with `IDLE`/`LIVE` state and `miss_count` counter
+- [x] LIVE→IDLE transition only after **N=2 consecutive** negative checks (debounce against network glitches)
+- [x] IDLE→LIVE on first positive check (fast detection of broadcast start)
+- [x] Extract `is_show_window(now)` and `poll_interval(now)` (logic identical to existing)
+- [x] Write tests: `test_idle_to_live_on_first_positive`, `test_live_to_idle_requires_two_misses`, `test_single_miss_does_not_flap`, `test_debounce_resets_on_positive`
+- [x] Run tests — pass
 
 ### Task 3: Notification with retry
 
