@@ -69,7 +69,9 @@ services:
     command:
       - --config.file=/etc/prometheus/prometheus.yml
       - --web.enable-remote-write-receiver
+      - --web.enable-otlp-receiver
       - --enable-feature=exemplar-storage
+      - --storage.tsdb.out-of-order-time-window=30m
     volumes:
       - prometheus:/prometheus
       - ./.config/prometheus.yml:/etc/prometheus/prometheus.yml:ro
@@ -115,9 +117,6 @@ services:
       - ./.config/tempo.yaml:/etc/tempo.yaml:ro
       - ./.config/tempo-overrides.yaml:/etc/tempo-overrides.yaml:ro
       - tempo:/var/tempo
-    ports:
-      - "4317:4317"
-      - "4318:4318"
     networks:
       - proxy
       - default
@@ -147,6 +146,24 @@ services:
       - "traefik.http.routers.loki.entrypoints=https"
       - "traefik.http.routers.loki.tls.certresolver=le"
       - "traefik.http.services.loki.loadbalancer.server.port=3100"
+
+  otel-collector:
+    restart: unless-stopped
+    container_name: otel-collector
+    image: otel/opentelemetry-collector:latest
+    command: ["--config=/etc/otel/config.yaml"]
+    volumes:
+      - ./.config/otel-collector.yaml:/etc/otel/config.yaml:ro
+    ports:
+      - "4317:4317"
+      - "4318:4318"
+    networks:
+      - proxy
+      - default
+    depends_on:
+      - tempo
+      - loki
+      - prometheus
 
   mcp-grafana:
     restart: unless-stopped
