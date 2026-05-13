@@ -77,6 +77,13 @@ http:
       tls:
         certResolver: le
 
+    ralphex-farm-router:
+      rule: "Host(`ralphex-farm.{{env "ROOT_DOMAIN"}}`)"
+      entryPoints: [ "https" ]
+      service: "ralphex-farm-service"
+      tls:
+        certResolver: le
+
   services:
     nas-service:
       loadBalancer:
@@ -132,3 +139,8 @@ http:
       loadBalancer:
         servers:
           - url: "http://192.168.198.2:13378"
+
+    ralphex-farm-service:
+      loadBalancer:
+        servers:
+          - url: "http://192.168.199.72:7077"
