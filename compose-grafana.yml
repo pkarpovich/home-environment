@@ -121,6 +121,7 @@ services:
       - default
     labels:
       - "traefik.enable=true"
+      - "traefik.docker.network=proxy"
       - "traefik.http.routers.tempo.rule=Host(`tempo.${ROOT_DOMAIN}`)"
       - "traefik.http.routers.tempo.entrypoints=https"
       - "traefik.http.routers.tempo.tls.certresolver=le"
