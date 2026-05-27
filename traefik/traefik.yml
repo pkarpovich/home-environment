@@ -27,6 +27,10 @@ entryPoints:
 
   https:
     address: :443
+    transport:
+      respondingTimeouts:
+        readTimeout: 600s
+        idleTimeout: 600s
     http3:
       advertisedPort: 443
     http:
