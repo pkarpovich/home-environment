@@ -292,8 +292,17 @@ not cloned; host user `tuclaw`; `~/.ssh` holds deploy keys.
 
 ### Task 7: [Final] Documentation
 
-- [ ] ensure `README.md` documents the bravo cluster + naming + deploy model
-- [ ] note in Post-Completion the cross-repo deletion in tuclaw
+- [x] ensure `README.md` documents the bravo cluster + naming + deploy model
+      (verified: README "Clusters and deployment" section covers alpha/bravo
+      NATO naming + IPs `192.168.198.3`/`192.168.199.72` + domains
+      `*.pkarpovich.space` vs `*.bravo.pkarpovich.space` + the deploy model
+      `include:` for alpha vs `-f` flags for bravo, wrapped in `mise run
+      deploy-alpha`/`deploy-bravo`, plus the host-`.env`/`.env.bravo.example`
+      secrets note)
+- [x] note in Post-Completion the cross-repo deletion in tuclaw (verified:
+      Post-Completion "Cross-repo (tuclaw)" note covers deleting
+      `deploy/updater.yml` + `deploy/updater.service` once the bravo updater is
+      live)
 
 ## Technical Details
 
