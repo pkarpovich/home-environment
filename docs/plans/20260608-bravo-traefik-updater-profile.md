@@ -265,15 +265,30 @@ not cloned; host user `tuclaw`; `~/.ssh` holds deploy keys.
 
 ### Task 6: Verify acceptance criteria
 
-- [ ] alpha full-set `docker compose config` (sample alpha `.env`) unchanged vs
+- [x] alpha full-set `docker compose config` (sample alpha `.env`) unchanged vs
       pre-refactor; `compose.yml` `include:` resolves `compose-updater.yml`
-- [ ] `docker compose -f compose-traefik.yml -f compose-updater.yml config`
+      (rendered HEAD vs baseline 3d92998 in a detached worktree with the same
+      `.env`; 735 lines each, byte-for-byte identical after normalizing only the
+      worktree project-name/path artifacts; both `updater` + `stash` present;
+      include line present + updater service rendered)
+- [x] `docker compose -f compose-traefik.yml -f compose-updater.yml config`
       (sample bravo `.env`) parses with cert domain `*.bravo.pkarpovich.space`,
       `Host(updater.bravo.pkarpovich.space)`, config dir `./.config/updater-bravo`
-- [ ] `spot --task=deploy-alpha --target=local --dry` and
-      `--task=deploy-bravo --target=bravo --dry` resolve
-- [ ] `Makefile` removed; `.mise.toml` has both tasks
-- [ ] no secrets committed (grep the diff for token-shaped values)
+      (exit 0, 121 lines; `Host(traefik.bravo...)` + `Host(updater.bravo...)`
+      rendered; `ROOT_DOMAIN=bravo.pkarpovich.space` reaches traefik container →
+      `traefik.yml` cert `main`/`sans: *.${ROOT_DOMAIN}`; ssh key
+      `/home/tuclaw/.ssh/id_rsa`; proxy external + letsencrypt volume; only
+      alpha-only URL vars warn blank)
+- [x] `spot --task=deploy-alpha --target=local --dry` and
+      `--task=deploy-bravo --target=bravo --dry` resolve (umputun/spot v1.20.0
+      installed via `go install`; both tasks parse, target `local`→192.168.198.3,
+      target `bravo`→192.168.199.72 user `tuclaw`; only the SSH handshake fails —
+      expected without an authorized on-host key)
+- [x] `Makefile` removed; `.mise.toml` has both tasks (Makefile absent +
+      untracked; `mise tasks ls` lists `deploy-alpha` + `deploy-bravo`)
+- [x] no secrets committed (grep the diff for token-shaped values) (secret-keyed
+      added lines are all empty placeholders, `${VAR}` refs, or path values;
+      entropy scan of non-doc added lines surfaced only filesystem/repo paths)
 
 ### Task 7: [Final] Documentation
 
