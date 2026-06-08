@@ -219,19 +219,28 @@ not cloned; host user `tuclaw`; `~/.ssh` holds deploy keys.
 
 ### Task 4: bravo updater task config
 
-- [ ] create `.config/updater-bravo/updater.yml` porting the three tasks from
+- [x] create `.config/updater-bravo/updater.yml` porting the three tasks from
       `tuclaw/deploy/updater.yml`, each `ssh tuclaw@host.docker.internal`:
-      - `tuclaw` — compose form (RAL-37):
-        `cd ~/tuclaw && git pull && docker compose pull && docker compose up -d`
-        (⚠️ pre-RAL-37 bridge: git pull + binary download + `sudo systemctl
-        restart tuclawd`, with a TODO to switch to compose form)
+      - `tuclaw` - pre-RAL-37 bridge (RAL-37 not yet landed; tuclaw source still
+        ships a binary): faithful port of git pull + Gitea binary download +
+        agent image pull + `sudo systemctl restart tuclawd` + health-check/
+        rollback, with a `TODO(RAL-37)` comment to switch to the compose form
+        `cd ~/tuclaw && git pull && docker compose pull && docker compose up -d`.
+        The container→SSH model needs the secrets host-side, so the script
+        sources the same `/home/tuclaw/tuclaw/.env` the systemd unit used.
       - `ralphex-farm` — `docker compose pull farm && docker compose up -d farm`
       - `tuclaw-voice` — `git pull && uv sync && sudo systemctl restart tuclaw-voice`
-- [ ] note: bravo's `.env` sets `UPDATER_CONFIG_DIR=./.config/updater-bravo` and
-      `UPDATER_SSH_KEY=/home/tuclaw/.ssh/id_rsa`
-- [ ] validate: YAML lint; `docker compose -f compose-updater.yml config` with
-      the bravo `.env` mounts `./.config/updater-bravo`
-- [ ] (no unit test — lint/config is the gate)
+      Used the `ssh ... 'bash -s' <<'DEPLOY' ... DEPLOY` heredoc pattern so the
+      scripts port verbatim (jq single quotes / `$()` survive, expand on host).
+- [x] note: bravo's `.env` sets `UPDATER_CONFIG_DIR=./.config/updater-bravo` and
+      `UPDATER_SSH_KEY=/home/tuclaw/.ssh/id_rsa` (rendered by Task 5's
+      `.env.bravo.example`; confirmed in the config gate below)
+- [x] validate: YAML lint (no tabs / trailing whitespace; parses clean — yamllint
+      not installed, used a PyYAML safe_load + verified each heredoc terminator at
+      col 0); `docker compose -f compose-updater.yml config` with a sample bravo
+      `.env` mounts `./.config/updater-bravo` → `/config`, SSH key
+      `/home/tuclaw/.ssh/id_rsa`, route `Host(updater.bravo.pkarpovich.space)`
+- [x] (no unit test — lint/config is the gate)
 
 ### Task 5: Example env + docs
 

@@ -1,0 +1,119 @@
+tasks:
+  # TODO(RAL-37): once tuclaw runs under docker compose, replace this pre-RAL-37
+  # bridge with the compose form:
+  #   ssh -o StrictHostKeyChecking=no tuclaw@host.docker.internal \
+  #     'cd /home/tuclaw/tuclaw && git pull && docker compose pull && docker compose up -d'
+  - name: tuclaw
+    command: |
+      echo "update tuclaw"
+      ssh -o StrictHostKeyChecking=no tuclaw@host.docker.internal 'bash -s' <<'DEPLOY'
+      set -e
+      set -a; . /home/tuclaw/tuclaw/.env; set +a
+      cd /home/tuclaw/tuclaw
+
+      echo "pulling latest source..."
+      PREV_HEAD=$(git rev-parse HEAD)
+      git pull --ff-only
+
+      echo "downloading new binary..."
+      RELEASE_JSON=$(curl -sSf -H "Authorization: token ${DOCKER_PASSWORD}" \
+        "${GITEA_URL}/api/v1/repos/${GITEA_REPO}/releases?limit=1")
+      LATEST=$(echo "$RELEASE_JSON" | jq -r '.[0].tag_name')
+      if [ "$LATEST" = "null" ] || [ -z "$LATEST" ]; then
+        echo "ERROR: failed to get latest release"
+        exit 1
+      fi
+      DOWNLOAD_URL=$(echo "$RELEASE_JSON" | jq -r '.[0].assets[] | select(.name=="tuclawd") | .browser_download_url')
+      if [ -z "$DOWNLOAD_URL" ] || [ "$DOWNLOAD_URL" = "null" ]; then
+        echo "ERROR: failed to get tuclawd download URL"
+        exit 1
+      fi
+      curl -sSfL -H "Authorization: token ${DOCKER_PASSWORD}" \
+        -o bin/tuclawd-next "$DOWNLOAD_URL"
+      chmod +x bin/tuclawd-next
+
+      echo "pulling agent image..."
+      docker tag tuclaw-agent:latest tuclaw-agent:prev 2>/dev/null || true
+      docker pull "${DOCKER_REGISTRY}/${DOCKER_USERNAME}/tuclaw-agent:latest"
+      docker tag "${DOCKER_REGISTRY}/${DOCKER_USERNAME}/tuclaw-agent:latest" tuclaw-agent:latest
+
+      echo "deploying ${LATEST}..."
+      [ -f bin/tuclawd ] && cp bin/tuclawd bin/tuclawd.prev || true
+      sudo systemctl stop tuclawd 2>/dev/null || true
+      mv bin/tuclawd-next bin/tuclawd
+
+      sudo systemctl start tuclawd
+
+      echo "health check..."
+      sleep 10
+      if curl -sf http://localhost:9090/health >/dev/null 2>&1; then
+        echo "deploy successful: ${LATEST}"
+      else
+        echo "health check failed, rolling back..."
+        sudo systemctl stop tuclawd
+        if [ -f bin/tuclawd.prev ]; then
+          cp bin/tuclawd.prev bin/tuclawd
+        fi
+        if docker image inspect tuclaw-agent:prev >/dev/null 2>&1; then
+          docker tag tuclaw-agent:prev tuclaw-agent:latest
+        fi
+        git reset --hard "$PREV_HEAD" 2>/dev/null || true
+        sudo systemctl start tuclawd
+        echo "rollback complete"
+        exit 1
+      fi
+      DEPLOY
+
+  - name: tuclaw-voice
+    command: |
+      echo "update tuclaw-voice"
+      ssh -o StrictHostKeyChecking=no tuclaw@host.docker.internal 'bash -s' <<'DEPLOY'
+      set -e
+      cd /home/tuclaw/tuclaw-voice
+      eval "$(mise env -s bash)"
+
+      echo "pulling latest source..."
+      git pull --ff-only
+
+      echo "syncing dependencies..."
+      uv sync
+
+      echo "restarting service..."
+      sudo systemctl restart tuclaw-voice
+
+      echo "health check..."
+      sleep 3
+      if curl -sf http://localhost:8000/health >/dev/null 2>&1; then
+        echo "deploy successful"
+      else
+        echo "health check failed"
+        sudo journalctl -u tuclaw-voice --no-pager -n 20
+        exit 1
+      fi
+      DEPLOY
+
+  - name: ralphex-farm
+    command: |
+      echo "update ralphex-farm"
+      ssh -o StrictHostKeyChecking=no tuclaw@host.docker.internal 'bash -s' <<'DEPLOY'
+      set -e
+      cd /home/tuclaw/ralphex-farm
+
+      echo "pulling latest image..."
+      docker tag git.pkarpovich.space/pkarpovich/ralphex-farm:latest ralphex-farm:prev 2>/dev/null || true
+      docker compose pull farm
+      docker compose up -d farm
+
+      echo "health check..."
+      sleep 10
+      if curl -sf http://localhost:7077/health >/dev/null 2>&1; then
+        echo "deploy successful"
+      else
+        echo "health check failed, rolling back..."
+        if docker image inspect ralphex-farm:prev >/dev/null 2>&1; then
+          docker tag ralphex-farm:prev git.pkarpovich.space/pkarpovich/ralphex-farm:latest
+          docker compose up -d farm
+        fi
+        exit 1
+      fi
+      DEPLOY
