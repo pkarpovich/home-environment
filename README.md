@@ -20,6 +20,8 @@ mise run deploy-bravo   # traefik + updater on the second Pi
 
 Secrets are never committed. Each host holds its own `.env` (git-ignored); alpha pulls some values from its on-host `stash` KV, while bravo has no KV so its `.env` is placed on the host manually. The repo ships `.env.bravo.example` as a non-secret template for the bravo host.
 
+The shared Traefik HTTPS entrypoint sets `respondingTimeouts` (read/idle = 600s) so long requests through the proxy - notably Gitea container-registry image pushes - do not hit the default cutoffs. This applies to both clusters since `traefik/traefik.yml` is shared.
+
 ## Services
 
 The following services are included in this project:
@@ -65,11 +67,11 @@ A single volume, `./iSponsorBlockTV/config.json`, is mounted to `/app/config.jso
 
 ## Setup
 
-To deploy these services, follow these steps:
+Deployment is covered in [Clusters and deployment](#clusters-and-deployment) above. In short:
 
-1. Clone this repository to your Raspberry Pi.
-2. Update the environment variables in the Docker Compose file with your own settings.
-3. Run the Docker Compose file with `docker-compose up -d`.
+1. Clone this repository onto the target Pi (the `git checkout` step in `spot.yml` does this automatically on first deploy).
+2. Place the host's `.env` (git-ignored) with that host's values - never edit the compose files. Use `.env.bravo.example` as a template for a bravo-style host.
+3. Deploy with `mise run deploy-alpha` or `mise run deploy-bravo`.
 
 ## Contributing
 
