@@ -50,7 +50,7 @@ tasks:
         echo "deploy successful: ${LATEST}"
       else
         echo "health check failed, rolling back..."
-        sudo systemctl stop tuclawd
+        sudo systemctl stop tuclawd 2>/dev/null || true
         if [ -f bin/tuclawd.prev ]; then
           cp bin/tuclawd.prev bin/tuclawd
         fi
