@@ -1,7 +1,4 @@
-# bravo cluster: no file-provider routers/services.
-# All bravo routing comes from Docker labels (updater, traefik dashboard).
-# Kept minimal on purpose - the shared traefik.yml enables the file provider,
-# so this file must exist and be valid, but defines nothing.
-http:
-  routers: {}
-  services: {}
+# bravo cluster: intentionally empty dynamic config.
+# The shared traefik.yml enables the file provider, so this file must exist,
+# but bravo has no file-provider routers/services - all routing comes from
+# Docker labels (updater, traefik dashboard).
