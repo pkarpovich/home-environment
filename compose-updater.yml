@@ -18,6 +18,7 @@ services:
       - KEY=${UPDATER_KEY}
       - LISTEN=0.0.0.0:8080
       - TZ=Europe/Warsaw
+      - TIME_ZONE=Europe/Warsaw
       - APP_UID=${UPDATER_APP_UID:-1001}
     labels:
       - "traefik.enable=true"
