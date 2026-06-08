@@ -204,17 +204,18 @@ not cloned; host user `tuclaw`; `~/.ssh` holds deploy keys.
 
 ### Task 3: Make shared compose files standalone-usable for bravo
 
-- [ ] add top-level `networks: proxy: {external: true}` and `volumes:
+- [x] add top-level `networks: proxy: {external: true}` and `volumes:
       letsencrypt:` to `compose-traefik.yml` and `compose-updater.yml` so they
       run via `-f` without `compose.yml` (identical to alpha's declarations →
       merges cleanly under `include`)
-- [ ] confirm `traefik/traefik.yml` needs **no change** (uses
+- [x] confirm `traefik/traefik.yml` needs **no change** (uses
       `{{env "ROOT_DOMAIN"}}`); bravo's `.env` sets `ROOT_DOMAIN=bravo.pkarpovich.space`
-- [ ] validate: `docker compose -f compose-traefik.yml -f compose-updater.yml
+- [x] validate: `docker compose -f compose-traefik.yml -f compose-updater.yml
       config` with a sample bravo `.env` parses (proxy external, letsencrypt
       volume, cert domain = `*.bravo.pkarpovich.space`); re-run the alpha
-      full-set `config` to confirm still unchanged
-- [ ] (no unit test — `docker compose config` is the gate)
+      full-set `config` to confirm still unchanged (diffed before/after Task 3:
+      byte-for-byte identical, 735 lines)
+- [x] (no unit test — `docker compose config` is the gate)
 
 ### Task 4: bravo updater task config
 

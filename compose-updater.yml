@@ -22,3 +22,10 @@ services:
       - "traefik.http.routers.updater.rule=Host(`updater.${ROOT_DOMAIN}`)"
       - "traefik.http.routers.updater.entrypoints=https"
       - "traefik.http.routers.updater.tls.certresolver=le"
+
+networks:
+  proxy:
+    external: true
+
+volumes:
+  letsencrypt:
