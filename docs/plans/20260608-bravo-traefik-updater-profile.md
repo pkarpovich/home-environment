@@ -187,18 +187,20 @@ not cloned; host user `tuclaw`; `~/.ssh` holds deploy keys.
 
 ### Task 2: Extract the updater into its own compose file (parameterized)
 
-- [ ] create `compose-updater.yml` with the `updater` service moved out of
+- [x] create `compose-updater.yml` with the `updater` service moved out of
       `compose-deploy.yml`, parameterizing host-specific values:
       `${UPDATER_CONFIG_DIR:-./.config/updater}:/config:ro`,
       `${UPDATER_SSH_KEY:-/home/app/.ssh/id_rsa}:/home/app/.ssh/id_rsa:ro`;
       keep `KEY=${UPDATER_KEY}`, `LISTEN`, `extra_hosts`, network `proxy`, and
       `Host(updater.${ROOT_DOMAIN})` (resolves per-host via `ROOT_DOMAIN`)
-- [ ] leave `stash` in `compose-deploy.yml` (alpha-only); add
+- [x] leave `stash` in `compose-deploy.yml` (alpha-only); add
       `compose-updater.yml` to `compose.yml`'s `include:` list so alpha still
       gets the updater (net result for alpha unchanged)
-- [ ] validate: `docker compose config` over alpha's full set with a sample
+- [x] validate: `docker compose config` over alpha's full set with a sample
       alpha `.env` renders the same `updater` + `stash` services as before
-- [ ] (no unit test — `docker compose config` diff is the gate)
+      (byte-for-byte identical vs pre-refactor baseline; include resolves with
+      no errors; updater volume defaults render `/home/app/.ssh/id_rsa`)
+- [x] (no unit test — `docker compose config` diff is the gate)
 
 ### Task 3: Make shared compose files standalone-usable for bravo
 
