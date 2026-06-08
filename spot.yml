@@ -1,16 +1,46 @@
-task:
-  - name: git checkout
-    script: git clone git@github.com:pkarpovich/home-environment.git ~/home-environment
-    cond: "[ ! -d ~/home-environment/.git ]"
+user: pi
 
-  - name: git pull/update
-    script: |
-      cd ~/home-environment
-      git pull
+targets:
+  alpha:
+    groups: ["alpha"]
+  bravo:
+    groups: ["bravo"]
 
-  - name: pull docker images and restart
-    script: |
-      cd ~/home-environment
-      docker compose down
-      docker compose pull
-      docker compose up -d --build
+tasks:
+  - name: deploy-alpha
+    commands:
+      - name: git checkout
+        script: git clone git@github.com:pkarpovich/home-environment.git ~/home-environment
+        cond: "[ ! -d ~/home-environment/.git ]"
+
+      - name: git pull/update
+        script: |
+          cd ~/home-environment
+          git pull
+
+      - name: pull docker images and restart
+        script: |
+          cd ~/home-environment
+          docker compose down
+          docker compose pull
+          docker compose up -d --build
+
+  - name: deploy-bravo
+    commands:
+      - name: git checkout
+        script: git clone git@github.com:pkarpovich/home-environment.git ~/home-environment
+        cond: "[ ! -d ~/home-environment/.git ]"
+
+      - name: git pull/update
+        script: |
+          cd ~/home-environment
+          git pull
+
+      - name: create proxy network
+        script: docker network create proxy || true
+
+      - name: pull docker images and restart
+        script: |
+          cd ~/home-environment
+          docker compose -f compose-traefik.yml -f compose-updater.yml pull
+          docker compose -f compose-traefik.yml -f compose-updater.yml up -d

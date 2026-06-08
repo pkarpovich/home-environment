@@ -44,3 +44,10 @@ services:
       - "traefik.http.routers.traefik.service=api@internal"
       - "traefik.http.routers.traefik.middlewares=strip"
       - "traefik.http.middlewares.strip.stripprefix.prefixes=/traefik"
+
+networks:
+  proxy:
+    external: true
+
+volumes:
+  letsencrypt:
