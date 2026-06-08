@@ -244,14 +244,24 @@ not cloned; host user `tuclaw`; `~/.ssh` holds deploy keys.
 
 ### Task 5: Example env + docs
 
-- [ ] add `.env.bravo.example`: `ROOT_DOMAIN=bravo.pkarpovich.space`,
+- [x] add `.env.bravo.example`: `ROOT_DOMAIN=bravo.pkarpovich.space`,
       `CF_API_EMAIL=`, `CF_API_KEY=`, `UPDATER_KEY=`,
       `UPDATER_CONFIG_DIR=./.config/updater-bravo`,
-      `UPDATER_SSH_KEY=/home/tuclaw/.ssh/id_rsa` (no real secrets)
-- [ ] update `README.md`: alpha / bravo-cluster naming, `mise run deploy-alpha`
-      vs `mise run deploy-bravo`, the include-vs-`-f` model, and that bravo
-      secrets live in the host `.env`
-- [ ] validate: `yamllint`/`docker compose config` clean
+      `UPDATER_SSH_KEY=/home/tuclaw/.ssh/id_rsa` (no real secrets); not
+      git-ignored (`.gitignore` ignores `**/.env`, which does not match
+      `.env.bravo.example`)
+- [x] update `README.md`: added a "Clusters and deployment" section covering
+      alpha / bravo-cluster naming + IPs + domains, `mise run deploy-alpha` vs
+      `mise run deploy-bravo`, the include-vs-`-f` model, and that bravo secrets
+      live in the host `.env` (repo ships the `.env.bravo.example` template)
+- [x] validate: `docker compose --env-file .env.bravo.example -f
+      compose-traefik.yml -f compose-updater.yml config` parses (exit 0, only
+      blank-default warnings for alpha-only URL vars), renders
+      `Host(updater.bravo.pkarpovich.space)` + `Host(traefik.bravo.pkarpovich.space)`,
+      `/home/tuclaw/.ssh/id_rsa`, proxy external + letsencrypt volume; alpha
+      full-set `config` also exits 0 with 0 errors; `.env.bravo.example` dotenv
+      syntax validated by `--env-file` consuming it without error (yamllint N/A
+      for a `.env` file)
 
 ### Task 6: Verify acceptance criteria
 
