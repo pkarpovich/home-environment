@@ -2,6 +2,7 @@ services:
   updater:
     container_name: updater
     image: ghcr.io/umputun/updater:latest
+    command: ["/srv/updater", "--batch", "--timeout=900s"]
     restart: unless-stopped
     extra_hosts:
       - "host.docker.internal:host-gateway"
@@ -17,6 +18,7 @@ services:
       - KEY=${UPDATER_KEY}
       - LISTEN=0.0.0.0:8080
       - TZ=Europe/Warsaw
+      - APP_UID=${UPDATER_APP_UID:-1001}
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.updater.rule=Host(`updater.${ROOT_DOMAIN}`)"
