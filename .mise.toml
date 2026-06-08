@@ -1,6 +1,6 @@
 [tasks.deploy-alpha]
 description = "Deploy the alpha cluster (first Pi) - full compose stack"
-run = "spot --task=deploy-alpha --target=local -v -i ./inventory.yml --ssh-agent"
+run = "spot --task=deploy-alpha --target=alpha -v -i ./inventory.yml --ssh-agent"
 
 [tasks.deploy-bravo]
 description = "Deploy the bravo cluster (second Pi) - traefik + updater only"

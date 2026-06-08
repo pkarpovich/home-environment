@@ -1,8 +1,8 @@
 user: pi
 
 targets:
-  local:
-    groups: ["local"]
+  alpha:
+    groups: ["alpha"]
   bravo:
     groups: ["bravo"]
 
