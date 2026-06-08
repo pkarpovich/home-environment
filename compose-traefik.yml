@@ -28,7 +28,7 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - ./traefik/traefik.yml:/etc/traefik/traefik.yml:ro
-      - ./traefik/dynamic_conf.yml:/etc/traefik/dynamic_conf.yml:ro
+      - ${TRAEFIK_DYNAMIC_CONF:-./traefik/dynamic_conf.yml}:/etc/traefik/dynamic_conf.yml:ro
       - letsencrypt:/letsencrypt
     healthcheck:
       test: ["CMD", "traefik", "healthcheck", "--ping"]
