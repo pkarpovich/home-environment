@@ -1,64 +1,36 @@
 tasks:
-  # TODO(RAL-37): once tuclaw runs under docker compose, replace this pre-RAL-37
-  # bridge with the compose form:
-  #   ssh -o StrictHostKeyChecking=no tuclaw@host.docker.internal \
-  #     'cd /home/tuclaw/tuclaw && git pull && docker compose pull && docker compose up -d'
   - name: tuclaw
     command: |
       echo "update tuclaw"
       ssh -o StrictHostKeyChecking=no tuclaw@host.docker.internal 'bash -s' <<'DEPLOY'
       set -e
-      set -a; . /home/tuclaw/tuclaw/.env; set +a
       cd /home/tuclaw/tuclaw
+      set -a; . ./.env; set +a
 
       echo "pulling latest source..."
       PREV_HEAD=$(git rev-parse HEAD)
       git pull --ff-only
 
-      echo "downloading new binary..."
-      RELEASE_JSON=$(curl -sSf -H "Authorization: token ${DOCKER_PASSWORD}" \
-        "${GITEA_URL}/api/v1/repos/${GITEA_REPO}/releases?limit=1")
-      LATEST=$(echo "$RELEASE_JSON" | jq -r '.[0].tag_name')
-      if [ "$LATEST" = "null" ] || [ -z "$LATEST" ]; then
-        echo "ERROR: failed to get latest release"
-        exit 1
-      fi
-      DOWNLOAD_URL=$(echo "$RELEASE_JSON" | jq -r '.[0].assets[] | select(.name=="tuclawd") | .browser_download_url')
-      if [ -z "$DOWNLOAD_URL" ] || [ "$DOWNLOAD_URL" = "null" ]; then
-        echo "ERROR: failed to get tuclawd download URL"
-        exit 1
-      fi
-      curl -sSfL -H "Authorization: token ${DOCKER_PASSWORD}" \
-        -o bin/tuclawd-next "$DOWNLOAD_URL"
-      chmod +x bin/tuclawd-next
-
       echo "pulling agent image..."
-      docker tag tuclaw-agent:latest tuclaw-agent:prev 2>/dev/null || true
+      docker tag "${DOCKER_REGISTRY}/${DOCKER_USERNAME}/tuclaw-agent:latest" tuclaw-agent:prev 2>/dev/null || true
       docker pull "${DOCKER_REGISTRY}/${DOCKER_USERNAME}/tuclaw-agent:latest"
       docker tag "${DOCKER_REGISTRY}/${DOCKER_USERNAME}/tuclaw-agent:latest" tuclaw-agent:latest
 
-      echo "deploying ${LATEST}..."
-      [ -f bin/tuclawd ] && cp bin/tuclawd bin/tuclawd.prev || true
-      sudo systemctl stop tuclawd 2>/dev/null || true
-      mv bin/tuclawd-next bin/tuclawd
-
-      sudo systemctl start tuclawd
+      echo "pulling daemon image + recreating container..."
+      docker tag "$TUCLAW_IMAGE" tuclaw-daemon:prev 2>/dev/null || true
+      docker compose pull
+      docker compose up -d
 
       echo "health check..."
       sleep 10
       if curl -sf http://localhost:9090/health >/dev/null 2>&1; then
-        echo "deploy successful: ${LATEST}"
+        echo "deploy successful"
       else
         echo "health check failed, rolling back..."
-        sudo systemctl stop tuclawd 2>/dev/null || true
-        if [ -f bin/tuclawd.prev ]; then
-          cp bin/tuclawd.prev bin/tuclawd
-        fi
-        if docker image inspect tuclaw-agent:prev >/dev/null 2>&1; then
-          docker tag tuclaw-agent:prev tuclaw-agent:latest
-        fi
         git reset --hard "$PREV_HEAD" 2>/dev/null || true
-        sudo systemctl start tuclawd
+        docker image inspect tuclaw-daemon:prev >/dev/null 2>&1 && docker tag tuclaw-daemon:prev "$TUCLAW_IMAGE" || true
+        docker image inspect tuclaw-agent:prev >/dev/null 2>&1 && docker tag tuclaw-agent:prev tuclaw-agent:latest || true
+        docker compose up -d
         echo "rollback complete"
         exit 1
       fi
