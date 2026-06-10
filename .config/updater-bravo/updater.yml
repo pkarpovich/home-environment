@@ -36,6 +36,42 @@ tasks:
       fi
       DEPLOY
 
+  - name: llm-gateway
+    command: |
+      echo "update llm-gateway"
+      ssh -o StrictHostKeyChecking=no tuclaw@host.docker.internal 'bash -s' <<'DEPLOY'
+      set -e
+      cd /home/tuclaw/llm-gateway
+      set -a; . ./.env; set +a
+
+      echo "pulling latest source..."
+      PREV_HEAD=$(git rev-parse HEAD)
+      git pull --ff-only
+
+      echo "pulling image + recreating container..."
+      docker tag "$LLM_GATEWAY_IMAGE" llm-gateway:prev 2>/dev/null || true
+      docker compose pull
+      docker compose up -d
+
+      echo "health check (docker healthcheck, no http endpoint)..."
+      STATUS=unknown
+      for i in $(seq 1 18); do
+        sleep 5
+        STATUS=$(docker inspect --format '{{.State.Health.Status}}' llm-gateway-llm-gateway-1 2>/dev/null || echo missing)
+        [ "$STATUS" = "healthy" ] && break
+      done
+      if [ "$STATUS" = "healthy" ]; then
+        echo "deploy successful"
+      else
+        echo "health status: $STATUS, rolling back..."
+        git reset --hard "$PREV_HEAD" 2>/dev/null || true
+        docker image inspect llm-gateway:prev >/dev/null 2>&1 && docker tag llm-gateway:prev "$LLM_GATEWAY_IMAGE" || true
+        docker compose up -d
+        echo "rollback complete"
+        exit 1
+      fi
+      DEPLOY
+
   - name: tuclaw-voice
     command: |
       echo "update tuclaw-voice"
