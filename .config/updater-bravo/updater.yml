@@ -107,6 +107,10 @@ tasks:
       set -e
       cd /home/tuclaw/ralphex-farm
 
+      echo "pulling latest source..."
+      PREV_HEAD=$(git rev-parse HEAD)
+      git pull --ff-only
+
       echo "pulling latest image..."
       docker tag git.pkarpovich.space/pkarpovich/ralphex-farm:latest ralphex-farm:prev 2>/dev/null || true
       docker compose pull farm
@@ -118,10 +122,11 @@ tasks:
         echo "deploy successful"
       else
         echo "health check failed, rolling back..."
+        git reset --hard "$PREV_HEAD" 2>/dev/null || true
         if docker image inspect ralphex-farm:prev >/dev/null 2>&1; then
           docker tag ralphex-farm:prev git.pkarpovich.space/pkarpovich/ralphex-farm:latest
-          docker compose up -d farm
         fi
+        docker compose up -d farm
         exit 1
       fi
       DEPLOY
