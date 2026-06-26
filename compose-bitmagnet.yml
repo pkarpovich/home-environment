@@ -1,0 +1,53 @@
+services:
+  bitmagnet:
+    container_name: bitmagnet
+    image: ghcr.io/bitmagnet-io/bitmagnet:latest
+    restart: unless-stopped
+    environment:
+      - POSTGRES_HOST=bitmagnet-postgres
+      - POSTGRES_PASSWORD=${BITMAGNET_POSTGRES_PASSWORD:-postgres}
+    command: ["worker", "run", "--all"]
+    volumes:
+      - bitmagnet-config:/root/.config/bitmagnet
+    expose:
+      - 3333
+    depends_on:
+      bitmagnet-postgres:
+        condition: service_healthy
+    networks:
+      - proxy
+      - bitmagnet
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=proxy"
+      - "traefik.http.routers.bitmagnet.rule=Host(`bitmagnet.${ROOT_DOMAIN}`)"
+      - "traefik.http.routers.bitmagnet.entrypoints=https"
+      - "traefik.http.routers.bitmagnet.tls.certresolver=le"
+      - "traefik.http.services.bitmagnet.loadbalancer.server.port=3333"
+
+  bitmagnet-postgres:
+    container_name: bitmagnet-postgres
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      - POSTGRES_PASSWORD=${BITMAGNET_POSTGRES_PASSWORD:-postgres}
+      - POSTGRES_DB=bitmagnet
+      - PGUSER=postgres
+    volumes:
+      - bitmagnet-postgres:/var/lib/postgresql/data
+    shm_size: 1g
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready"]
+      interval: 10s
+      start_period: 20s
+    networks:
+      - bitmagnet
+
+networks:
+  proxy:
+    external: true
+  bitmagnet:
+
+volumes:
+  bitmagnet-config:
+  bitmagnet-postgres:
