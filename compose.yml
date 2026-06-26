@@ -7,7 +7,6 @@ include:
   - path: compose-deploy.yml
   - path: compose-updater.yml
   - path: compose-jackett.yml
-  - path: compose-bitmagnet.yml
 
 services:
   homepage:
