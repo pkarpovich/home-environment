@@ -5,7 +5,10 @@ tasks:
       ssh -o StrictHostKeyChecking=no tuclaw@host.docker.internal 'bash -s' <<'DEPLOY'
       set -e
       cd /home/tuclaw/tuclaw
-      set -a; . ./.env; set +a
+      env_val() { sed -n "s/^$1=//p" ./.env | tail -1 | sed 's/^"\(.*\)"$/\1/'; }
+      DOCKER_REGISTRY=$(env_val DOCKER_REGISTRY)
+      DOCKER_USERNAME=$(env_val DOCKER_USERNAME)
+      TUCLAW_IMAGE=$(env_val TUCLAW_IMAGE)
 
       echo "pulling latest source..."
       PREV_HEAD=$(git rev-parse HEAD)
