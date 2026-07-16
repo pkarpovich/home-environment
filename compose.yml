@@ -13,6 +13,8 @@ services:
     image: ghcr.io/gethomepage/homepage:latest
     container_name: homepage
     restart: unless-stopped
+    healthcheck:
+      interval: 5m
     extra_hosts:
       - "host.docker.internal:host-gateway"
     expose:
