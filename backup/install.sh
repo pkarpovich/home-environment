@@ -32,9 +32,10 @@ RESTIC_PASSWORD_FILE=/etc/restic/repo-pass
 RESTIC_CACHE_DIR=/var/cache/restic
 BACKUP_HOST=$host
 DUMP_DIR=/var/backups/restic-dumps
-TEXTFILE_DIR=
+GATUS_PUSH_URL=https://gatus.pkarpovich.space/api/v1/endpoints/Backups_restic-$host/external
+GATUS_TOKEN=REPLACE_ME
 EOF
-    echo "created /etc/restic/env - set TRANSPORT_PASSWORD and TEXTFILE_DIR before first run" >&2
+    echo "created /etc/restic/env - set TRANSPORT_PASSWORD and GATUS_TOKEN before first run" >&2
 fi
 
 ln -sf "$kit_dir/backup.sh" /usr/local/bin/restic-backup

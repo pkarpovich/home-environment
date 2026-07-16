@@ -6,6 +6,17 @@ host="${BACKUP_HOST:?BACKUP_HOST is not set}"
 host_dir="$kit_dir/hosts/$host"
 dump_dir="${DUMP_DIR:-/var/backups/restic-dumps}"
 
+report_gatus() {
+    status=$?
+    if [ -n "${GATUS_PUSH_URL:-}" ] && [ -n "${GATUS_TOKEN:-}" ]; then
+        if [ "$status" -eq 0 ]; then ok=true; else ok=false; fi
+        curl -fsS -m 10 -X POST "$GATUS_PUSH_URL?success=$ok" \
+            -H "Authorization: Bearer $GATUS_TOKEN" >/dev/null || true
+    fi
+    exit "$status"
+}
+trap report_gatus EXIT
+
 if [ -x "$host_dir/pre-backup.sh" ]; then
     "$host_dir/pre-backup.sh" "$dump_dir"
 fi
@@ -18,13 +29,3 @@ restic backup \
     --exclude-file "$host_dir/excludes.txt" \
     --exclude-caches \
     --tag scheduled
-
-if [ -n "${TEXTFILE_DIR:-}" ] && [ -d "$TEXTFILE_DIR" ]; then
-    tmp="$TEXTFILE_DIR/restic_backup.prom.tmp"
-    {
-        printf '# HELP restic_backup_last_success_timestamp_seconds Unix time of last successful restic backup\n'
-        printf '# TYPE restic_backup_last_success_timestamp_seconds gauge\n'
-        printf 'restic_backup_last_success_timestamp_seconds{backup_host="%s"} %s\n' "$host" "$(date +%s)"
-    } > "$tmp"
-    mv "$tmp" "$TEXTFILE_DIR/restic_backup.prom"
-fi

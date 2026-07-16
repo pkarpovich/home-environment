@@ -33,7 +33,7 @@ cd ~/home-environment && git pull
 sudo ./backup/install.sh alpha   # or bravo
 ```
 
-First install only: edit `/etc/restic/env` - replace `TRANSPORT_PASSWORD` with the host's rest-server password and set `TEXTFILE_DIR` (alpha: `/var/lib/prometheus/node-exporter`, bravo: `/var/lib/alloy/textfile`). Then run once manually:
+First install only: edit `/etc/restic/env` - replace `TRANSPORT_PASSWORD` with the host's rest-server password and `GATUS_TOKEN` with the endpoint token. Then run once manually:
 
 ```
 sudo systemctl start restic-backup.service && journalctl -u restic-backup -f
@@ -43,7 +43,7 @@ sudo systemctl start restic-backup.service && journalctl -u restic-backup -f
 
 ## Monitoring
 
-Every successful run writes `restic_backup_last_success_timestamp_seconds{backup_host="..."}` via the node-exporter/alloy textfile collector; both hosts land in the central Prometheus. Grafana alert: fire when `time() - restic_backup_last_success_timestamp_seconds > 93600` (26h dead-man switch).
+Gatus external endpoints (`Backups / restic-alpha`, `Backups / restic-bravo`), same pattern as the Time Machine heartbeats: every run pushes `success=true|false` to the Gatus API (instant telegram alert on failure), and the 26h `heartbeat.interval` fires when a backup silently never runs. Tokens: `RESTIC_ALPHA_TOKEN` / `RESTIC_BRAVO_TOKEN` in alpha's `.env` (gatus container) and `GATUS_TOKEN` in each host's `/etc/restic/env`.
 
 ## Retention prune (on the NAS)
 
