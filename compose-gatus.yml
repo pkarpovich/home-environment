@@ -16,6 +16,8 @@ services:
       - HA_TOKEN=${HA_TOKEN}
       - TM_MBP_2021_TOKEN=${TM_MBP_2021_TOKEN}
       - TM_MBA_2022_TOKEN=${TM_MBA_2022_TOKEN}
+      - RESTIC_ALPHA_TOKEN=${RESTIC_ALPHA_TOKEN}
+      - RESTIC_BRAVO_TOKEN=${RESTIC_BRAVO_TOKEN}
     networks:
       - proxy
     labels:
