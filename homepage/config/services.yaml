@@ -135,6 +135,10 @@
         id: simple_icon
         icon: linkding
         href: {{HOMEPAGE_VAR_LINKDING_URL}}
+    - Ryot:
+        id: simple_icon
+        icon: ryot
+        href: {{HOMEPAGE_VAR_RYOT_URL}}
     - Influx:
         id: simple_icon
         icon: influxdb
