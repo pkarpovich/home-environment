@@ -47,7 +47,7 @@ Gatus external endpoints (`Backups / restic-alpha`, `Backups / restic-bravo`), s
 
 ## Coverage audit (weekly)
 
-`audit.sh` runs after the Sunday `restic check` (ExecStartPost) and compares live host state against the coverage lists: every named docker volume, every compose project dir, and every running postgres/mysql container must be matched by `includes.txt`, `excludes.txt`, a dump hook in `pre-backup.sh`, or an explicit line in `audit-ignore.txt` (with a `# reason`). Anything unmatched goes to telegram (`TELEGRAM_BOT_TOKEN`/`TELEGRAM_CHAT_ID` in `/etc/restic/env`). **The rule: any change that creates persistent state on a host must update these lists in the same PR** - the audit is the safety net for the forgotten case, not a substitute for doing it.
+`audit.sh` runs after the Sunday `restic check` (ExecStartPost) and compares live host state against the coverage lists: every named docker volume, every compose project dir, and every running postgres/mysql container must be matched by `includes.txt`, `excludes.txt`, a dump hook in `pre-backup.sh`, or an explicit line in `audit-ignore.txt` (with a `# reason`). Anything unmatched goes to telegram via [tg-relay-bot](https://github.com/pkarpovich/tg-relay-bot) (`RELAY_SECRET` in `/etc/restic/env`, URL defaults to `https://relay.pkarpovich.space/send`) - no bot token ever lands on the hosts. **The rule: any change that creates persistent state on a host must update these lists in the same PR** - the audit is the safety net for the forgotten case, not a substitute for doing it.
 
 ## Retention prune (on the NAS)
 

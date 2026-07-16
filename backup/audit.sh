@@ -48,8 +48,10 @@ msg="[backup-audit $host] uncovered state:$drift
 
 Fix: add to backup/hosts/$host/includes.txt (or pre-backup.sh for databases), or to audit-ignore.txt with a #reason."
 echo "$msg" >&2
-if [ -n "${TELEGRAM_BOT_TOKEN:-}" ] && [ -n "${TELEGRAM_CHAT_ID:-}" ]; then
-    curl -fsS -m 10 "https://api.telegram.org/bot$TELEGRAM_BOT_TOKEN/sendMessage" \
-        --data-urlencode "chat_id=$TELEGRAM_CHAT_ID" \
-        --data-urlencode "text=$msg" >/dev/null || true
+if [ -n "${RELAY_SECRET:-}" ]; then
+    payload="$(printf %s "$msg" | python3 -c 'import json,sys; print(json.dumps({"message": sys.stdin.read()}))')"
+    curl -fsS -m 10 -X POST "${RELAY_URL:-https://relay.pkarpovich.space/send}" \
+        -H "Content-Type: application/json" \
+        -H "X-Secret: $RELAY_SECRET" \
+        --data "$payload" >/dev/null || true
 fi
