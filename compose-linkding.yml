@@ -1,0 +1,23 @@
+services:
+  linkding:
+    image: sissbruecker/linkding:latest
+    container_name: linkding
+    restart: unless-stopped
+    healthcheck:
+      interval: 5m
+    expose:
+      - 9090
+    volumes:
+      - ./volumes/linkding:/etc/linkding/data
+    environment:
+      - LD_SUPERUSER_NAME=${LINKDING_SUPERUSER_NAME}
+      - LD_SUPERUSER_PASSWORD=${LINKDING_SUPERUSER_PASSWORD}
+    networks:
+      - proxy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.linkding.rule=Host(`bookmarks.${ROOT_DOMAIN}`)"
+      - "traefik.http.routers.linkding.entrypoints=https"
+      - "traefik.http.routers.linkding.tls.certresolver=le"
+    depends_on:
+      - traefik
