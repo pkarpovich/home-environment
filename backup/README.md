@@ -45,6 +45,10 @@ sudo systemctl start restic-backup.service && journalctl -u restic-backup -f
 
 Gatus external endpoints (`Backups / restic-alpha`, `Backups / restic-bravo`), same pattern as the Time Machine heartbeats: every run pushes `success=true|false` to the Gatus API (instant telegram alert on failure), and the 26h `heartbeat.interval` fires when a backup silently never runs. Tokens: `RESTIC_ALPHA_TOKEN` / `RESTIC_BRAVO_TOKEN` in alpha's `.env` (gatus container) and `GATUS_TOKEN` in each host's `/etc/restic/env`.
 
+## Coverage audit (weekly)
+
+`audit.sh` runs after the Sunday `restic check` (ExecStartPost) and compares live host state against the coverage lists: every named docker volume, every compose project dir, and every running postgres/mysql container must be matched by `includes.txt`, `excludes.txt`, a dump hook in `pre-backup.sh`, or an explicit line in `audit-ignore.txt` (with a `# reason`). Anything unmatched goes to telegram (`TELEGRAM_BOT_TOKEN`/`TELEGRAM_CHAT_ID` in `/etc/restic/env`). **The rule: any change that creates persistent state on a host must update these lists in the same PR** - the audit is the safety net for the forgotten case, not a substitute for doing it.
+
 ## Retention prune (on the NAS)
 
 Append-only means the Pis cannot prune. A monthly DSM Task Scheduler job (root) does it locally:

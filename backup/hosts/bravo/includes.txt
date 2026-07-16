@@ -7,3 +7,4 @@
 /var/ralphex/claude
 /var/ralphex/codex
 /var/backups/restic-dumps
+/var/lib/docker/volumes/home-environment_letsencrypt
