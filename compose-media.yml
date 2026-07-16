@@ -2,6 +2,8 @@ services:
   tautulli:
     container_name: tautulli
     image: ghcr.io/tautulli/tautulli
+    healthcheck:
+      interval: 5m
     restart: unless-stopped
     environment:
       - PUID=1000

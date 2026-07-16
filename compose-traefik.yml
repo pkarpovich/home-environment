@@ -32,7 +32,7 @@ services:
       - letsencrypt:/letsencrypt
     healthcheck:
       test: ["CMD", "traefik", "healthcheck", "--ping"]
-      interval: 10s
+      interval: 2m
       timeout: 5s
       retries: 3
       start_period: 5s
