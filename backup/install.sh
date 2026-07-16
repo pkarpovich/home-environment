@@ -39,6 +39,7 @@ EOF
 fi
 
 ln -sf "$kit_dir/backup.sh" /usr/local/bin/restic-backup
+ln -sf "$kit_dir/audit.sh" /usr/local/bin/restic-audit
 cp "$kit_dir/systemd/restic-backup.service" /etc/systemd/system/
 cp "$kit_dir/systemd/restic-check.service" /etc/systemd/system/
 cp "$host_dir/systemd/restic-backup.timer" /etc/systemd/system/

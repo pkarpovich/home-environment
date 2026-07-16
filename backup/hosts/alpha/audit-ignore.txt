@@ -1,0 +1,37 @@
+# metrics / traces - rebuildable, deliberately not backed up
+/var/lib/docker/volumes/home-environment_prometheus
+/var/lib/docker/volumes/home-environment_prometheus_data
+/var/lib/docker/volumes/home-environment_loki
+/var/lib/docker/volumes/home-environment_tempo
+# raw postgres volumes - covered via pg_dumpall in pre-backup.sh
+/var/lib/docker/volumes/turtle-hub_content_collector_postgres_data
+/var/lib/docker/volumes/turtle-hub_youtube_postgres_data
+/var/lib/docker/volumes/turtle-hub_overcast_postgres_data
+/var/lib/docker/volumes/turtle-hub_pgvector_data
+# dead projects (confirmed dead 2026-07-16)
+/var/lib/docker/volumes/little-turtle_langfuse-db-data
+/var/lib/docker/volumes/little-turtle_story-images
+/var/lib/docker/volumes/little-turtle_story-store-data
+/var/lib/docker/volumes/solidtime-app-storage
+/var/lib/docker/volumes/solidtime-db-data
+/var/lib/docker/volumes/zima_formsdbdata
+/var/lib/docker/volumes/zima_grafana-storage
+/var/lib/docker/volumes/zima_persist-homekit
+/var/lib/docker/volumes/zima_prometheus-data
+/var/lib/docker/volumes/helpdesk-guru_redis-cache-data
+/var/lib/docker/volumes/mcpjungle_db_data
+/var/lib/docker/volumes/home-environment_mcpjungle_db_data
+/var/lib/docker/volumes/environment_letsencrypt
+# CI caches
+/var/lib/docker/volumes/act-toolcache
+/var/lib/docker/volumes/earthly-cache
+# dead / replaced project dirs
+/home/pi/content-collector
+/home/pi/content-oracle
+/home/pi/omni-turtle-search
+/home/pi/tg-contacts-search
+/home/pi/tg-content-insight-bot
+/home/pi/tg-link-keeper-bot
+/home/pi/helpdesk-guru
+/home/pi/little-turtle
+/home/pi/vpn-exit-node
