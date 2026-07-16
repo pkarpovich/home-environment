@@ -7,6 +7,7 @@ include:
   - path: compose-deploy.yml
   - path: compose-updater.yml
   - path: compose-jackett.yml
+  - path: compose-linkding.yml
 
 services:
   homepage:
@@ -30,6 +31,7 @@ services:
       - HOMEPAGE_VAR_DISKSTATION_USER=${DISKSTATION_USER}
       - HOMEPAGE_VAR_DISKSTATION_PASSWORD=${DISKSTATION_PASSWORD}
       - HOMEPAGE_VAR_LOCAL_DOCKER_LOGS_URL=${LOCAL_DOCKER_LOGS_URL}
+      - HOMEPAGE_VAR_LINKDING_URL=${LINKDING_URL}
       - HOMEPAGE_VAR_PLEX_URL=${PLEX_DOMAIN}
       - HOMEPAGE_VAR_PLEX_KEY=${PLEX_KEY}
       - HOMEPAGE_VAR_TRAEFIK_URL=${TRAEFIK_URL}

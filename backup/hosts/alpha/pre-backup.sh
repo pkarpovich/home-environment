@@ -11,7 +11,7 @@ for c in content-collector-postgres youtube-postgres overcast-postgres pgvector;
     mv "$dump_dir/$c.sql.gz.tmp" "$dump_dir/$c.sql.gz"
 done
 
-for db in /home/pi/turtle-hub/.db/*.db /home/pi/magnet-feed-sync/.db/*.db; do
+for db in /home/pi/turtle-hub/.db/*.db /home/pi/magnet-feed-sync/.db/*.db /home/pi/home-environment/volumes/linkding/*.sqlite3; do
     [ -f "$db" ] || continue
     out="$dump_dir/sqlite$(printf %s "$db" | tr / _)"
     sqlite3 "$db" ".backup '$out.tmp'"

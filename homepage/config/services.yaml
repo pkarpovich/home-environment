@@ -131,6 +131,10 @@
           type: prometheus
           url: {{HOMEPAGE_VAR_PROMETHEUS_URL}}
 - Bookmarks:
+    - Linkding:
+        id: simple_icon
+        icon: linkding
+        href: {{HOMEPAGE_VAR_LINKDING_URL}}
     - Influx:
         id: simple_icon
         icon: influxdb
