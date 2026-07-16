@@ -1,0 +1,9 @@
+/home/tuclaw/tuclaw
+/home/tuclaw/home-environment
+/home/tuclaw/ralphex-farm
+/home/tuclaw/llm-gateway
+/home/tuclaw/.ssh
+/var/ralphex/config
+/var/ralphex/claude
+/var/ralphex/codex
+/var/backups/restic-dumps
