@@ -70,6 +70,13 @@ restic restore latest --target /tmp/restore-test --include /home/tuclaw/tuclaw/d
 
 Quarterly drill: restore one real file per host and open it. Yearly: `restic check --read-data-subset=5%`.
 
-## Phase 2 (not implemented)
+## Phase 2: offsite to DigitalOcean Spaces (fra1)
 
-Offsite copy of the NAS itself: Hyper Backup of `/volume2/restic_backups` + Gitea volumes to Hetzner Storage Box (rsync) or Backblaze B2 (S3). The NAS is currently the single physical location of all backups.
+Nightly DSM Task Scheduler job `restic-offsite` (root, 05:30) runs `/volume2/restic_backups/offsite/offsite.sh`:
+
+1. restic backup of Gitea (`/volume2/docker/gitea`, EXCLUDING `gitea/packages` - 39G of rebuildable container-registry blobs) into the local repo `/volume2/restic_backups/nas`, then forget+prune (local backend, no append-only restriction).
+2. `rclone sync` of the whole share (minus `.secrets/`, `bin/`, `offsite/`) to the standard bucket `pkarpovich-restic-mirror`. The mirror is a byte-copy of the restic repos - restorable from any machine with `restic -r s3:... restore`, no Synology needed. `--backup-dir` keeps overwritten/deleted objects under `versions/YYYYMMDD/` for 90 days (Spaces has no bucket versioning).
+3. `rclone copy` (never sync - local deletions do not propagate) of `/volume2/media/me` through the `media-crypt` rclone crypt remote into the cold bucket `pkarpovich-media-archive` ($0.007/GiB/mo). Client-side encryption incl. filenames; crypt keys in 1Password item "rclone crypt media" - without them the offsite media copy is undecryptable.
+4. Success/failure push to the Gatus external endpoint `Backups/restic-offsite` (26h heartbeat).
+
+Static `rclone` + `restic` binaries live in `/volume2/restic_backups/bin/` (no docker dependency). All credentials in `/volume2/restic_backups/.secrets/` (0600): `spaces.env` (DO keys), `rclone.conf`, `crypt.pass`/`crypt.salt`, `nas.pass`, `offsite.env` (gatus token). DO Spaces scoped keys deny HeadBucket, hence `no_check_bucket = true` in rclone.conf.
