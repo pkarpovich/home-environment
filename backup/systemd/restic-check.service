@@ -1,0 +1,10 @@
+[Unit]
+Description=restic repository consistency check
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=oneshot
+EnvironmentFile=/etc/restic/env
+ExecStart=/usr/bin/restic check
+Nice=10
