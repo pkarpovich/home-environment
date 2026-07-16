@@ -49,6 +49,16 @@ external-endpoints:
         failure-threshold: 1
         success-threshold: 1
 
+  - name: restic-offsite
+    group: Backups
+    token: "${RESTIC_OFFSITE_TOKEN}"
+    heartbeat:
+      interval: 26h
+    alerts:
+      - type: telegram
+        failure-threshold: 1
+        success-threshold: 1
+
 endpoints:
   # Infrastructure
   - name: Zima Pi
