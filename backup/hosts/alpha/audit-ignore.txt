@@ -8,6 +8,7 @@
 /var/lib/docker/volumes/turtle-hub_youtube_postgres_data
 /var/lib/docker/volumes/turtle-hub_overcast_postgres_data
 /var/lib/docker/volumes/turtle-hub_pgvector_data
+/var/lib/docker/volumes/home-environment_ryot_postgres
 # dead projects (confirmed dead 2026-07-16)
 /var/lib/docker/volumes/little-turtle_langfuse-db-data
 /var/lib/docker/volumes/little-turtle_story-images
