@@ -19,6 +19,9 @@ services:
     environment:
       - SERVER_ADMIN_ACCESS_TOKEN=${RYOT_ADMIN_ACCESS_TOKEN}
       - DATABASE_URL=postgres://postgres:${RYOT_DB_PASSWORD}@ryot-db:5432/postgres
+      - VIDEO_GAMES_TWITCH_CLIENT_ID=${RYOT_TWITCH_CLIENT_ID:-}
+      - VIDEO_GAMES_TWITCH_CLIENT_SECRET=${RYOT_TWITCH_CLIENT_SECRET:-}
+      - MOVIES_AND_SHOWS_TMDB_ACCESS_TOKEN=${RYOT_TMDB_ACCESS_TOKEN:-}
     networks:
       - proxy
     labels:
