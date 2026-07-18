@@ -5,6 +5,8 @@ services:
     restart: unless-stopped
     healthcheck:
       interval: 5m
+      start_period: 90s
+      start_interval: 5s
     expose:
       - 9090
     volumes:
