@@ -1,6 +1,6 @@
-# Personal Home Automation Project
+# Personal Home Environment
 
-This repository contains configs for my home services. It is based on a Raspberry Pi that runs several services in Docker containers to control and manage various aspects of my home environment. Each service is configured through Docker Compose for easy deployment and management.
+Docker Compose configs for the home lab: two Raspberry Pis (and a Synology NAS around them) running everything from Home Assistant to media tooling behind Traefik.
 
 ## Clusters and deployment
 
@@ -24,46 +24,34 @@ The shared Traefik HTTPS entrypoint sets `respondingTimeouts` (read/idle = 600s)
 
 ## Services
 
-The following services are included in this project:
+The compose files are the source of truth; this table is the map. Everything below runs on alpha unless noted.
 
-### 1. Homepage
+| Compose file | Services | Exposed at |
+|---|---|---|
+| `compose.yml` | homepage, dozzle, phoenix, iSponsorBlockTV | `home.*`, `logs.*`, `phoenix.*` |
+| `compose-traefik.yml` | traefik (alpha + bravo) | `traefik.*` |
+| `compose-updater.yml` | updater (alpha + bravo) | `updater.*` |
+| `compose-grafana.yml` | grafana, prometheus, loki, tempo, influxdb, telegraf, otel-collector, mcp-grafana, whoami | `grafana.*`, `prometheus.*`, `mcp-grafana.*` |
+| `compose-homeassistant.yml` | homeassistant, matter-server | `homeassistant.*` |
+| `compose-gatus.yml` | gatus (uptime + heartbeat monitoring, telegram alerts) | `ping.*` |
+| `compose-media.yml` | tautulli | `tautulli.*` |
+| `compose-jackett.yml` | jackett, flaresolverr (stateless CF solver, also used by scripts on both hosts) | `jackett.*`, `flaresolverr.*` |
+| `compose-linkding.yml` | linkding (bookmarks) | `bookmarks.*` |
+| `compose-ryot.yml` | ryot + postgres (media/fitness tracker) | `ryot.*` |
+| `compose-deploy.yml` | stash (KV for secrets) | `stash.*` |
+| `compose-torrents.yml`, `compose-twitch.yml` | qbittorrent + flood, ganymede - standalone `-f` deploys, not in the alpha `include:` set | |
 
-The homepage service is a custom dashboard that provides a unified interface to various home automation services. It uses the image `ghcr.io/benphelps/homepage:main`.
+Adjacent but not in this repo: Gitea + Plex live on the Synology NAS; tuclaw + ralphex-farm live on bravo in their own repos.
 
-#### Environment Variables
-The service requires several environment variables for configuration. These variables should be replaced with your actual data.
+## Conventions
 
-- `HOMEPAGE_VAR_DISKSTATION_URL`: The URL of your DiskStation.
-- `HOMEPAGE_VAR_DISKSTATION_USER`: Your DiskStation username.
-- `HOMEPAGE_VAR_DISKSTATION_PASSWORD`: Your DiskStation password.
-- `HOMEPAGE_VAR_HOMEBRIDGE_URL`: The URL of your Homebridge.
-- `HOMEPAGE_VAR_HOMEBRIDGE_USER`: Your Homebridge username.
-- `HOMEPAGE_VAR_HOMEBRIDGE_PASSWORD`: Your Homebridge password.
-- `HOMEPAGE_VAR_ZIMA_GRAFANA_URL`: The URL of your Grafana instance.
-- `HOMEPAGE_VAR_ZIMA_GRAFANA_USER`: Your Grafana username.
-- `HOMEPAGE_VAR_ZIMA_GRAFANA_PASSWORD`: Your Grafana password.
+- **New service** = its own `compose-<name>.yml` + an entry in `compose.yml`'s `include:` list (or service block in an existing themed file). Traefik exposure via labels: `Host(\`<sub>.${ROOT_DOMAIN}\`)` + `entrypoints=https` + `tls.certresolver=le`. Wildcard DNS resolves any new subdomain to alpha automatically.
+- **Healthchecks are expensive on a Pi**: steady-state interval 5m minimum (a 10s default across a dozen containers once cost a third of the CPU). For containers whose Traefik routing waits on `health: starting`, add `start_period` + `start_interval` so the router appears seconds after boot, not minutes.
+- **Backup coverage moves with the change**: anything that creates persistent state on alpha or bravo must land in `backup/hosts/<host>/includes.txt` (or a dump hook in `pre-backup.sh` for databases, or `audit-ignore.txt` with a reason) in the same PR. A weekly audit diffs live volumes/projects/db-containers against these lists and reports drift to telegram.
 
-#### Volumes
-Two volumes are mounted for the homepage service:
-- `/var/run/docker.sock` is shared with the host to enable container management from within the service.
-- `./homepage/config` is mounted to `/app/config` in the container for configuration data.
+## Backups
 
-### 2. Homebridge
-
-Homebridge is a lightweight Node.js server that emulates the iOS HomeKit API. It allows you to integrate with smart home devices that do not natively support HomeKit. This service uses the image `oznu/homebridge:latest`.
-
-#### Volumes
-A single volume, `./volumes/homebridge`, is mounted to `/homebridge` in the container for persistent data.
-
-#### Logging
-The logging driver used is `json-file` with a maximum file size of 10MB and a maximum of 1 file.
-
-### 3. iSponsorBlockTV
-
-iSponsorBlockTV is a service that automatically skips sponsored messages and other specified segments in YouTube videos on your TV. It uses the image `ghcr.io/dmunozv04/isponsorblocktv:latest`.
-
-#### Volumes
-A single volume, `./iSponsorBlockTV/config.json`, is mounted to `/app/config.json` in the container for configuration data.
+Nightly restic snapshots from both Pis to an append-only rest-server on the Synology, offsite mirror + encrypted media archive to DigitalOcean Spaces, monthly retention prune, Gatus heartbeats end to end. Full design, schedules, and the restore runbook: [`backup/README.md`](backup/README.md).
 
 ## Setup
 
@@ -72,10 +60,6 @@ Deployment is covered in [Clusters and deployment](#clusters-and-deployment) abo
 1. Clone this repository onto the target Pi (the `git checkout` step in `spot.yml` does this automatically on first deploy).
 2. Place the host's `.env` (git-ignored) with that host's values - never edit the compose files. Use `.env.bravo.example` as a template for a bravo-style host.
 3. Deploy with `mise run deploy-alpha` or `mise run deploy-bravo`.
-
-## Contributing
-
-If you have suggestions for how this project could be improved, feel free to open an issue or a pull request.
 
 ## License
 
