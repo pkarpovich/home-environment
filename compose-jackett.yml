@@ -21,6 +21,18 @@ services:
       - "traefik.http.routers.jackett.tls.certresolver=le"
       - "traefik.http.services.jackett.loadbalancer.server.port=9117"
 
+  flaresolverr:
+    container_name: flaresolverr
+    image: ghcr.io/flaresolverr/flaresolverr:latest
+    restart: unless-stopped
+    environment:
+      - LOG_LEVEL=info
+      - TZ=Europe/Warsaw
+    expose:
+      - 8191
+    networks:
+      - proxy
+
 volumes:
   jackett:
 
