@@ -32,6 +32,12 @@ services:
       - 8191
     networks:
       - proxy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.flaresolverr.rule=Host(`flaresolverr.${ROOT_DOMAIN}`)"
+      - "traefik.http.routers.flaresolverr.entrypoints=https"
+      - "traefik.http.routers.flaresolverr.tls.certresolver=le"
+      - "traefik.http.services.flaresolverr.loadbalancer.server.port=8191"
 
 volumes:
   jackett:
