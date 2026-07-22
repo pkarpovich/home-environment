@@ -12,6 +12,7 @@ services:
     environment:
       - STASH_ADMIN_PASSWD=${STASH_ADMIN_PASSWD}
       - STASH_DB=/data/stash.db
+      - STASH_SECRETS_KEY=${STASH_SECRETS_KEY}
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.stash.rule=Host(`stash.${ROOT_DOMAIN}`)"
