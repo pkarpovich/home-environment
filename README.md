@@ -43,6 +43,8 @@ The compose files are the source of truth; this table is the map. Everything bel
 
 Adjacent but not in this repo: Gitea + Plex live on the Synology NAS; tuclaw + ralphex-farm live on bravo in their own repos.
 
+Not everything here is a container. [`subnet-relay/`](subnet-relay/README.md) is a small systemd service on **bravo** that lets Home Assistant (on alpha) reach the Xiaomi devices and the Samsung TV sitting on the WiFi subnet - they only answer requests coming from their own subnet. Read it before adding such a device or when one changes its IP.
+
 ## Conventions
 
 - **New service** = its own `compose-<name>.yml` + an entry in `compose.yml`'s `include:` list (or service block in an existing themed file). Traefik exposure via labels: `Host(\`<sub>.${ROOT_DOMAIN}\`)` + `entrypoints=https` + `tls.certresolver=le`. Wildcard DNS resolves any new subdomain to alpha automatically.
