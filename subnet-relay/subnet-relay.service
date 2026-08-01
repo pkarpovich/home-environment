@@ -1,0 +1,14 @@
+[Unit]
+Description=Relay for smart devices that only answer inside their own subnet
+Documentation=https://git.pkarpovich.space/pkarpovich/home-environment/src/branch/main/subnet-relay/README.md
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/python3 /usr/local/bin/subnet-relay.py /etc/subnet-relay.conf
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
