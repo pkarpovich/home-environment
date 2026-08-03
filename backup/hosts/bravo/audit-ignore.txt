@@ -1,1 +1,2 @@
-# nothing ignored - all stateful things on bravo are in includes.txt
+# raw postgres volumes - covered via pg_dumpall in pre-backup.sh
+/var/lib/docker/volumes/home-environment_mattermost_postgres

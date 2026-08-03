@@ -7,7 +7,7 @@ Docker Compose configs for the home lab: two Raspberry Pis (and a Synology NAS a
 This repo drives two separate Raspberry Pis (separate Docker daemons), named with the NATO phonetic alphabet. Both reuse the same compose files; per-host differences come from each host's `.env`.
 
 - **alpha** - the first Pi (`192.168.198.3`). Served on the root wildcard `*.pkarpovich.space` (no prefix). Deploys the full stack: `docker compose up -d` against `compose.yml`, which pulls every service in via its top-level `include:`.
-- **bravo** - the second Pi / cluster (`192.168.199.72`). Served under `*.bravo.pkarpovich.space` via its own Traefik (longest-match wins over the root wildcard, no conflict). Deploys an explicit subset (no `compose.yml`): `docker compose -f compose-traefik.yml -f compose-updater.yml up -d`, i.e. Traefik + updater only.
+- **bravo** - the second Pi / cluster (`192.168.199.72`). Served under `*.bravo.pkarpovich.space` via its own Traefik (longest-match wins over the root wildcard, no conflict). Deploys an explicit subset (no `compose.yml`): `docker compose -f compose-traefik.yml -f compose-updater.yml -f compose-mattermost.yml up -d`, i.e. Traefik, updater and Mattermost.
 
 So the *file set* per host is chosen by the deploy task (`include:` for alpha vs `-f` flags for bravo); the *values* per host come from `.env`. There are no `-bravo` duplicate compose files - `bravo`'s `.env` sets `ROOT_DOMAIN=bravo.pkarpovich.space`, so the shared `traefik/traefik.yml` issues the `*.bravo.pkarpovich.space` wildcard cert and the `updater.${ROOT_DOMAIN}` route resolves to the bravo zone with zero edits.
 
