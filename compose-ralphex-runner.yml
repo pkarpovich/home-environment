@@ -1,0 +1,47 @@
+# ralphex-farm execution runner.
+#
+# The farm (control plane, bravo) never executes anything and never dials a
+# runner: runners long-poll it, so this one only needs outbound HTTP to
+# FARM_URL and can live behind NAT/DHCP.
+#
+# Repositories are NOT configured here. They are declared once in stash under
+# ralphex-farm/repos/<slug> and this runner materializes them into
+# RUNNER_REPOS_ROOT itself; only the root is created by hand.
+#
+# Every host directory is mounted at its own absolute path. The runner hands
+# these paths to `docker run` as bind sources for task containers and the
+# daemon resolves them against the host, so the two sides only agree when the
+# paths are identical - which is why the values are variables rather than
+# hardcoded: the Mac keeps them under $HOME (colima cannot see /var/ralphex),
+# bravo under /var/ralphex.
+services:
+  ralphex-runner:
+    image: git.pkarpovich.space/pkarpovich/ralphex-runner:latest
+    container_name: ralphex-runner
+    restart: unless-stopped
+    # must exceed RUNNER_DRAIN_TIMEOUT (default 2m) so in-flight jobs are
+    # reported as runner_shutdown before docker SIGKILLs the runner
+    stop_grace_period: 3m
+    env_file: ${RALPHEX_RUNNER_ENV_FILE:-.env.mbp}
+    environment:
+      RUNNER_REPOS_ROOT: ${RUNNER_REPOS_ROOT}
+      RALPHEX_CONFIG_DIR: ${RALPHEX_CONFIG_DIR}
+      CODEX_CONFIG_DIR: ${CODEX_CONFIG_DIR}
+      FARM_CLAUDE_CONFIG_DIR: ${FARM_CLAUDE_CONFIG_DIR}
+      MISE_DATA_DIR: ${RALPHEX_MISE_DATA_DIR}
+      FARM_GO_CACHE_DIR: ${FARM_GO_CACHE_DIR}
+    extra_hosts:
+      - host.docker.internal:host-gateway
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ${RUNNER_REPOS_ROOT}:${RUNNER_REPOS_ROOT}
+      # read-write: the runner delivers its own prompts/finalize.txt here, sets
+      # finalize_enabled in the ralphex config, and creates farm-out/<run_id>
+      # for the generated pull request description. Read-only means every run
+      # falls back to the old three-line description with a warning per job.
+      - ${RALPHEX_CONFIG_DIR}:${RALPHEX_CONFIG_DIR}
+      - ${CODEX_CONFIG_DIR}:${CODEX_CONFIG_DIR}
+      - ${FARM_CLAUDE_CONFIG_DIR}:${FARM_CLAUDE_CONFIG_DIR}:ro
+      - ${RALPHEX_MISE_DATA_DIR}:${RALPHEX_MISE_DATA_DIR}
+      - ${FARM_GO_CACHE_DIR}:${FARM_GO_CACHE_DIR}
+      - ${RUNNER_SSH_DIR}:/home/app/.ssh:ro

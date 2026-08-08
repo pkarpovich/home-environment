@@ -4,10 +4,12 @@ Docker Compose configs for the home lab: two Raspberry Pis (and a Synology NAS a
 
 ## Clusters and deployment
 
-This repo drives two separate Raspberry Pis (separate Docker daemons), named with the NATO phonetic alphabet. Both reuse the same compose files; per-host differences come from each host's `.env`.
+This repo drives two separate Raspberry Pis (separate Docker daemons), named with the NATO phonetic alphabet, plus one Mac running a single container. The Pis reuse the same compose files; per-host differences come from each host's `.env`.
 
 - **alpha** - the first Pi (`192.168.198.3`). Served on the root wildcard `*.pkarpovich.space` (no prefix). Deploys the full stack: `docker compose up -d` against `compose.yml`, which pulls every service in via its top-level `include:`.
 - **bravo** - the second Pi / cluster (`192.168.199.72`). Served under `*.bravo.pkarpovich.space` via its own Traefik (longest-match wins over the root wildcard, no conflict). Deploys an explicit subset (no `compose.yml`): `docker compose -f compose-traefik.yml -f compose-updater.yml up -d`, i.e. Traefik + updater only.
+
+- **mbp** - the Mac (colima), not a Pi and not part of the spot deploys. It runs exactly one container, the ralphex-farm execution runner, from `compose-ralphex-runner.yml` and its own `.env.mbp`, brought up by hand. Nothing on it is exposed: the runner only dials out to the farm on bravo. Its state lives under `$HOME/ralphex` and is outside the backup audit below - the clones and caches are disposable and its credentials are provisioned by hand.
 
 So the *file set* per host is chosen by the deploy task (`include:` for alpha vs `-f` flags for bravo); the *values* per host come from `.env`. There are no `-bravo` duplicate compose files - `bravo`'s `.env` sets `ROOT_DOMAIN=bravo.pkarpovich.space`, so the shared `traefik/traefik.yml` issues the `*.bravo.pkarpovich.space` wildcard cert and the `updater.${ROOT_DOMAIN}` route resolves to the bravo zone with zero edits.
 
@@ -40,8 +42,9 @@ The compose files are the source of truth; this table is the map. Everything bel
 | `compose-ryot.yml` | ryot + postgres (media/fitness tracker) | `ryot.*` |
 | `compose-deploy.yml` | stash (KV for secrets) | `stash.*` |
 | `compose-torrents.yml`, `compose-twitch.yml` | qbittorrent + flood, ganymede - standalone `-f` deploys, not in the alpha `include:` set | |
+| `compose-ralphex-runner.yml` | ralphex-farm execution runner - **mbp only**, by hand: `docker compose -p runners --env-file .env.mbp -f compose-ralphex-runner.yml pull && ... up -d` | not exposed (outbound only) |
 
-Adjacent but not in this repo: Gitea + Plex live on the Synology NAS; tuclaw + ralphex-farm live on bravo in their own repos.
+Adjacent but not in this repo: Gitea + Plex live on the Synology NAS; tuclaw and the ralphex-farm control plane live on bravo in their own repos. Only the farm's execution runner, which runs on mbp, is deployed from here - the farm repo ships a `docker-compose.runner.yml` of its own, but that one is reference documentation and deploys nothing.
 
 Not everything here is a container. [`subnet-relay/`](subnet-relay/README.md) is a small systemd service on **bravo** that lets Home Assistant (on alpha) reach the Xiaomi devices and the Samsung TV sitting on the WiFi subnet - they only answer requests coming from their own subnet. Read it before adding such a device or when one changes its IP.
 
