@@ -1,3 +1,7 @@
+ui:
+  dashboard-heading: Turtle Home
+  default-sort-by: group
+
 alerting:
   telegram:
     token: ${TELEGRAM_TOKEN}
@@ -135,13 +139,98 @@ endpoints:
     alerts:
       - type: telegram
 
-  - name: Tuclaw Voice
-    group: Local
-    url: "http://192.168.199.72:8000/health"
-    interval: 1m
+  # Turtle Hub
+  # The wildcard cert for *.pkarpovich.space is already asserted by the External
+  # group, so these endpoints skip CERTIFICATE_EXPIRATION to avoid ten identical
+  # alerts firing at once when it nears expiry.
+  - name: Boosty
+    group: Turtle Hub
+    url: "https://boosty.pkarpovich.space/healthz"
+    interval: 5m
     conditions:
       - "[STATUS] == 200"
       - "[BODY].status == ok"
+    alerts:
+      - type: telegram
+
+  - name: Streamcast
+    group: Turtle Hub
+    url: "https://streamcast.pkarpovich.space/healthz"
+    interval: 5m
+    conditions:
+      - "[STATUS] == 200"
+    alerts:
+      - type: telegram
+
+  - name: Stream Recorder
+    group: Turtle Hub
+    url: "https://stream-recorder.pkarpovich.space/healthz"
+    interval: 5m
+    conditions:
+      - "[STATUS] == 200"
+    alerts:
+      - type: telegram
+
+  - name: Twitch
+    group: Turtle Hub
+    url: "https://turtle-hub.pkarpovich.space/twitch/healthz"
+    interval: 5m
+    conditions:
+      - "[STATUS] == 200"
+      - "[BODY].status == ok"
+    alerts:
+      - type: telegram
+
+  - name: YouTube
+    group: Turtle Hub
+    url: "https://youtube.pkarpovich.space/healthz"
+    interval: 5m
+    conditions:
+      - "[STATUS] == 200"
+      - "[BODY].status == ok"
+    alerts:
+      - type: telegram
+
+  - name: Overcast
+    group: Turtle Hub
+    url: "https://overcast.pkarpovich.space/healthz"
+    interval: 5m
+    conditions:
+      - "[STATUS] == 200"
+      - "[BODY].status == ok"
+    alerts:
+      - type: telegram
+
+  - name: Obsidian MCP
+    group: Turtle Hub
+    url: "https://obsidian-mcp.pkarpovich.space/healthz"
+    interval: 5m
+    conditions:
+      - "[STATUS] == 200"
+      - "[BODY].status == ok"
+      - "[BODY].notes > 0"
+    ui:
+      resolve-successful-conditions: true
+    alerts:
+      - type: telegram
+
+  - name: Esports
+    group: Turtle Hub
+    url: "https://esports.pkarpovich.space/healthz"
+    interval: 5m
+    conditions:
+      - "[STATUS] == 200"
+      - "[BODY] == ok"
+    alerts:
+      - type: telegram
+
+  - name: Omni Search
+    group: Turtle Hub
+    url: "https://turtle-hub.pkarpovich.space/omni-search/health"
+    interval: 5m
+    conditions:
+      - "[STATUS] == 200"
+      - "[BODY].ok == true"
     alerts:
       - type: telegram
 
@@ -209,17 +298,6 @@ endpoints:
     conditions:
       - "[STATUS] == 200"
       - "[BODY].message == OK"
-      - "[CERTIFICATE_EXPIRATION] > 48h"
-    alerts:
-      - type: telegram
-
-  - name: Turtle Hub (NATS)
-    group: External
-    url: "https://turtle-hub.pkarpovich.space/nats/connz"
-    interval: 1m
-    conditions:
-      - "[STATUS] == 200"
-      - "[BODY].num_connections >= 18"
       - "[CERTIFICATE_EXPIRATION] > 48h"
     alerts:
       - type: telegram
