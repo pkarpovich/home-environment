@@ -297,7 +297,8 @@ endpoints:
     interval: 1m
     conditions:
       - "[STATUS] == 200"
-      - "[BODY].message == OK"
+      - "[BODY].status == ok"
+      - "[BODY].failing == 0"
       - "[CERTIFICATE_EXPIRATION] > 48h"
     alerts:
       - type: telegram
