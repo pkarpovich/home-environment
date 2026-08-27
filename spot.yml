@@ -42,5 +42,5 @@ tasks:
       - name: pull docker images and restart
         script: |
           cd ~/home-environment
-          docker compose -f compose-traefik.yml -f compose-updater.yml pull
-          docker compose -f compose-traefik.yml -f compose-updater.yml up -d
+          docker compose -f compose-traefik.yml -f compose-updater.yml -f compose-mattermost.yml pull
+          docker compose -f compose-traefik.yml -f compose-updater.yml -f compose-mattermost.yml up -d

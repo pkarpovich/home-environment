@@ -7,7 +7,7 @@ Docker Compose configs for the home lab: two Raspberry Pis (and a Synology NAS a
 This repo drives two separate Raspberry Pis (separate Docker daemons), named with the NATO phonetic alphabet, plus one Mac running a single container. The Pis reuse the same compose files; per-host differences come from each host's `.env`.
 
 - **alpha** - the first Pi (`192.168.198.3`). Served on the root wildcard `*.pkarpovich.space` (no prefix). Deploys the full stack: `docker compose up -d` against `compose.yml`, which pulls every service in via its top-level `include:`.
-- **bravo** - the second Pi / cluster (`192.168.199.72`). Served under `*.bravo.pkarpovich.space` via its own Traefik (longest-match wins over the root wildcard, no conflict). Deploys an explicit subset (no `compose.yml`): `docker compose -f compose-traefik.yml -f compose-updater.yml up -d`, i.e. Traefik + updater only.
+- **bravo** - the second Pi / cluster (`192.168.199.72`). Served under `*.bravo.pkarpovich.space` via its own Traefik (longest-match wins over the root wildcard, no conflict). Deploys an explicit subset (no `compose.yml`): `docker compose -f compose-traefik.yml -f compose-updater.yml -f compose-mattermost.yml up -d`, i.e. Traefik, updater and Mattermost.
 
 - **mbp** - the Mac (colima), not a Pi and not part of the spot deploys. It runs exactly one container, the ralphex-farm execution runner, from `compose-ralphex-runner.yml` and its own `.env.mbp`, brought up by hand. Nothing on it is exposed: the runner only dials out to the farm on bravo. Its state lives under `$HOME/ralphex` and is outside the backup audit below - the clones and caches are disposable and its credentials are provisioned by hand.
 

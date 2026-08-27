@@ -1,0 +1,56 @@
+services:
+  mattermost-db:
+    image: postgres:18-alpine
+    container_name: mattermost-db
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=mmuser
+      - POSTGRES_PASSWORD=${MATTERMOST_DB_PASSWORD}
+      - POSTGRES_DB=mattermost
+      - TZ=Europe/Warsaw
+    volumes:
+      - mattermost_postgres:/var/lib/postgresql
+    networks:
+      - proxy
+
+  # Mattermost publishes no arm64 image (mattermost/mattermost#23387, open since
+  # 2023), so this is a community build of the same sources for linux/arm64.
+  # Its entrypoint composes the datasource from MM_USERNAME/MM_PASSWORD/DB_HOST
+  # and listens on 8000, not the upstream 8065.
+  mattermost:
+    image: rheens/mattermost-app:v11.9.0
+    container_name: mattermost
+    restart: unless-stopped
+    expose:
+      - 8000
+    environment:
+      - DB_HOST=mattermost-db
+      - MM_USERNAME=mmuser
+      - MM_PASSWORD=${MATTERMOST_DB_PASSWORD}
+      - MM_DBNAME=mattermost
+      - MM_SERVICESETTINGS_SITEURL=https://chat.${ROOT_DOMAIN}
+      - TZ=Europe/Warsaw
+    volumes:
+      - ./volumes/mattermost/config:/mattermost/config:rw
+      - ./volumes/mattermost/data:/mattermost/data:rw
+      - ./volumes/mattermost/logs:/mattermost/logs:rw
+      - ./volumes/mattermost/plugins:/mattermost/plugins:rw
+      - ./volumes/mattermost/client-plugins:/mattermost/client/plugins:rw
+    networks:
+      - proxy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.mattermost.rule=Host(`chat.${ROOT_DOMAIN}`)"
+      - "traefik.http.routers.mattermost.entrypoints=https"
+      - "traefik.http.routers.mattermost.tls.certresolver=le"
+      - "traefik.http.services.mattermost.loadbalancer.server.port=8000"
+    depends_on:
+      - mattermost-db
+      - traefik
+
+networks:
+  proxy:
+    external: true
+
+volumes:
+  mattermost_postgres:
