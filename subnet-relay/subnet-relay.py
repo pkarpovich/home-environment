@@ -24,14 +24,17 @@ Config format (see subnet-relay.conf):
     <alias-ip> <device-ip>                                # legacy: udp/54321
 """
 
+import os
 import socket
 import subprocess
 import sys
 import threading
+import time
 
 IFACE = "wlan0"
 UDP_TIMEOUT = 5
 BUFFER = 65535
+ALIAS_CHECK_INTERVAL = 60
 
 
 def log(message):
@@ -76,6 +79,30 @@ def ensure_alias(alias_ip):
         log("alias %s already present" % alias_ip)
     else:
         log("could not add alias %s: %s" % (alias_ip, result.stderr.strip()))
+
+
+def missing_aliases(alias_ips):
+    shown = subprocess.run(
+        ["ip", "-4", "addr", "show", "dev", IFACE],
+        capture_output=True,
+        text=True,
+    ).stdout
+    present = {line.split()[1].split("/")[0]
+               for line in shown.splitlines() if line.strip().startswith("inet ")}
+    return [ip for ip in alias_ips if ip not in present]
+
+
+def watch_aliases(alias_ips):
+    while True:
+        time.sleep(ALIAS_CHECK_INTERVAL)
+        gone = missing_aliases(alias_ips)
+        if not gone:
+            continue
+        log("aliases gone from %s: %s" % (IFACE, ", ".join(gone)))
+        for alias_ip in gone:
+            ensure_alias(alias_ip)
+        log("restarting so the relays rebind")
+        os._exit(1)
 
 
 def udp_relay(alias_ip, device_ip, port):
@@ -146,8 +173,10 @@ def main():
         log("no mappings in %s, nothing to do" % config_path)
         return 1
 
-    for _, alias_ip, _, _ in entries:
+    alias_ips = sorted({alias_ip for _, alias_ip, _, _ in entries})
+    for alias_ip in alias_ips:
         ensure_alias(alias_ip)
+    threading.Thread(target=watch_aliases, args=(alias_ips,), daemon=True).start()
 
     workers = []
     for proto, alias_ip, device_ip, ports in entries:

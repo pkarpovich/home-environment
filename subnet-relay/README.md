@@ -57,6 +57,19 @@ Home Assistant is configured against the **alias** address. That indirection is
 the point: a device changing its DHCP lease becomes a one-line config edit, and
 the integration keeps working untouched.
 
+The alias addresses are secondary addresses the relay puts on `wlan0` itself,
+not DHCP leases, so nothing outside this service restores them. When bravo lost
+the WiFi on 30 Aug 2026 NetworkManager flushed every address off the interface
+and brought back only its own `192.168.199.72`; the three aliases stayed gone
+for two days while the service sat there `active (running)`, its sockets bound
+to addresses the host no longer had. A watchdog thread now re-checks the aliases
+every minute and, if any went missing, restores them and exits so systemd
+restarts the relay with freshly bound sockets.
+
+That failure mode is the one to remember: **a running service proves nothing
+here.** Check `ip -4 addr show wlan0` for the aliases before suspecting the
+devices, the firewall or Home Assistant.
+
 Files: `subnet-relay.py` (relay + alias setup), `subnet-relay.conf` (the
 mappings), `subnet-relay.service` (systemd unit), `install.sh` (idempotent
 installer).
