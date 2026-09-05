@@ -3,6 +3,8 @@
 /var/lib/docker/volumes/home-environment_prometheus_data
 /var/lib/docker/volumes/home-environment_loki
 /var/lib/docker/volumes/home-environment_tempo
+# authelia sessions only - a re-login rebuilds it
+/var/lib/docker/volumes/home-environment_authelia_redis
 # raw postgres volumes - covered via pg_dumpall in pre-backup.sh
 /var/lib/docker/volumes/turtle-hub_content_collector_postgres_data
 /var/lib/docker/volumes/turtle-hub_youtube_postgres_data

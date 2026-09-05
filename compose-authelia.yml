@@ -17,6 +17,7 @@ services:
       - AUTHELIA_STORAGE_ENCRYPTION_KEY=${AUTHELIA_STORAGE_ENCRYPTION_KEY}
     networks:
       - proxy
+      - authelia
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.authelia.rule=Host(`auth.${ROOT_DOMAIN}`)"
@@ -26,11 +27,32 @@ services:
       - "traefik.http.middlewares.authelia.forwardauth.trustForwardHeader=true"
       - "traefik.http.middlewares.authelia.forwardauth.authResponseHeaders=Remote-User,Remote-Groups,Remote-Email,Remote-Name"
     depends_on:
-      - traefik
+      traefik:
+        condition: service_started
+      authelia-redis:
+        condition: service_healthy
+
+  authelia-redis:
+    container_name: authelia-redis
+    image: redis:8-alpine
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5m
+      start_period: 30s
+      start_interval: 2s
+    volumes:
+      - authelia_redis:/data
+    networks:
+      - authelia
 
 networks:
   proxy:
     external: true
+  authelia:
+    internal: true
 
 volumes:
   authelia:
+  authelia_redis:
