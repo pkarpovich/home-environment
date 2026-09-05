@@ -1,0 +1,47 @@
+theme: 'auto'
+
+server:
+  address: 'tcp://:9091/'
+  endpoints:
+    authz:
+      forward-auth:
+        implementation: 'ForwardAuth'
+
+log:
+  level: 'info'
+
+webauthn:
+  enable_passkey_login: true
+  display_name: '{{ mustEnv "ROOT_DOMAIN" }}'
+  selection_criteria:
+    discoverability: 'required'
+    user_verification: 'required'
+
+authentication_backend:
+  password_reset:
+    disable: true
+  password_change:
+    disable: true
+  file:
+    path: '/config/users_database.yml'
+    watch: true
+
+access_control:
+  default_policy: 'one_factor'
+
+session:
+  cookies:
+    - domain: '{{ mustEnv "ROOT_DOMAIN" }}'
+      authelia_url: 'https://auth.{{ mustEnv "ROOT_DOMAIN" }}'
+      default_redirection_url: 'https://home.{{ mustEnv "ROOT_DOMAIN" }}'
+      inactivity: '1h'
+      expiration: '12h'
+      remember_me: '1M'
+
+storage:
+  local:
+    path: '/data/db.sqlite3'
+
+notifier:
+  filesystem:
+    filename: '/data/notification.txt'

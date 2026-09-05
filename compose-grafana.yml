@@ -93,6 +93,7 @@ services:
       - "traefik.http.routers.whoami.rule=Host(`info.${ROOT_DOMAIN}`)"
       - "traefik.http.routers.whoami.entrypoints=https"
       - "traefik.http.routers.whoami.tls.certresolver=le"
+      - "traefik.http.routers.whoami.middlewares=authelia@docker"
 
   tempo-init:
     image: busybox:latest

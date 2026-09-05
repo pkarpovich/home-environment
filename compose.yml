@@ -9,6 +9,7 @@ include:
   - path: compose-jackett.yml
   - path: compose-linkding.yml
   - path: compose-ryot.yml
+  - path: compose-authelia.yml
 
 services:
   homepage:
