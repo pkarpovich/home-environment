@@ -1,0 +1,8 @@
+users:
+  pkarpovich:
+    disabled: false
+    displayname: 'Pavel Karpovich'
+    email: 'pavel.karpovich@outlook.com'
+    groups:
+      - 'admins'
+    password: '<argon2 digest from the README bootstrap step 2>'

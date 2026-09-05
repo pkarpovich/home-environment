@@ -95,3 +95,4 @@ fabric.properties
 **/logs/*
 /iSponsorBlockTV/config.json
 /volumes
+/authelia/users_database.yml

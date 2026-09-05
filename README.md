@@ -41,6 +41,7 @@ The compose files are the source of truth; this table is the map. Everything bel
 | `compose-linkding.yml` | linkding (bookmarks) | `bookmarks.*` |
 | `compose-ryot.yml` | ryot + postgres (media/fitness tracker) | `ryot.*` |
 | `compose-deploy.yml` | stash (KV for secrets) | `stash.*` |
+| `compose-authelia.yml` | authelia (SSO portal + the `authelia@docker` forward-auth middleware, see [Authentication](#authentication)) | `auth.*` |
 | `compose-torrents.yml`, `compose-twitch.yml` | qbittorrent + flood, ganymede - standalone `-f` deploys, not in the alpha `include:` set | |
 | `compose-ralphex-runner.yml` | ralphex-farm execution runner - **mbp only**, by hand: `docker compose -p runners --env-file .env.mbp -f compose-ralphex-runner.yml pull && ... up -d` | not exposed (outbound only) |
 
@@ -53,6 +54,23 @@ Not everything here is a container. [`subnet-relay/`](subnet-relay/README.md) is
 - **New service** = its own `compose-<name>.yml` + an entry in `compose.yml`'s `include:` list (or service block in an existing themed file). Traefik exposure via labels: `Host(\`<sub>.${ROOT_DOMAIN}\`)` + `entrypoints=https` + `tls.certresolver=le`. Wildcard DNS resolves any new subdomain to alpha automatically.
 - **Healthchecks are expensive on a Pi**: steady-state interval 5m minimum (a 10s default across a dozen containers once cost a third of the CPU). For containers whose Traefik routing waits on `health: starting`, add `start_period` + `start_interval` so the router appears seconds after boot, not minutes.
 - **Backup coverage moves with the change**: anything that creates persistent state on alpha or bravo must land in `backup/hosts/<host>/includes.txt` (or a dump hook in `pre-backup.sh` for databases, or `audit-ignore.txt` with a reason) in the same PR. A weekly audit diffs live volumes/projects/db-containers against these lists and reports drift to telegram.
+- **Putting a service behind SSO** = one router label, `middlewares=authelia@docker`, after listing every non-browser caller of that host. See [Authentication](#authentication).
+
+## Authentication
+
+[Authelia](https://www.authelia.com/) at `auth.*` is the single sign-on portal for the whole estate: one account (`pkarpovich`), passkey login with the passkey kept in 1Password, and a Traefik `forwardAuth` middleware named `authelia` that any router opts into with one label. It runs on alpha only. The session cookie is set on the root domain, so a `*.bravo.*` route could reuse the same session later by pointing a bravo-side middleware at alpha; nothing on bravo is wired today, on purpose.
+
+The default policy is `one_factor`, which a passkey login satisfies on its own; the account password exists for the first sign-in and as the fallback. Sessions live in memory (no Redis), so a restart of the `authelia` container means signing in again - one passkey tap. Persistent state (SQLite + the one-time-code file) is the `authelia` volume, listed in the alpha backup includes.
+
+Protecting a service is `traefik.http.routers.<router>.middlewares=authelia@docker`. Before adding it, list every non-browser caller of that host - Gatus targets, Homepage widgets, tokens handed out through tuclaw's secret broker, CI webhooks - and either give them a `bypass` rule with `resources:` in `authelia/configuration.yml` or leave the service alone. `info.*` (whoami) is the canary: it is protected and echoes `remote-user` once you are signed in. `traefik.*` is deliberately still open: the Homepage Traefik widget fetches it through the public URL.
+
+### Bootstrap (once, on alpha)
+
+1. Two secrets into `.env`, `AUTHELIA_SESSION_SECRET` and `AUTHELIA_STORAGE_ENCRYPTION_KEY`, each from `docker run --rm ghcr.io/authelia/authelia:4.39 authelia crypto rand --length 64 --charset alphanumeric`.
+2. `cp authelia/users_database.example.yml authelia/users_database.yml` (git-ignored - the repo is public), set the email, and paste the `Digest` line from `docker run --rm ghcr.io/authelia/authelia:4.39 authelia crypto hash generate argon2 --random --random.length 32 --no-confirm` as `password`. Keep the printed password in 1Password.
+3. `docker compose up -d authelia whoami`.
+4. Sign in at `auth.*` with the password, then Settings -> Security -> WebAuthn credentials -> Add. The one-time code it asks for is in `docker exec authelia cat /data/notification.txt`. Save the passkey to 1Password.
+5. From now on use the passkey button on the login page. `info.*` should answer with `remote-user: pkarpovich`.
 
 ## Backups
 
@@ -63,7 +81,7 @@ Nightly restic snapshots from both Pis to an append-only rest-server on the Syno
 Deployment is covered in [Clusters and deployment](#clusters-and-deployment) above. In short:
 
 1. Clone this repository onto the target Pi (the `git checkout` step in `spot.yml` does this automatically on first deploy).
-2. Place the host's `.env` (git-ignored) with that host's values - never edit the compose files. Use `.env.bravo.example` as a template for a bravo-style host.
+2. Place the host's `.env` (git-ignored) with that host's values - never edit the compose files. Use `.env.bravo.example` as a template for a bravo-style host. On alpha also place `authelia/users_database.yml` (git-ignored, see [Authentication](#authentication)).
 3. Deploy with `mise run deploy-alpha` or `mise run deploy-bravo`.
 
 ## License

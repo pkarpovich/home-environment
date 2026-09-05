@@ -18,3 +18,4 @@
 /var/lib/docker/volumes/home-environment_jackett
 /var/lib/docker/volumes/home-environment_tautili
 /var/lib/docker/volumes/home-environment_letsencrypt
+/var/lib/docker/volumes/home-environment_authelia
