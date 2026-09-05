@@ -96,3 +96,4 @@ fabric.properties
 /iSponsorBlockTV/config.json
 /volumes
 /authelia/users_database.yml
+/authelia/secrets/

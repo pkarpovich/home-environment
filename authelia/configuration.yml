@@ -44,6 +44,32 @@ session:
       expiration: '12h'
       remember_me: '1M'
 
+identity_providers:
+  oidc:
+    jwks:
+      - key: {{ secret "/config/secrets/oidc.pem" | mindent 10 "|" | msquote }}
+    clients:
+      - client_id: 'gitea'
+        client_name: 'Gitea'
+        client_secret: '{{ secret "/config/secrets/gitea.client_secret" }}'
+        public: false
+        authorization_policy: 'one_factor'
+        consent_mode: 'implicit'
+        redirect_uris:
+          - 'https://git.{{ mustEnv "ROOT_DOMAIN" }}/user/oauth2/authelia/callback'
+        scopes:
+          - 'openid'
+          - 'email'
+          - 'profile'
+          - 'groups'
+        response_types:
+          - 'code'
+        grant_types:
+          - 'authorization_code'
+        access_token_signed_response_alg: 'none'
+        userinfo_signed_response_alg: 'none'
+        token_endpoint_auth_method: 'client_secret_basic'
+
 storage:
   local:
     path: '/data/db.sqlite3'
