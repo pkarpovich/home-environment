@@ -20,6 +20,7 @@ services:
       - authelia
     labels:
       - "traefik.enable=true"
+      - "traefik.docker.network=proxy"
       - "traefik.http.routers.authelia.rule=Host(`auth.${ROOT_DOMAIN}`)"
       - "traefik.http.routers.authelia.entrypoints=https"
       - "traefik.http.routers.authelia.tls.certresolver=le"
