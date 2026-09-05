@@ -33,6 +33,9 @@ access_control:
       policy: 'two_factor'
 
 session:
+  redis:
+    host: 'authelia-redis'
+    port: 6379
   cookies:
     - domain: '{{ mustEnv "ROOT_DOMAIN" }}'
       authelia_url: 'https://auth.{{ mustEnv "ROOT_DOMAIN" }}'
