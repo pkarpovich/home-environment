@@ -14,6 +14,14 @@ services:
     environment:
       - LD_SUPERUSER_NAME=${LINKDING_SUPERUSER_NAME}
       - LD_SUPERUSER_PASSWORD=${LINKDING_SUPERUSER_PASSWORD}
+      - LD_ENABLE_OIDC=true
+      - LD_CSRF_TRUSTED_ORIGINS=https://bookmarks.${ROOT_DOMAIN},https://auth.${ROOT_DOMAIN}
+      - OIDC_RP_CLIENT_ID=linkding
+      - OIDC_RP_CLIENT_SECRET=${LINKDING_OIDC_CLIENT_SECRET}
+      - OIDC_OP_AUTHORIZATION_ENDPOINT=https://auth.${ROOT_DOMAIN}/api/oidc/authorization
+      - OIDC_OP_TOKEN_ENDPOINT=https://auth.${ROOT_DOMAIN}/api/oidc/token
+      - OIDC_OP_USER_ENDPOINT=https://auth.${ROOT_DOMAIN}/api/oidc/userinfo
+      - OIDC_OP_JWKS_ENDPOINT=https://auth.${ROOT_DOMAIN}/jwks.json
     networks:
       - proxy
     labels:
