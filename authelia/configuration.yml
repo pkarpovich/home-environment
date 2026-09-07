@@ -55,6 +55,9 @@ identity_providers:
           - 'name'
           - 'groups'
           - 'preferred_username'
+      ryot:
+        id_token:
+          - 'email'
     clients:
       - client_id: 'gitea'
         client_name: 'Gitea'
@@ -126,6 +129,7 @@ identity_providers:
         public: false
         authorization_policy: 'one_factor'
         consent_mode: 'implicit'
+        claims_policy: 'ryot'
         redirect_uris:
           - 'https://ryot.{{ mustEnv "ROOT_DOMAIN" }}/api/auth'
         scopes:
