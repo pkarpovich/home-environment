@@ -6,6 +6,12 @@ host="${BACKUP_HOST:?BACKUP_HOST is not set}"
 host_dir="$kit_dir/hosts/$host"
 drift=""
 
+report_gatus() {
+    [ -n "${GATUS_AUDIT_URL:-}" ] && [ -n "${GATUS_AUDIT_TOKEN:-}" ] || return 0
+    curl -fsS -m 10 -X POST "$GATUS_AUDIT_URL?success=$1" \
+        -H "Authorization: Bearer $GATUS_AUDIT_TOKEN" >/dev/null || true
+}
+
 is_covered() {
     cand="$1"
     for f in "$host_dir/includes.txt" "$host_dir/excludes.txt" "$host_dir/audit-ignore.txt"; do
@@ -38,11 +44,13 @@ done
 
 if [ -z "$drift" ]; then
     echo "backup audit: clean"
+    report_gatus true
     exit 0
 fi
 
 msg="$(printf '🗄 backup-audit: %s\n\nUncovered state:%s\n\nFix: add to backup/hosts/%s/includes.txt (or pre-backup.sh for databases), or to audit-ignore.txt with a reason.' "$host" "$drift" "$host")"
 echo "$msg" >&2
+report_gatus false
 if [ -n "${RELAY_SECRET:-}" ]; then
     payload="$(printf %s "$msg" | python3 -c 'import json,sys; print(json.dumps({"message": sys.stdin.read()}))')"
     curl -fsS -m 10 -X POST "${RELAY_URL:-https://relay.pkarpovich.space/send}" \

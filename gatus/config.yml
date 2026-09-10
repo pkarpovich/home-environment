@@ -84,6 +84,26 @@ external-endpoints:
         failure-threshold: 1
         success-threshold: 1
 
+  - name: backup-audit-alpha
+    group: Backups
+    token: "${AUDIT_ALPHA_TOKEN}"
+    heartbeat:
+      interval: 8d
+    alerts:
+      - type: telegram
+        failure-threshold: 1
+        success-threshold: 1
+
+  - name: backup-audit-bravo
+    group: Backups
+    token: "${AUDIT_BRAVO_TOKEN}"
+    heartbeat:
+      interval: 8d
+    alerts:
+      - type: telegram
+        failure-threshold: 1
+        success-threshold: 1
+
 endpoints:
   # Infrastructure
   - name: Zima Pi
