@@ -13,6 +13,8 @@
 /var/lib/docker/volumes/turtle-hub_stream_recorder_data
 /var/lib/docker/volumes/turtle-hub_telegram_user_mcp_data
 /var/lib/docker/volumes/turtle-hub_whatsapp_monitor_mcp_data
+/var/lib/docker/volumes/turtle-hub_boosty-tokens
+/var/lib/docker/volumes/turtle-hub_nikki_data
 /var/lib/docker/volumes/home-environment_grafana
 /var/lib/docker/volumes/home-environment_grafana_data
 /var/lib/docker/volumes/home-environment_influxdb
