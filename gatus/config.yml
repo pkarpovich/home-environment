@@ -64,6 +64,26 @@ external-endpoints:
         failure-threshold: 1
         success-threshold: 1
 
+  - name: fs-alpha
+    group: Infrastructure
+    token: "${FS_ALPHA_TOKEN}"
+    heartbeat:
+      interval: 15m
+    alerts:
+      - type: telegram
+        failure-threshold: 1
+        success-threshold: 1
+
+  - name: fs-bravo
+    group: Infrastructure
+    token: "${FS_BRAVO_TOKEN}"
+    heartbeat:
+      interval: 15m
+    alerts:
+      - type: telegram
+        failure-threshold: 1
+        success-threshold: 1
+
 endpoints:
   # Infrastructure
   - name: Zima Pi
