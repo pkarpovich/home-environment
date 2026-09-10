@@ -4,6 +4,7 @@
 /home/pi/tg-relay-bot
 /home/pi/tg-watchmen-turtle
 /home/pi/zima
+/home/pi/cc-bench
 /home/pi/.ssh
 /var/backups/restic-dumps
 /var/lib/docker/volumes/turtle-hub_nats_data
