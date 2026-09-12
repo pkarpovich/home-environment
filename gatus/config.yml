@@ -88,7 +88,7 @@ external-endpoints:
     group: Backups
     token: "${AUDIT_ALPHA_TOKEN}"
     heartbeat:
-      interval: 8d
+      interval: 192h
     alerts:
       - type: telegram
         failure-threshold: 1
@@ -98,7 +98,7 @@ external-endpoints:
     group: Backups
     token: "${AUDIT_BRAVO_TOKEN}"
     heartbeat:
-      interval: 8d
+      interval: 192h
     alerts:
       - type: telegram
         failure-threshold: 1
