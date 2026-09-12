@@ -35,3 +35,4 @@
 /var/lib/docker/volumes/home-environment_tautili
 /var/lib/docker/volumes/home-environment_letsencrypt
 /var/lib/docker/volumes/home-environment_authelia
+/srv/gitea

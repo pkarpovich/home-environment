@@ -10,6 +10,7 @@ include:
   - path: compose-linkding.yml
   - path: compose-ryot.yml
   - path: compose-authelia.yml
+  - path: compose-gitea.yml
 
 services:
   homepage:

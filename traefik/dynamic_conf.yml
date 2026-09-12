@@ -21,13 +21,6 @@ http:
       tls:
         certResolver: le
 
-    gitea-router:
-      rule: "Host(`git.{{env "ROOT_DOMAIN"}}`)"
-      entryPoints: [ "https" ]
-      service: "gitea-service"
-      tls:
-        certResolver: le
-
     qbittorrent-router:
       rule: "Host(`torrents.{{env "ROOT_DOMAIN"}}`)"
       entryPoints: [ "https" ]
@@ -99,11 +92,6 @@ http:
       loadBalancer:
         servers:
           - url: "{{env "KIRA_CLIENT_URL"}}"
-
-    gitea-service:
-      loadBalancer:
-        servers:
-          - url: "{{env "GITEA_URL"}}"
 
     qbittorrent-service:
       loadBalancer:
