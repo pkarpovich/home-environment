@@ -1,3 +1,4 @@
 /home/pi/home-environment/volumes/phoenix
 /home/pi/home-environment/volumes/homebridge
 /home/pi/home-environment/volumes/music-assistant
+/srv/gitea/gitea/packages

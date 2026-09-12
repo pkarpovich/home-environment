@@ -41,11 +41,12 @@ The compose files are the source of truth; this table is the map. Everything bel
 | `compose-linkding.yml` | linkding (bookmarks) | `bookmarks.*` |
 | `compose-ryot.yml` | ryot + postgres (media/fitness tracker) | `ryot.*` |
 | `compose-deploy.yml` | stash (KV for secrets) | `stash.*` |
+| `compose-gitea.yml` | gitea (git hosting, container registry, Actions control plane; the runner is on mbp) | `git.*`, ssh on `:4022` |
 | `compose-authelia.yml` | authelia (SSO portal + the `authelia@docker` forward-auth middleware, see [Authentication](#authentication)) | `auth.*` |
 | `compose-torrents.yml`, `compose-twitch.yml` | qbittorrent + flood, ganymede - standalone `-f` deploys, not in the alpha `include:` set | |
 | `compose-ralphex-runner.yml` | ralphex-farm execution runner - **mbp only**, by hand: `docker compose -p runners --env-file .env.mbp -f compose-ralphex-runner.yml pull && ... up -d` | not exposed (outbound only) |
 
-Adjacent but not in this repo: Gitea + Plex live on the Synology NAS; tuclaw and the ralphex-farm control plane live on bravo in their own repos. Only the farm's execution runner, which runs on mbp, is deployed from here - the farm repo ships a `docker-compose.runner.yml` of its own, but that one is reference documentation and deploys nothing.
+Adjacent but not in this repo: Plex lives on the Synology NAS (Gitea did too until 2026-09-13, when the NAS CPU - a 4-vCPU VM, tailscaled and torrents on a J4125 - made 45 MB of SQLite answer in 14 s); tuclaw and the ralphex-farm control plane live on bravo in their own repos. Only the farm's execution runner, which runs on mbp, is deployed from here - the farm repo ships a `docker-compose.runner.yml` of its own, but that one is reference documentation and deploys nothing.
 
 Not everything here is a container. [`subnet-relay/`](subnet-relay/README.md) is a small systemd service on **bravo** that lets Home Assistant (on alpha) reach the Xiaomi devices and the Samsung TV sitting on the WiFi subnet - they only answer requests coming from their own subnet. Read it before adding such a device or when one changes its IP.
 

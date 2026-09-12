@@ -19,6 +19,12 @@ What alpha runs outside docker compose, what a from-scratch rebuild needs, and t
 - The fan is driven by firmware from 50 °C; the old `dtoverlay=gpio-fan` line from the Pi 4 config must not be carried over.
 - `192.168.198.3` is a UniFi DHCP reservation on the board's MAC, not a static address on the host. A board swap means moving the reservation to the new MAC; nothing on the host needs to change.
 
+## Gitea
+
+Gitea moved here from the Synology on 2026-09-13 (`compose-gitea.yml`). Its whole state is the bind mount `/srv/gitea` (`git/` repositories, `gitea/` app data with the SQLite database, attachments, the 46G container registry under `gitea/packages`, and `ssh/` with the host keys of the container's own sshd), owned by uid 1000 - the container runs as that uid and `pi` is 1000 on the host, so a plain copy keeps working. HTTPS goes through Traefik like everything else; git-over-ssh is published on host port 4022 (the container's sshd, not the host's), the same port the NAS used, though every known client uses HTTPS with a token.
+
+This changes the restore order below: the registry every turtle-hub image is pulled from IS this container, so Gitea has to be up (as part of the home-environment stack) before turtle-hub can start. `gitea/packages` is deliberately not backed up: after a restore the registry is empty until the Gitea Actions workflows rebuild the images, which is a push to each repository or a re-run of its last workflow.
+
 ## Docker networks created by hand
 
 `spot.yml` creates none of these on alpha:
@@ -33,7 +39,7 @@ docker network create -d macvlan --subnet=192.168.198.0/24 --ip-range=192.168.19
 
 ## Restore order
 
-1. **home-environment first.** `git.pkarpovich.space` is served by this Traefik, and every turtle-hub image is pulled through it, so nothing else can start until Traefik is up. Restore the `letsencrypt` volume before the first Traefik start or it re-issues every certificate against the Let's Encrypt rate limit.
+1. **home-environment first.** `git.pkarpovich.space` is served by this Traefik and, since 2026-09-13, IS this stack's `gitea` container, and every turtle-hub image is pulled from it, so nothing else can start until Traefik is up. Restore the `letsencrypt` volume before the first Traefik start or it re-issues every certificate against the Let's Encrypt rate limit.
 2. Compose-managed volumes must exist with compose's own labels before data goes in: `docker compose create` in the project directory creates them (and pulls the images), then copy the data into `/var/lib/docker/volumes/<name>/_data` with ownership preserved, then `docker compose up -d`. Wipe `_data` first - image `VOLUME` directives pre-populate a fresh volume.
 3. **turtle-hub, magnet-feed-sync, tg-relay-bot, tg-watchmen-turtle** with `docker compose -f compose.yml up -d`. Each has a `compose.override.yml` that adds `build:` stanzas for local development; a bare `docker compose up` merges it and rebuilds from source instead of pulling, and the magnet-feed-sync build no longer passes under current pnpm.
 4. **Postgres.** A raw copy of a `postgres:15-alpine` volume (owner 70:70; pgvector pg17 is 999:999) recovers on the next start through WAL replay - the copy taken from the dead card at the moment of failure came up clean on all four. The nightly `pg_dumpall` output restores into an empty `postgres` database; ryot keeps its data there, not in a named database, so an app that already ran its migrations against the fresh database has to be stopped and the database dropped first.

@@ -78,7 +78,7 @@ Quarterly drill: restore one real file per host and open it. Yearly: `restic che
 
 Nightly DSM Task Scheduler job `restic-offsite` (root, 05:30) runs `/volume2/restic_backups/offsite/offsite.sh`:
 
-1. restic backup of Gitea (`/volume2/docker/gitea`, EXCLUDING `gitea/packages` - 39G of rebuildable container-registry blobs) into the local repo `/volume2/restic_backups/nas`, then forget+prune (local backend, no append-only restriction).
+1. restic backup of Gitea into the local repo `/volume2/restic_backups/nas` - retired on 2026-09-13 when Gitea moved to alpha (the job step is removed there; the repo keeps its history). Gitea is now in alpha's nightly run: `/srv/gitea` minus `gitea/packages` (46G of rebuildable container-registry blobs, same policy as before), with `gitea.db` taken through the SQLite `.backup` hook.
 2. `rclone sync` of the whole share (minus `.secrets/`, `bin/`, `offsite/`) to the standard bucket `pkarpovich-restic-mirror`. The mirror is a byte-copy of the restic repos - restorable from any machine with `restic -r s3:... restore`, no Synology needed. `--backup-dir` keeps overwritten/deleted objects under `versions/YYYYMMDD/` for 90 days (Spaces has no bucket versioning).
 3. `rclone copy` (never sync - local deletions do not propagate) of `/volume2/media/me` through the `media-crypt` rclone crypt remote into the cold bucket `pkarpovich-media-archive` ($0.007/GiB/mo). Client-side encryption incl. filenames; crypt keys in 1Password item "rclone crypt media" - without them the offsite media copy is undecryptable.
 4. Success/failure push to the Gatus external endpoint `Backups/restic-offsite` (26h heartbeat).
