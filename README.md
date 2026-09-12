@@ -90,6 +90,10 @@ Gitea (on the NAS, proxied at `git.*`): client id `gitea`, callback `https://git
 
 Nightly restic snapshots from both Pis to an append-only rest-server on the Synology, offsite mirror + encrypted media archive to DigitalOcean Spaces, monthly retention prune, Gatus heartbeats end to end. Full design, schedules, and the restore runbook: [`backup/README.md`](backup/README.md).
 
+## Monitoring
+
+Gatus at `ping.*` watches the estate: HTTP/ICMP/DNS/TCP endpoints plus external heartbeats for anything that runs on a schedule (restic on both hosts, the offsite job, Time Machine). Every one of those is a liveness check, so none of them notices a host that is alive but can no longer write to disk - the failure that took alpha down for five hours unseen on 2026-09-09. A per-host timer closes that gap by writing a probe file every five minutes and pushing the outcome to its own heartbeat endpoint: [`watchdog/README.md`](watchdog/README.md).
+
 ## Setup
 
 Deployment is covered in [Clusters and deployment](#clusters-and-deployment) above. In short:

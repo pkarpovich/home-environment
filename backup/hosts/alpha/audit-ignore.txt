@@ -5,6 +5,11 @@
 /var/lib/docker/volumes/home-environment_tempo
 # authelia sessions only - a re-login rebuilds it
 /var/lib/docker/volumes/home-environment_authelia_redis
+# read-path bench database - an empty Postgres the harness restores a
+# content-collector dump into, and that dump is already backed up; the harness
+# directory itself is in includes.txt, it holds unversioned experiment code
+/var/lib/docker/volumes/cc-bench_bench-pgdata
+cc-bench-pg
 # raw postgres volumes - covered via pg_dumpall in pre-backup.sh
 /var/lib/docker/volumes/turtle-hub_content_collector_postgres_data
 /var/lib/docker/volumes/turtle-hub_youtube_postgres_data

@@ -4,6 +4,8 @@
 /home/pi/tg-relay-bot
 /home/pi/tg-watchmen-turtle
 /home/pi/zima
+/home/pi/cc-bench
+/home/pi/.ssh
 /var/backups/restic-dumps
 /var/lib/docker/volumes/turtle-hub_nats_data
 /var/lib/docker/volumes/turtle-hub_obsidian-vault
@@ -12,6 +14,8 @@
 /var/lib/docker/volumes/turtle-hub_stream_recorder_data
 /var/lib/docker/volumes/turtle-hub_telegram_user_mcp_data
 /var/lib/docker/volumes/turtle-hub_whatsapp_monitor_mcp_data
+/var/lib/docker/volumes/turtle-hub_boosty-tokens
+/var/lib/docker/volumes/turtle-hub_nikki_data
 /var/lib/docker/volumes/home-environment_grafana
 /var/lib/docker/volumes/home-environment_grafana_data
 /var/lib/docker/volumes/home-environment_influxdb

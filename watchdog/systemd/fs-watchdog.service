@@ -1,0 +1,10 @@
+[Unit]
+Description=root filesystem writability watchdog
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=oneshot
+EnvironmentFile=/etc/fs-watchdog/env
+ExecStart=/usr/local/bin/fs-watchdog
+Nice=10

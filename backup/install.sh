@@ -34,8 +34,10 @@ BACKUP_HOST=$host
 DUMP_DIR=/var/backups/restic-dumps
 GATUS_PUSH_URL=https://ping.pkarpovich.space/api/v1/endpoints/Backups_restic-$host/external
 GATUS_TOKEN=REPLACE_ME
+GATUS_AUDIT_URL=https://ping.pkarpovich.space/api/v1/endpoints/Backups_backup-audit-$host/external
+GATUS_AUDIT_TOKEN=REPLACE_ME
 EOF
-    echo "created /etc/restic/env - set TRANSPORT_PASSWORD and GATUS_TOKEN before first run" >&2
+    echo "created /etc/restic/env - set TRANSPORT_PASSWORD, GATUS_TOKEN and GATUS_AUDIT_TOKEN before first run" >&2
 fi
 
 ln -sf "$kit_dir/backup.sh" /usr/local/bin/restic-backup
