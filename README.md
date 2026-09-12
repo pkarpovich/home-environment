@@ -102,6 +102,8 @@ Deployment is covered in [Clusters and deployment](#clusters-and-deployment) abo
 2. Place the host's `.env` (git-ignored) with that host's values - never edit the compose files. Use `.env.bravo.example` as a template for a bravo-style host. On alpha also place `authelia/users_database.yml` (git-ignored, see [Authentication](#authentication)).
 3. Deploy with `mise run deploy-alpha` or `mise run deploy-bravo`.
 
+Everything alpha runs outside compose, and the order a from-scratch rebuild has to follow, is in [`docs/alpha-host.md`](docs/alpha-host.md).
+
 ## License
 
 This project is open source, under the terms of the [MIT license](/LICENSE).
