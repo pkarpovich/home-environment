@@ -58,7 +58,7 @@ A relayed connection is WireGuard inside one TCP stream per client, and two 32-p
 | Change | home to remote | remote to home |
 |---|---|---|
 | defaults | 12.7 | 19.0 |
-| derper queue 1024 (`TS_DEBUG_DERP_PER_CLIENT_SEND_QUEUE_DEPTH` in `compose-derp.yml`) | 27.8 | 21.9 |
+| derper queue 1024 (`TS_DEBUG_DERP_PER_CLIENT_SEND_QUEUE_DEPTH` in `compose-derp.yml`, now 4096) | 27.8 | 21.9 |
 | alpha: 4 MB initial send buffer, no slow start after idle, cubic | 28.7 | 37.0 |
 | alpha: the same with BBR | 184 | 36.8 |
 | lasso: the same sysctls, derp recreated | 157-161 | 74-76 |
