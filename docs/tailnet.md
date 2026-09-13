@@ -8,9 +8,9 @@ Who does what in the tailnet, and why the roles sit where they do. Besides the o
 |---|---|---|
 | `pi-alpha` | alpha (Pi 5, kernel TUN, apt package) | exit node with the home (Polish) address; subnet router for `192.168.198.0/24` and `192.168.199.0/24`, which is what makes `*.pkarpovich.space` (public DNS points at `192.168.198.3`) and bravo reachable from anywhere as if at home |
 | `vpn-exit-node-de` | lasso (container, [vpn-exit-node](https://github.com/pkarpovich/vpn-exit-node)) | exit node whose egress goes through a gluetun VPN tunnel |
-| `derp.pkarpovich.dev` | lasso (`compose-derp.yml`) | the tailnet's only DERP relay, see below |
+| `derp.pkarpovich.dev` | lasso (`compose-derp.yml`) | the tailnet's only DERP relay, the fallback path, see below |
 | `diskstation` | Synology | a plain node since 2026-09-13 |
-| `lasso` | the droplet's own tailscaled | a plain node; also what `--verify-clients` on the relay consults |
+| `lasso` | the droplet's own tailscaled | peer relay on UDP 40000 (`tailscale set --relay-server-port=40000`, kept in its prefs), the first choice for any pair that cannot connect directly; also what `--verify-clients` on the DERP consults |
 
 There is no ACL: every node sees every node, by decision. Authelia guards the HTTP services; non-HTTP ports on the LAN are reachable through the subnet route.
 
@@ -67,9 +67,25 @@ tailscaled's queue is a compile-time constant, so it is worked around on the soc
 
 The numbers above are alpha to lasso, so "remote" is the droplet itself. A real remote user adds their own leg from lasso, which is bounded by their operator and by Traefik's TCP settings, not by anything measured here.
 
+## Peer relay
+
+Since 1.86 a node can relay UDP for pairs that cannot connect directly, and a client tries such peer relays before any DERP. The relay forwards the encrypted WireGuard packets as they are: no TCP, no TLS, no Traefik, none of the queues above. lasso is that node, and the policy allows every device to use it:
+
+```json
+"hosts": {"lasso": "100.94.192.4"},
+"grants": [
+  {"src": ["*"], "dst": ["lasso"], "app": {"tailscale.com/cap/relay": []}},
+],
+```
+
+Measured on 2026-09-13 between the Mac at home and alpha with their direct UDP blocked on alpha, so both legs run over the home uplink to Frankfurt and back: alpha to Mac 454 Mbit/s in one stream (484 in four) over the peer relay against 112 over the DERP on the same droplet. The Mac to alpha direction is 65 either way, which is the macOS client sending, not the relay. `udprelay_forwarded_bytes_udp4_udp4` in `tailscale debug metrics` on lasso counts what it carried.
+
+The DERP stays as the fallback for clients that cannot use peer relays and for the minutes while a relay endpoint is being set up. With lasso down there is no relay of either kind; direct connections are unaffected, and removing `OmitDefaultRegions` in the policy editor brings Tailscale's public DERPs back within a minute.
+
 ## Checks
 
 - `curl -si https://derp.pkarpovich.dev/derp/probe` answers 200 through Traefik; Gatus watches the same URL as `Infrastructure / DERP`
 - `tailscale netcheck` on any node lists region `lasso` once the policy is applied
+- `tailscale status` on a remote device shows `peer-relay 46.101.182.43:40000:vni:N` for `pi-alpha`; `tailscale ping pi-alpha` reports `via peer-relay(...)`
 - `tailscale ping <peer>` on a relayed pair reports `via DERP(lasso)`; on a remote device `tailscale status` shows `relay "lasso"` instead of `relay "waw"`
 - `tailscale status` on the Mac at home must show `direct` for `pi-alpha` and no `active` traffic to `diskstation`
