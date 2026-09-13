@@ -35,6 +35,7 @@ IFACE = "wlan0"
 UDP_TIMEOUT = 5
 BUFFER = 65535
 ALIAS_CHECK_INTERVAL = 60
+PRIMARY_WAIT_INTERVAL = 2
 
 
 def log(message):
@@ -81,15 +82,34 @@ def ensure_alias(alias_ip):
         log("could not add alias %s: %s" % (alias_ip, result.stderr.strip()))
 
 
-def missing_aliases(alias_ips):
+def present_addresses():
     shown = subprocess.run(
         ["ip", "-4", "addr", "show", "dev", IFACE],
         capture_output=True,
         text=True,
     ).stdout
-    present = {line.split()[1].split("/")[0]
-               for line in shown.splitlines() if line.strip().startswith("inet ")}
+    return [line.split()[1].split("/")[0]
+            for line in shown.splitlines() if line.strip().startswith("inet ")]
+
+
+def missing_aliases(alias_ips):
+    present = set(present_addresses())
     return [ip for ip in alias_ips if ip not in present]
+
+
+def has_primary_address(alias_ips):
+    return any(ip not in alias_ips for ip in present_addresses())
+
+
+def wait_for_primary_address(alias_ips):
+    # The first address on the interface is the one the kernel sends from, and
+    # NFS on the NAS admits only this host's DHCP address. After a WiFi
+    # reconnect NetworkManager brings that address back a few seconds after
+    # the link; adding an alias before it made the alias the primary and the
+    # NAS refused every packet until the next reboot (2026-09-13).
+    while not has_primary_address(alias_ips):
+        log("%s has no address of its own yet, waiting before adding aliases" % IFACE)
+        time.sleep(PRIMARY_WAIT_INTERVAL)
 
 
 def watch_aliases(alias_ips):
@@ -99,6 +119,7 @@ def watch_aliases(alias_ips):
         if not gone:
             continue
         log("aliases gone from %s: %s" % (IFACE, ", ".join(gone)))
+        wait_for_primary_address(alias_ips)
         for alias_ip in gone:
             ensure_alias(alias_ip)
         log("restarting so the relays rebind")
@@ -174,6 +195,7 @@ def main():
         return 1
 
     alias_ips = sorted({alias_ip for _, alias_ip, _, _ in entries})
+    wait_for_primary_address(alias_ips)
     for alias_ip in alias_ips:
         ensure_alias(alias_ip)
     threading.Thread(target=watch_aliases, args=(alias_ips,), daemon=True).start()
