@@ -125,6 +125,15 @@ endpoints:
     alerts:
       - type: telegram
 
+  - name: DERP
+    group: Infrastructure
+    url: "https://derp.pkarpovich.dev/derp/probe"
+    interval: 5m
+    conditions:
+      - "[STATUS] == 200"
+    alerts:
+      - type: telegram
+
   - name: pkarpovich.space DNS
     group: Infrastructure
     url: "1.1.1.1"

@@ -1,0 +1,49 @@
+# Private Tailscale DERP relay - lasso only, deployed by hand:
+#   docker compose -f compose-derp.yml up -d --build
+#
+# Both ends of the remote users' connections sit behind CGNAT (the home ONT gets
+# a 100.64.0.0/10 address, their operators do the same on the other side), so
+# those connections are relayed, and Tailscale's shared Warsaw relay measured
+# 22 Mbit/s against 780 Mbit/s direct. A DERP relay only
+# forwards WireGuard packets it cannot decrypt; this one carries our tailnet
+# alone at the droplet's line rate. See docs/tailnet.md for the derpMap.
+#
+# derper serves TLS itself only when bound to :443, which lasso's Traefik owns,
+# so it listens plain HTTP on 8080 and Traefik terminates TLS and forwards the
+# DERP upgrade (entrypoint `web-secure` is that gateway's name for 443). STUN is
+# UDP and cannot go through Traefik, so 3478/udp is published on the host.
+# --verify-clients asks the host's tailscaled which nodes belong to the tailnet
+# and admits nothing else - the socket mount exists for that check only.
+services:
+  derp:
+    build: ./derp
+    image: derper:v1.102.4
+    container_name: derp
+    restart: unless-stopped
+    command:
+      - -a=:8080
+      - -hostname=derp.pkarpovich.dev
+      - -stun-port=3478
+      - -verify-clients
+      - -socket=/var/run/tailscale/tailscaled.sock
+    ports:
+      - "3478:3478/udp"
+    volumes:
+      - /var/run/tailscale/tailscaled.sock:/var/run/tailscale/tailscaled.sock
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:8080/derp/probe"]
+      interval: 5m
+      timeout: 5s
+      start_period: 20s
+      start_interval: 5s
+    networks:
+      - proxy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.derp.rule=Host(`derp.pkarpovich.dev`)"
+      - "traefik.http.routers.derp.entrypoints=web-secure"
+      - "traefik.http.services.derp.loadbalancer.server.port=8080"
+
+networks:
+  proxy:
+    external: true
