@@ -85,6 +85,8 @@ Nothing lives outside git except `/etc/subnet-relay.conf`, which is seeded from
 this directory - the whole component is reproducible from the repo and needs no
 backup entry of its own.
 
+The aliases are added only once `wlan0` has an address of its own, at start and again whenever they have to be re-added after a WiFi reconnect. The first address on the interface is the one the kernel sends from, and the NAS admits NFS only from bravo's DHCP address: on 2026-09-13 a reconnect let the relay put `.201` back before NetworkManager restored `.72`, every NFS packet left as `.201`, the NAS refused them, and no tuclaw agent could start until the share was remounted with a pinned source. Waiting keeps `.72` first.
+
 ## Current devices
 
 | Device | Alias (used by HA) | Real IP | Ports |

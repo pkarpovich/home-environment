@@ -186,6 +186,7 @@ endpoints:
       - "[STATUS] == 200"
       - "[BODY].status == ok"
       - "[BODY].docker == ok"
+      - "[BODY].agents == ok"
     alerts:
       - type: telegram
 
