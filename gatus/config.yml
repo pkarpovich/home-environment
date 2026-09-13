@@ -342,6 +342,8 @@ endpoints:
     alerts:
       - type: telegram
 
+  # status is about the service (breaker open for hours, cron dead); a single tracked page
+  # in trouble is the bot's message and the parked/stale counters, never this tile
   - name: Magnet Feed Sync API
     group: External
     url: "https://magnet-feed-sync.pkarpovich.space/api/health"
@@ -349,7 +351,6 @@ endpoints:
     conditions:
       - "[STATUS] == 200"
       - "[BODY].status == ok"
-      - "[BODY].failing == 0"
       - "[CERTIFICATE_EXPIRATION] > 48h"
     alerts:
       - type: telegram
