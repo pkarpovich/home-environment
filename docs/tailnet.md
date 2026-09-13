@@ -51,6 +51,22 @@ The relay is announced to the tailnet in the policy file (admin console, Access 
 
 `derp.pkarpovich.dev` is a DNS-only Cloudflare record to lasso's public IPv4. The Cloudflare proxy would break the DERP protocol switch inside TLS, so it must stay grey-clouded.
 
+## Throughput
+
+A relayed connection is WireGuard inside one TCP stream per client, and two 32-packet queues sit on that path: derper's per-client send queue and tailscaled's own DERP write queue. Both drop the tail of any burst they cannot hand to the TCP socket at once, and a TCP stream inside the tunnel reads those drops as congestion. With defaults the relay carried 12.7 Mbit/s home to remote and 19 the other way, while the same TCP path without the tunnel does 863 and 278. Three changes, measured one at a time on 2026-09-13 with the direct path blocked between alpha and lasso:
+
+| Change | home to remote | remote to home |
+|---|---|---|
+| defaults | 12.7 | 19.0 |
+| derper queue 1024 (`TS_DEBUG_DERP_PER_CLIENT_SEND_QUEUE_DEPTH` in `compose-derp.yml`) | 27.8 | 21.9 |
+| alpha: 4 MB initial send buffer, no slow start after idle, cubic | 28.7 | 37.0 |
+| alpha: the same with BBR | 184 | 36.8 |
+| lasso: the same sysctls, derp recreated | 157-161 | 74-76 |
+
+tailscaled's queue is a compile-time constant, so it is worked around on the socket side: the sysctls live in `/etc/sysctl.d/99-tailscale.conf` on alpha and `/etc/sysctl.d/99-derp-tcp.conf` on lasso (`net.ipv4.tcp_congestion_control = bbr`, `net.ipv4.tcp_wmem = 4096 4194304 16777216`, `net.ipv4.tcp_slow_start_after_idle = 0`, plus `tcp_bbr` in `modules-load.d`). A container inherits the host's congestion control when it is created, so on lasso both `derp` and Traefik need a recreate after the sysctl change; Traefik is the hop that talks to the remote users and is still on cubic until its next recreate.
+
+The numbers above are alpha to lasso, so "remote" is the droplet itself. A real remote user adds their own leg from lasso, which is bounded by their operator and by Traefik's TCP settings, not by anything measured here.
+
 ## Checks
 
 - `curl -si https://derp.pkarpovich.dev/derp/probe` answers 200 through Traefik; Gatus watches the same URL as `Infrastructure / DERP`
