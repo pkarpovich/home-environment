@@ -30,12 +30,15 @@ services:
       - "3478:3478/udp"
     volumes:
       - /var/run/tailscale/tailscaled.sock:/var/run/tailscale/tailscaled.sock
+    # Traefik hides a container until its healthcheck passes, and lasso's Docker
+    # 24 ignores start_interval, so the first check runs only after `interval`:
+    # at the alpha-style 5m the relay was invisible for five minutes after every
+    # start. 30s of wget on a droplet costs nothing.
     healthcheck:
       test: ["CMD", "wget", "-qO-", "http://127.0.0.1:8080/derp/probe"]
-      interval: 5m
+      interval: 30s
       timeout: 5s
       start_period: 20s
-      start_interval: 5s
     networks:
       - proxy
     labels:
