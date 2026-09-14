@@ -1,0 +1,33 @@
+# NATS with JetStream - the message bus shared by tuclaw (bravo), turtle-hub,
+# magnet-feed-sync and the Mac-side scripts. Lived in turtle-hub until
+# 2026-09-14. Consumers on this host reach it as `nats` over the proxy network,
+# the rest through the host's :4222. The monitoring port stays inside the
+# network (Gatus polls http://nats:8222/healthz), the cluster port is not used.
+services:
+  nats:
+    container_name: nats
+    image: nats:2.14.6-alpine
+    restart: unless-stopped
+    command:
+      - --js
+      - --store_dir=/data
+      - --http_port=8222
+    volumes:
+      - nats_data:/data
+    ports:
+      - "4222:4222"
+    networks:
+      - proxy
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:8222/healthz"]
+      interval: 5m
+      timeout: 5s
+      start_period: 20s
+      start_interval: 5s
+
+networks:
+  proxy:
+    external: true
+
+volumes:
+  nats_data:

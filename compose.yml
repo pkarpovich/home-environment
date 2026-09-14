@@ -11,6 +11,8 @@ include:
   - path: compose-ryot.yml
   - path: compose-authelia.yml
   - path: compose-gitea.yml
+  - path: compose-nats.yml
+  - path: compose-seaweedfs.yml
 
 services:
   homepage:
