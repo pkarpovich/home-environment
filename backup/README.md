@@ -23,7 +23,7 @@ Retention policy (applied by the NAS prune task, see below): `--keep-daily 7 --k
 
 - Postgres (turtle-hub x4): `pg_dumpall | gzip` into `/var/backups/restic-dumps` before every run; raw pg volumes are deliberately NOT in the include list.
 - SQLite (tuclaw.db, turtle-hub `.db/*.db`, magnet-feed-sync): `sqlite3 .backup` online copy into the dump dir; live files are additionally included raw where their directory is backed up.
-- seaweedfs (21G, voice messages + generated images + turtle-hub artifacts): backed up live; volumes are append-only logs, crash-consistent copy is acceptable.
+- seaweedfs (1.2G, voice messages + generated images + turtle-hub artifacts; in the home-environment stack since 2026-09-14): backed up live; volumes are append-only logs, crash-consistent copy is acceptable.
 - Home Assistant: raw config dir (`volumes/homeassistant`), community-standard restore path.
 
 ## Install / update on a host

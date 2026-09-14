@@ -134,6 +134,25 @@ endpoints:
     alerts:
       - type: telegram
 
+  - name: NATS
+    group: Infrastructure
+    url: "http://nats:8222/healthz"
+    interval: 5m
+    conditions:
+      - "[STATUS] == 200"
+      - "[BODY].status == ok"
+    alerts:
+      - type: telegram
+
+  - name: SeaweedFS S3
+    group: Infrastructure
+    url: "http://seaweedfs:8333/"
+    interval: 5m
+    conditions:
+      - "[STATUS] == 200"
+    alerts:
+      - type: telegram
+
   - name: pkarpovich.space DNS
     group: Infrastructure
     url: "1.1.1.1"

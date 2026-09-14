@@ -1,0 +1,36 @@
+# SeaweedFS in single-binary mode with the S3 gateway - voice messages from
+# tuclaw, generated images and turtle-hub artifacts. Lived in turtle-hub until
+# 2026-09-14. No S3 credentials are configured: every client, tuclaw included,
+# talks to it anonymously, so it must never be exposed beyond `s3-hub.*` and
+# the host's :8333.
+services:
+  seaweedfs:
+    container_name: seaweedfs
+    image: chrislusf/seaweedfs:4.47
+    restart: unless-stopped
+    command: server -s3 -dir=/data -volume.max=100 -master.volumePreallocate=false -master.volumeSizeLimitMB=1000
+    volumes:
+      - seaweedfs_data:/data
+    ports:
+      - "8333:8333"
+    networks:
+      - proxy
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:8333/"]
+      interval: 5m
+      timeout: 10s
+      start_period: 60s
+      start_interval: 5s
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.s3-hub.rule=Host(`s3-hub.${ROOT_DOMAIN}`)"
+      - "traefik.http.routers.s3-hub.entrypoints=https"
+      - "traefik.http.routers.s3-hub.tls.certresolver=le"
+      - "traefik.http.services.s3-hub.loadbalancer.server.port=8333"
+
+networks:
+  proxy:
+    external: true
+
+volumes:
+  seaweedfs_data:
