@@ -316,6 +316,54 @@ endpoints:
     alerts:
       - type: telegram
 
+  - name: Content Oracle
+    group: Turtle Hub
+    url: "https://content-oracle.pkarpovich.space/api/health"
+    interval: 5m
+    conditions:
+      - "[STATUS] == 200"
+      - "[BODY].message == OK"
+      - "[CERTIFICATE_EXPIRATION] > 48h"
+    alerts:
+      - type: telegram
+
+  - name: Content Oracle App
+    group: Turtle Hub
+    url: "https://content-oracle.pkarpovich.space/"
+    interval: 5m
+    conditions:
+      - "[STATUS] == 200"
+    alerts:
+      - type: telegram
+
+  - name: Nikki
+    group: Turtle Hub
+    url: "https://nikki.pkarpovich.space/healthz"
+    interval: 5m
+    conditions:
+      - "[STATUS] == 200"
+      - "[BODY].status == ok"
+    alerts:
+      - type: telegram
+
+  - name: Nikki App
+    group: Turtle Hub
+    url: "https://nikki.pkarpovich.space/"
+    interval: 5m
+    conditions:
+      - "[STATUS] == 200"
+    alerts:
+      - type: telegram
+
+  - name: Continuum Client
+    group: Turtle Hub
+    url: "https://continuum.pkarpovich.space/"
+    interval: 5m
+    conditions:
+      - "[STATUS] == 200"
+    alerts:
+      - type: telegram
+
   # Bit Adventure
   - name: BA Landing Page
     group: Bit Adventure
@@ -358,17 +406,6 @@ endpoints:
       - "[STATUS] == 200"
       - "[BODY].status != failed"
       - "[BODY].ageSeconds < 7200"
-      - "[CERTIFICATE_EXPIRATION] > 48h"
-    alerts:
-      - type: telegram
-
-  - name: Content Oracle
-    group: External
-    url: "https://turtle-hub.pkarpovich.space/content-oracle/api/health"
-    interval: 6m
-    conditions:
-      - "[STATUS] == 200"
-      - "[BODY].message == OK"
       - "[CERTIFICATE_EXPIRATION] > 48h"
     alerts:
       - type: telegram
