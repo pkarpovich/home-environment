@@ -11,6 +11,12 @@
 /var/lib/docker/volumes/cc-bench_bench-pgdata
 cc-bench-pg
 # raw postgres volumes - covered via pg_dumpall in pre-backup.sh
+/var/lib/docker/volumes/turtle-hub_content_collector_postgres
+/var/lib/docker/volumes/turtle-hub_youtube_postgres
+/var/lib/docker/volumes/turtle-hub_overcast_postgres
+/var/lib/docker/volumes/turtle-hub_pgvector_postgres
+# pre-18 postgres volumes, kept for rollback after the 2026-09-20 upgrade;
+# drop these four lines together with the volumes (docker volume rm) after 2026-09-27
 /var/lib/docker/volumes/turtle-hub_content_collector_postgres_data
 /var/lib/docker/volumes/turtle-hub_youtube_postgres_data
 /var/lib/docker/volumes/turtle-hub_overcast_postgres_data
