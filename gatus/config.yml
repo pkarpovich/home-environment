@@ -271,6 +271,18 @@ endpoints:
     alerts:
       - type: telegram
 
+  - name: Oura
+    group: Turtle Hub
+    url: "https://oura.pkarpovich.space/healthz"
+    interval: 5m
+    conditions:
+      - "[STATUS] == 200"
+      - "[BODY].status != failed"
+      - "[BODY].auth.authorized == true"
+      - "[BODY].ageSeconds < 7200"
+    alerts:
+      - type: telegram
+
   - name: Obsidian MCP
     group: Turtle Hub
     url: "https://obsidian-mcp.pkarpovich.space/healthz"
