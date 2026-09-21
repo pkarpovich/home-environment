@@ -45,6 +45,7 @@ The compose files are the source of truth; this table is the map. Everything bel
 | `compose-gitea.yml` | gitea (git hosting, container registry, Actions control plane; the runner is on mbp) | `git.*`, ssh on `:4022` |
 | `compose-nats.yml` | nats (JetStream; the message bus for tuclaw on bravo, turtle-hub, magnet-feed-sync and the Mac-side scripts - moved here from turtle-hub on 2026-09-14) | `:4222` on the LAN, no HTTP route |
 | `compose-seaweedfs.yml` | seaweedfs (S3 for tuclaw voice messages, generated images and turtle-hub artifacts; anonymous, no credentials - moved here from turtle-hub on 2026-09-14) | `s3-hub.*`, `:8333` on the LAN |
+| `compose-slowreader.yml` | slowreader (local-first RSS reader, built from a pinned upstream commit, behind Authelia; see the file header) | `slowreader.*` |
 | `compose-authelia.yml` | authelia (SSO portal + the `authelia@docker` forward-auth middleware, see [Authentication](#authentication)) | `auth.*` |
 | `compose-torrents.yml`, `compose-twitch.yml` | qbittorrent + flood, ganymede - standalone `-f` deploys, not in the alpha `include:` set | |
 | `compose-derp.yml` | private Tailscale DERP relay - **lasso only**, by hand: `docker compose -f compose-derp.yml up -d --build` (see [`docs/tailnet.md`](docs/tailnet.md)) | `derp.pkarpovich.dev`, STUN `3478/udp` |

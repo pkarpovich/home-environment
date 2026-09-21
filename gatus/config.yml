@@ -209,6 +209,16 @@ endpoints:
     alerts:
       - type: telegram
 
+  - name: Slow Reader
+    group: Local
+    url: "http://slowreader:2554/health"
+    interval: 5m
+    conditions:
+      - "[STATUS] == 200"
+      - "[BODY] == OK"
+    alerts:
+      - type: telegram
+
   # Turtle Hub
   # The wildcard cert for *.pkarpovich.space is already asserted by the External
   # group, so these endpoints skip CERTIFICATE_EXPIRATION to avoid ten identical

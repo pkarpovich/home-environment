@@ -35,4 +35,5 @@
 /var/lib/docker/volumes/home-environment_authelia
 /var/lib/docker/volumes/home-environment_nats_data
 /var/lib/docker/volumes/home-environment_seaweedfs_data
+/var/lib/docker/volumes/home-environment_slowreader
 /srv/gitea
