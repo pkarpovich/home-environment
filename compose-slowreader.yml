@@ -1,0 +1,49 @@
+# Slow Reader (github.com/hplush/slowreader): a local-first RSS reader, still a
+# pre-alpha prototype upstream with no published images, so this builds one from
+# a pinned commit. "One Server Mode": one process serves the web client, the
+# CORS proxy the client fetches feeds through, and the sync server on pglite.
+# The browser keeps everything (SQLite on OPFS); the server stores only
+# encrypted action logs, so the volume stays small. Authelia sits in front
+# because /proxy/ fetches arbitrary URLs for anyone the Origin check admits.
+# Update: bump SLOWREADER_REF and the image tag, then
+#   docker compose build slowreader && docker compose up -d slowreader
+services:
+  slowreader:
+    container_name: slowreader
+    build:
+      context: ./slowreader
+      args:
+        SLOWREADER_REF: 3347c29bacb328c8cdc5b1f23f9af6c4dae7f300
+    image: slowreader:3347c29
+    restart: unless-stopped
+    environment:
+      - ASSETS=1
+      - PROXY_ORIGIN=^https://slowreader\.${ROOT_DOMAIN}$$
+      - DATABASE_URL=file:///data/pgdata
+      - BEHIND_BALANCER=1
+    volumes:
+      - slowreader:/data
+    expose:
+      - 2554
+    networks:
+      - proxy
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:2554/health"]
+      interval: 5m
+      timeout: 5s
+      start_period: 30s
+      start_interval: 5s
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.slowreader.rule=Host(`slowreader.${ROOT_DOMAIN}`)"
+      - "traefik.http.routers.slowreader.entrypoints=https"
+      - "traefik.http.routers.slowreader.tls.certresolver=le"
+      - "traefik.http.routers.slowreader.middlewares=authelia@docker"
+      - "traefik.http.services.slowreader.loadbalancer.server.port=2554"
+
+networks:
+  proxy:
+    external: true
+
+volumes:
+  slowreader:

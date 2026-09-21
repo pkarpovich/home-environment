@@ -13,6 +13,7 @@ include:
   - path: compose-gitea.yml
   - path: compose-nats.yml
   - path: compose-seaweedfs.yml
+  - path: compose-slowreader.yml
 
 services:
   homepage:
