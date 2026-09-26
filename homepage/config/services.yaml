@@ -147,10 +147,6 @@
         id: simple_icon
         icon: dozzle
         href: {{HOMEPAGE_VAR_LOCAL_DOCKER_LOGS_URL}}
-    - Phoenix:
-        id: simple_icon
-        icon: si-apache
-        href: {{HOMEPAGE_VAR_PHOENIX_URL}}
     - Twitch:
         id: simple_icon
         icon: twitch

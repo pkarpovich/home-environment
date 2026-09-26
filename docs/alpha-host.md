@@ -31,7 +31,6 @@ This changes the restore order below: the registry every turtle-hub image is pul
 
 ```
 docker network create proxy
-docker network create telemetry
 docker network create -d macvlan --subnet=192.168.198.0/24 --ip-range=192.168.198.16/28 --gateway=192.168.198.1 -o parent=eth0 homekit
 ```
 

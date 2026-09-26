@@ -64,7 +64,6 @@ services:
       - HOMEPAGE_VAR_TORRENTS_UI_USER=${TORRENTS_UI_USER}
       - HOMEPAGE_VAR_TORRENTS_UI_PASS=${TORRENTS_UI_PASS}
       - HOMEPAGE_VAR_TWITCH_URL=${TWITCH_DOMAIN}
-      - HOMEPAGE_VAR_PHOENIX_URL=https://phoenix.${ROOT_DOMAIN}
       - HOMEPAGE_VAR_UNIFI_CONTROLLER_KEY=${UNIFI_CONTROLLER_KEY}
       - HOMEPAGE_VAR_PROMETHEUS_URL=${PROMETHEUS_URL}
       - HOMEPAGE_VAR_WINDY_EMBED_WIDGET_URL=${WINDY_EMBED_WIDGET_URL}
@@ -108,34 +107,8 @@ services:
     depends_on:
       - traefik
 
-  phoenix:
-    container_name: phoenix
-    image: arizephoenix/phoenix:version-11.7
-    restart: unless-stopped
-    expose:
-      - 6006
-      - 4317
-    environment:
-      - PHOENIX_WORKING_DIR=/mnt/data
-    volumes:
-      - ./volumes/phoenix:/mnt/data
-    networks:
-      - proxy
-      - telemetry
-    labels:
-      - "traefik.enable=true"
-      - "traefik.docker.network=proxy"
-      - "traefik.http.routers.phoenix.rule=Host(`phoenix.${ROOT_DOMAIN}`)"
-      - "traefik.http.routers.phoenix.entrypoints=https"
-      - "traefik.http.routers.phoenix.tls.certresolver=le"
-      - "traefik.http.services.phoenix.loadbalancer.server.port=6006"
-    depends_on:
-      - traefik
-
 networks:
   proxy:
-    external: true
-  telemetry:
     external: true
 
 volumes:

@@ -31,7 +31,7 @@ The compose files are the source of truth; this table is the map. Everything bel
 
 | Compose file | Services | Exposed at |
 |---|---|---|
-| `compose.yml` | homepage, dozzle, phoenix, iSponsorBlockTV | `home.*`, `logs.*`, `phoenix.*` |
+| `compose.yml` | homepage, dozzle, iSponsorBlockTV | `home.*`, `logs.*` |
 | `compose-traefik.yml` | traefik (alpha + bravo) | `traefik.*` |
 | `compose-updater.yml` | updater (alpha + bravo) | `updater.*` |
 | `compose-grafana.yml` | grafana, prometheus, loki, tempo, influxdb, telegraf, otel-collector, mcp-grafana, whoami | `grafana.*`, `prometheus.*`, `mcp-grafana.*` |

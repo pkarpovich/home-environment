@@ -46,7 +46,7 @@ services:
   influxdb:
     restart: unless-stopped
     container_name: influxdb
-    image: influxdb:2.7-alpine
+    image: influxdb:2.9-alpine
     environment:
       - DOCKER_INFLUXDB_INIT_MODE=setup
       - DOCKER_INFLUXDB_INIT_ORG=${INFLUX_ORGANIZATION}
@@ -67,7 +67,7 @@ services:
   telegraf:
     container_name: telegraf
     restart: unless-stopped
-    image: telegraf:1.35-alpine
+    image: telegraf:1.40-alpine
     volumes:
       - ./.config/telegraf.conf:/etc/telegraf/telegraf.conf:ro
     networks:
