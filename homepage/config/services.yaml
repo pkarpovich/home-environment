@@ -271,7 +271,7 @@
             - field: stale
               label: Stale
               format: number
-- Observability & Health:
+- Health & Data:
     - Health Check:
        icon: gatus
        href: {{HOMEPAGE_VAR_HEALTH_CHECK_URL}}
@@ -281,25 +281,6 @@
          type: gatus
          url: http://gatus:8080
          fields: ["up", "down", "uptime"]
-    - Grafana:
-       icon: grafana
-       href: {{HOMEPAGE_VAR_GRAFANA_URL}}
-       server: alpha
-       container: grafana
-       widget:
-         type: grafana
-         fields: ["dashboards", "datasources"]
-         url: {{HOMEPAGE_VAR_GRAFANA_URL}}
-         username: {{HOMEPAGE_VAR_GRAFANA_USER}}
-         password: {{HOMEPAGE_VAR_GRAFANA_PASSWORD}}
-    - Prometheus:
-       icon: prometheus
-       href: {{HOMEPAGE_VAR_PROMETHEUS_URL}}
-       server: alpha
-       container: prometheus
-       widget:
-         type: prometheus
-         url: {{HOMEPAGE_VAR_PROMETHEUS_URL}}
     - NATS:
         icon: si-natsdotio
         server: alpha
@@ -321,7 +302,55 @@
             - field: mem
               label: Memory
               format: bytes
+    - Nikki:
+        icon: mdi-timeline-clock
+        href: https://nikki.pkarpovich.space
+        server: alpha
+        container: nikki
+        widget:
+          type: customapi
+          url: http://nikki:8080/api/v1/devices
+          refreshInterval: 60000
+          mappings:
+            - field:
+                devices:
+                  0: last_seen_at
+              label: MBA seen
+              format: relativeDate
+            - field:
+                devices:
+                  1: last_seen_at
+              label: MBP seen
+              format: relativeDate
+    - Oura:
+        icon: mdi-ring
+        href: https://cloud.ouraring.com
+        server: alpha
+        container: oura
+        widget:
+          type: customapi
+          url: http://oura:8080/healthz
+          refreshInterval: 300000
+          mappings:
+            - field: status
+              label: Status
+              format: text
+            - field: lastSync
+              label: Synced
+              format: relativeDate
+            - field:
+                auth: expiresAt
+              label: Token
+              format: relativeDate
 - Bookmarks:
+    - Grafana:
+        id: simple_icon
+        icon: grafana
+        href: {{HOMEPAGE_VAR_GRAFANA_URL}}
+    - Prometheus:
+        id: simple_icon
+        icon: prometheus
+        href: {{HOMEPAGE_VAR_PROMETHEUS_URL}}
     - Linkding:
         id: simple_icon
         icon: linkding
@@ -338,14 +367,6 @@
         id: simple_icon
         icon: dozzle
         href: {{HOMEPAGE_VAR_LOCAL_DOCKER_LOGS_URL}}
-    - Twitch:
-        id: simple_icon
-        icon: twitch
-        href: {{HOMEPAGE_VAR_TWITCH_URL}}
-    - Omni Turtle Search:
-        id: simple_icon
-        icon: mdi-magnify
-        href: https://omni-search.pkarpovich.space
     - Content Oracle:
         id: simple_icon
         icon: https://content-oracle.pkarpovich.space/favicon.ico
@@ -358,6 +379,10 @@
         id: simple_icon
         icon: https://ralphex-farm.pkarpovich.space/static/favicon.svg
         href: https://ralphex-farm.pkarpovich.space
+    - Mermaid Playground:
+        id: simple_icon
+        icon: mdi-graph-outline
+        href: https://mermaid-playground.pkarpovich.dev
 - Weather:
     - Windy:
         id: simple_widget

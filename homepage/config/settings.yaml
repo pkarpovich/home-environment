@@ -35,7 +35,7 @@ layout:
     icon: gitea
     style: row
     columns: 4
-  Observability & Health:
+  Health & Data:
     icon: sh-fitbit-health-dashboard
     style: row
     columns: 4
