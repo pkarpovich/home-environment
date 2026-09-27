@@ -139,10 +139,6 @@
         id: simple_icon
         icon: ryot
         href: {{HOMEPAGE_VAR_RYOT_URL}}
-    - Influx:
-        id: simple_icon
-        icon: influxdb
-        href: {{HOMEPAGE_VAR_INFLUX_URL}}
     - Local Docker Logs:
         id: simple_icon
         icon: dozzle

@@ -19,10 +19,6 @@ scrape_configs:
     static_configs:
       - targets: ['grafana:3000']
 
-  - job_name: 'influxdb'
-    static_configs:
-      - targets: ['influxdb:8086']
-
   - job_name: 'homepage'
     static_configs:
       - targets: ['homepage:3000']

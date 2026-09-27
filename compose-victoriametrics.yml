@@ -1,0 +1,38 @@
+# VictoriaMetrics - long-term store for the flat's own sensors (Eve Weather,
+# Eve Thermo, the Xiaomi purifier and fan). It scrapes Home Assistant's
+# /api/prometheus once a minute (the filter lives in HA's configuration.yaml)
+# and keeps everything forever, separately from Prometheus and its 15-day
+# retention. Outdoor weather is deliberately not stored: Grafana reads it live
+# from Open-Meteo and IMGW. Replaced InfluxDB + Telegraf on 2026-09-27, with
+# the room history back to July 2024 imported.
+services:
+  victoriametrics:
+    container_name: victoriametrics
+    image: victoriametrics/victoria-metrics:v1.152.0
+    restart: unless-stopped
+    command:
+      - -storageDataPath=/storage
+      - -retentionPeriod=100y
+      - -promscrape.config=/etc/victoriametrics/scrape.yml
+    environment:
+      - HA_PROMETHEUS_TOKEN=${HA_PROMETHEUS_TOKEN}
+    volumes:
+      - victoriametrics:/storage
+      - ./.config/victoriametrics/scrape.yml:/etc/victoriametrics/scrape.yml:ro
+    expose:
+      - 8428
+    networks:
+      - proxy
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:8428/health"]
+      interval: 5m
+      timeout: 5s
+      start_period: 30s
+      start_interval: 5s
+
+networks:
+  proxy:
+    external: true
+
+volumes:
+  victoriametrics:

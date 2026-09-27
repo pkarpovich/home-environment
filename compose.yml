@@ -14,6 +14,7 @@ include:
   - path: compose-nats.yml
   - path: compose-seaweedfs.yml
   - path: compose-slowreader.yml
+  - path: compose-victoriametrics.yml
 
 services:
   homepage:
@@ -53,7 +54,6 @@ services:
       - HOMEPAGE_VAR_GRAFANA_URL=${GRAFANA_URL}
       - HOMEPAGE_VAR_GRAFANA_USER=${GRAFANA_USER}
       - HOMEPAGE_VAR_GRAFANA_PASSWORD=${GRAFANA_PASSWORD}
-      - HOMEPAGE_VAR_INFLUX_URL=${INFLUX_URL}
       - HOMEPAGE_VAR_TAUTULLI_URL=${TAUTULLI_URL}
       - HOMEPAGE_VAR_TAUTULLI_RAW_URL=${TAUTULLI_RAW_URL}
       - HOMEPAGE_VAR_TAUTULLI_KEY=${TAUTULLI_KEY}

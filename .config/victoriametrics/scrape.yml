@@ -1,0 +1,12 @@
+scrape_configs:
+  - job_name: homeassistant
+    scrape_interval: 60s
+    metrics_path: /api/prometheus
+    authorization:
+      credentials: "%{HA_PROMETHEUS_TOKEN}"
+    static_configs:
+      - targets: ["192.168.198.3:8123"]
+    metric_relabel_configs:
+      - source_labels: [__name__]
+        regex: "python_.*|process_.*|homeassistant_state_change_.*|homeassistant_last_updated_time_seconds"
+        action: drop

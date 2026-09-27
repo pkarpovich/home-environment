@@ -6,6 +6,7 @@ services:
     environment:
       - GF_SECURITY_ADMIN_USER=${GRAFANA_USER}
       - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD}
+      - GF_PLUGINS_PREINSTALL=yesoreyeram-infinity-datasource
       - GF_SERVER_ROOT_URL=https://grafana.${ROOT_DOMAIN}
       - GF_AUTH_GENERIC_OAUTH_ENABLED=true
       - GF_AUTH_GENERIC_OAUTH_NAME=Authelia
@@ -42,44 +43,6 @@ services:
       - "traefik.http.services.grafana.loadbalancer.server.port=3000"
     volumes:
       - grafana:/var/lib/grafana
-
-  influxdb:
-    restart: unless-stopped
-    container_name: influxdb
-    image: influxdb:2.9-alpine
-    environment:
-      - DOCKER_INFLUXDB_INIT_MODE=setup
-      - DOCKER_INFLUXDB_INIT_ORG=${INFLUX_ORGANIZATION}
-      - DOCKER_INFLUXDB_INIT_BUCKET=${INFLUX_BUCKET}
-      - DOCKER_INFLUXDB_INIT_RETENTION=1w
-      - DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=${INFLUX_TOKEN}
-    volumes:
-      - influxdb:/var/lib/influxdb2
-    networks:
-      - proxy
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.influx.rule=Host(`influx.${ROOT_DOMAIN}`)"
-      - "traefik.http.routers.influx.entrypoints=https"
-      - "traefik.http.routers.influx.tls.certresolver=le"
-      - "traefik.http.services.influx.loadbalancer.server.port=8086"
-
-  telegraf:
-    container_name: telegraf
-    restart: unless-stopped
-    image: telegraf:1.40-alpine
-    volumes:
-      - ./.config/telegraf.conf:/etc/telegraf/telegraf.conf:ro
-    networks:
-      - proxy
-    environment:
-      - INFLUX_HOSTNAME=influxdb
-      - INFLUX_URL=http://influxdb:8086
-      - INFLUX_ORGANIZATION=${INFLUX_ORGANIZATION}
-      - INFLUX_BUCKET=${INFLUX_BUCKET}
-      - INFLUX_TOKEN=${INFLUX_TOKEN}
-      - OPENWEATHER_API_KEY=${OPENWEATHER_API_KEY}
-      - OPENWEATHER_CITY_ID=${OPENWEATHER_CITY_ID}
 
   prometheus:
     restart: unless-stopped
@@ -210,7 +173,6 @@ networks:
 
 volumes:
   grafana:
-  influxdb:
   prometheus:
   tempo:
   loki:
