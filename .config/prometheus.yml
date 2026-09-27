@@ -19,14 +19,6 @@ scrape_configs:
     static_configs:
       - targets: ['grafana:3000']
 
-  - job_name: 'homepage'
-    static_configs:
-      - targets: ['homepage:3000']
-
-  - job_name: 'dozzle'
-    static_configs:
-      - targets: ['dozzle:8080']
-
   - job_name: 'node-exporter'
     static_configs:
       - targets: ['192.168.198.3:9100']

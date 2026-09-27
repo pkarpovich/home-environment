@@ -7,6 +7,14 @@
     memory: true
     disk: /
 
+- openmeteo:
+    label: "{{HOMEPAGE_VAR_OPENMETEO_LABEL}}"
+    latitude: {{HOMEPAGE_VAR_OPENMETEO_LATITUDE}}
+    longitude: {{HOMEPAGE_VAR_OPENMETEO_LONGITUDE}}
+    timezone: {{HOMEPAGE_VAR_OPENMETEO_TIMEZONE}}
+    units: metric
+    cache: 15
+
 - search:
     provider: duckduckgo
     target: _blank

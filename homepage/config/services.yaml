@@ -12,7 +12,8 @@
       - Statistics for Plex:
           icon: tautulli
           href: {{HOMEPAGE_VAR_TAUTULLI_URL}}
-          siteMonitor: {{HOMEPAGE_VAR_TAUTULLI_RAW_URL}}
+          server: alpha
+          container: tautulli
           widget:
             type: tautulli
             url: {{HOMEPAGE_VAR_TAUTULLI_RAW_URL}}
@@ -33,21 +34,11 @@
       - Download Station:
           icon: synology-download-station
           href: {{HOMEPAGE_VAR_DISKSTATION_URL}}
-          siteMonitor: {{HOMEPAGE_VAR_DISKSTATION_URL}}
           widget:
             type: downloadstation
             url: {{HOMEPAGE_VAR_DISKSTATION_URL}}
             username: {{HOMEPAGE_VAR_DISKSTATION_USER}}
             password: {{HOMEPAGE_VAR_DISKSTATION_PASSWORD}}
-    - Audiobookshelf:
-        icon: audiobookshelf
-        href: {{HOMEPAGE_VAR_AUDIOBOOKSHELF_URL}}
-        siteMonitor: {{HOMEPAGE_VAR_AUDIOBOOKSHELF_URL}}
-        widget:
-          type: audiobookshelf
-          url: {{HOMEPAGE_VAR_AUDIOBOOKSHELF_URL}}
-          key: {{HOMEPAGE_VAR_AUDIOBOOKSHELF_KEY}}
-          fields: ["books", "podcasts"]
     - Torrents:
       - qBittorrent:
           icon: qbittorrent
@@ -58,16 +49,72 @@
             url: {{HOMEPAGE_VAR_TORRENTS_URL}}
             username: {{HOMEPAGE_VAR_TORRENTS_USER}}
             password: {{HOMEPAGE_VAR_TORRENTS_PASS}}
-      - Torrents UI:
-          icon: flood
-          href: {{HOMEPAGE_VAR_TORRENTS_UI_URL}}
-          siteMonitor: {{HOMEPAGE_VAR_TORRENTS_UI_URL}}
+      - Jackett:
+          icon: jackett
+          href: https://jackett.pkarpovich.space
+          server: alpha
+          container: jackett
           widget:
-            type: flood
-            url: {{HOMEPAGE_VAR_TORRENTS_UI_URL}}
-            username: {{HOMEPAGE_VAR_TORRENTS_UI_USER}}
-            password: {{HOMEPAGE_VAR_TORRENTS_UI_PASS}}
-- Network & Storage:
+            type: jackett
+            url: http://jackett:9117
+            key: {{HOMEPAGE_VAR_JACKETT_KEY}}
+- Home:
+    - Home Assistant:
+        icon: home-assistant
+        href: {{HOMEPAGE_VAR_HOMEASSISTANT_URL}}
+        siteMonitor: {{HOMEPAGE_VAR_HOMEASSISTANT_URL}}
+        widget:
+          type: homeassistant
+          url: {{HOMEPAGE_VAR_HOMEASSISTANT_URL}}
+          key: {{HOMEPAGE_VAR_HOMEASSISTANT_KEY}}
+          custom:
+            - state: sensor.eve_weather_20ebs9901_temperature
+              label: Balcony
+            - state: sensor.zhimi_airp_vb4_pm2_5
+              label: PM2.5
+            - template: "{{ 'on' if is_state('binary_sensor.heating_season', 'on') else 'off' }}"
+              label: Heating season
+            - template: "{{ 'asleep' if is_state('input_boolean.sleep_mode', 'on') else 'awake' }}"
+              label: Sleep mode
+    - Home Climate:
+        icon: sh-home-assistant
+        href: "{{HOMEPAGE_VAR_GRAFANA_URL}}/d/home-climate"
+        server: alpha
+        container: victoriametrics
+        widget:
+          type: prometheusmetric
+          url: http://victoriametrics:8428
+          refreshInterval: 60000
+          metrics:
+            - label: Living room
+              query: homeassistant_sensor_temperature_celsius{entity="sensor.eve_weather_lr_temperature"}
+              format:
+                type: number
+                suffix: " °C"
+                options:
+                  maximumFractionDigits: 1
+            - label: Bedroom
+              query: homeassistant_sensor_temperature_celsius{entity="sensor.bedroom_eve_weather_bedroom_temperature"}
+              format:
+                type: number
+                suffix: " °C"
+                options:
+                  maximumFractionDigits: 1
+            - label: LR humidity
+              query: homeassistant_sensor_humidity_percent{entity="sensor.eve_weather_lr_humidity"}
+              format:
+                type: number
+                suffix: " %"
+                options:
+                  maximumFractionDigits: 1
+            - label: Bedroom humidity
+              query: homeassistant_sensor_humidity_percent{entity="sensor.bedroom_eve_weather_bedroom_humidity"}
+              format:
+                type: number
+                suffix: " %"
+                options:
+                  maximumFractionDigits: 1
+- Infrastructure:
     - Unifi Controller:
         icon: unifi
         href: https://unifi.ui.com
@@ -77,46 +124,177 @@
           url: https://192.168.198.1
           key: {{HOMEPAGE_VAR_UNIFI_CONTROLLER_KEY}}
           fields: ["uptime", "wan", "lan_users", "wlan_users"]
-    - Network:
-      - Traefik:
-          icon: traefik
-          href: {{HOMEPAGE_VAR_TRAEFIK_URL}}
-          siteMonitor: {{HOMEPAGE_VAR_TRAEFIK_URL}}
-          widget:
-            type: traefik
-            url: {{HOMEPAGE_VAR_TRAEFIK_URL}}
-    - DNS:
-      - Home Assistant:
-          icon: home-assistant
-          href: {{HOMEPAGE_VAR_HOMEASSISTANT_URL}}
-          siteMonitor: {{HOMEPAGE_VAR_HOMEASSISTANT_URL}}
-          widget:
-            type: homeassistant
-            url: {{HOMEPAGE_VAR_HOMEASSISTANT_URL}}
-            key: {{HOMEPAGE_VAR_HOMEASSISTANT_KEY}}
-      - Gitea:
-          icon: gitea
-          href: {{HOMEPAGE_VAR_GITEA_URL}}
-          siteMonitor: {{HOMEPAGE_VAR_GITEA_URL}}
-          widget:
-            type: gitea
-            fields: ["repositories", "issues", "pulls"]
-            url: {{HOMEPAGE_VAR_GITEA_URL}}
-            key: {{HOMEPAGE_VAR_GITEA_KEY}}
+    - Traefik:
+        icon: traefik
+        href: {{HOMEPAGE_VAR_TRAEFIK_URL}}
+        server: alpha
+        container: traefik
+        widget:
+          type: traefik
+          url: {{HOMEPAGE_VAR_TRAEFIK_URL}}
+    - alpha:
+        icon: raspberry-pi
+        href: {{HOMEPAGE_VAR_GRAFANA_URL}}
+        widget:
+          type: prometheusmetric
+          url: http://prometheus:9090
+          refreshInterval: 60000
+          metrics:
+            - label: CPU
+              query: node_thermal_zone_temp{instance="pi-alpha",type="cpu-thermal"}
+              format:
+                type: number
+                suffix: " °C"
+                options:
+                  maximumFractionDigits: 0
+            - label: Load
+              query: node_load5{instance="pi-alpha"}
+              format:
+                type: number
+                options:
+                  maximumFractionDigits: 2
+            - label: Disk free
+              query: node_filesystem_avail_bytes{instance="pi-alpha",mountpoint="/"}
+              format:
+                type: bytes
+            - label: Uptime
+              query: node_time_seconds{instance="pi-alpha"} - node_boot_time_seconds{instance="pi-alpha"}
+              format:
+                type: duration
+    - bravo:
+        icon: raspberry-pi
+        href: {{HOMEPAGE_VAR_GRAFANA_URL}}
+        widget:
+          type: prometheusmetric
+          url: http://prometheus:9090
+          refreshInterval: 60000
+          metrics:
+            - label: CPU
+              query: node_thermal_zone_temp{instance="pi-bravo",type="cpu-thermal"}
+              format:
+                type: number
+                suffix: " °C"
+                options:
+                  maximumFractionDigits: 0
+            - label: Load
+              query: node_load5{instance="pi-bravo"}
+              format:
+                type: number
+                options:
+                  maximumFractionDigits: 2
+            - label: Disk free
+              query: node_filesystem_avail_bytes{instance="pi-bravo",mountpoint="/"}
+              format:
+                type: bytes
+            - label: Uptime
+              query: node_time_seconds{instance="pi-bravo"} - node_boot_time_seconds{instance="pi-bravo"}
+              format:
+                type: duration
+    - NATS:
+        icon: si-natsdotio
+        server: alpha
+        container: nats
+        widget:
+          type: customapi
+          url: http://nats:8222/varz
+          refreshInterval: 60000
+          mappings:
+            - field: connections
+              label: Clients
+              format: number
+            - field: in_msgs
+              label: Messages in
+              format: number
+            - field: out_msgs
+              label: Messages out
+              format: number
+            - field: uptime
+              label: Uptime
+              format: text
+- Dev & Agents:
+    - Gitea:
+        icon: gitea
+        href: {{HOMEPAGE_VAR_GITEA_URL}}
+        server: alpha
+        container: gitea
+        widget:
+          type: gitea
+          fields: ["repositories", "issues", "pulls"]
+          url: {{HOMEPAGE_VAR_GITEA_URL}}
+          key: {{HOMEPAGE_VAR_GITEA_KEY}}
+    - Tuclaw:
+        icon: si-telegram
+        href: http://192.168.199.72:9090
+        widget:
+          type: customapi
+          url: http://192.168.199.72:9090/health
+          refreshInterval: 60000
+          mappings:
+            - field: status
+              label: Daemon
+              format: text
+            - field: agents
+              label: Agents
+              format: text
+            - field: docker
+              label: Docker
+              format: text
+    - Claude usage:
+        icon: claude-ai
+        href: {{HOMEPAGE_VAR_GRAFANA_URL}}
+        widget:
+          type: prometheusmetric
+          url: http://prometheus:9090
+          refreshInterval: 60000
+          metrics:
+            - label: 5h limit
+              query: max(tuclaw_subscription_utilization_percent{window="five_hour"})
+              format:
+                type: number
+                suffix: " %"
+                options:
+                  maximumFractionDigits: 0
+            - label: Turns 24h
+              query: round(sum(increase(tuclaw_turns_total[24h])))
+              format:
+                type: number
+    - Magnet Feed Sync:
+        icon: https://magnet-feed-sync.pkarpovich.space/logo.png
+        href: https://magnet-feed-sync.pkarpovich.space/?debug=true
+        server: alpha
+        container: magnet-feed-sync
+        widget:
+          type: customapi
+          url: http://magnet-feed-sync:8080/api/health
+          refreshInterval: 300000
+          mappings:
+            - field: status
+              label: Status
+              format: text
+            - field: tracked
+              label: Tracked
+              format: number
+            - field: parked
+              label: Parked
+              format: number
+            - field: stale
+              label: Stale
+              format: number
 - Observability & Health:
      - Health Check:
         icon: gatus
         href: {{HOMEPAGE_VAR_HEALTH_CHECK_URL}}
-        siteMonitor: {{HOMEPAGE_VAR_HEALTH_CHECK_URL}}
+        server: alpha
+        container: gatus
         widget:
           type: gatus
           url: http://gatus:8080
           fields: ["up", "down", "uptime"]
-
      - Grafana:
         icon: grafana
         href: {{HOMEPAGE_VAR_GRAFANA_URL}}
-        siteMonitor: {{HOMEPAGE_VAR_GRAFANA_URL}}
+        server: alpha
+        container: grafana
         widget:
           type: grafana
           fields: ["dashboards", "datasources"]
@@ -126,7 +304,8 @@
      - Prometheus:
         icon: prometheus
         href: {{HOMEPAGE_VAR_PROMETHEUS_URL}}
-        siteMonitor: {{HOMEPAGE_VAR_PROMETHEUS_URL}}
+        server: alpha
+        container: prometheus
         widget:
           type: prometheus
           url: {{HOMEPAGE_VAR_PROMETHEUS_URL}}
@@ -139,6 +318,10 @@
         id: simple_icon
         icon: ryot
         href: {{HOMEPAGE_VAR_RYOT_URL}}
+    - Slow Reader:
+        id: simple_icon
+        icon: mdi-rss
+        href: https://slowreader.pkarpovich.space
     - Local Docker Logs:
         id: simple_icon
         icon: dozzle
@@ -147,26 +330,10 @@
         id: simple_icon
         icon: twitch
         href: {{HOMEPAGE_VAR_TWITCH_URL}}
-    - Sonos:
-        id: simple_icon
-        icon: solidtime-light
-        href: https://play.sonos.com/en-us/web-app
-    - Torrents Search:
-        id: simple_icon
-        icon: webtorrent
-        href: https://search.extto.com/
-    - LLM Tools:
-        id: simple_icon
-        icon: claude-ai
-        href: https://shir-man.com/
     - Omni Turtle Search:
         id: simple_icon
-        icon: https://omni-search.pkarpovich.space/icon.png
+        icon: mdi-magnify
         href: https://omni-search.pkarpovich.space
-    - Magnet Feed Sync:
-        id: simple_icon
-        icon: https://magnet-feed-sync.pkarpovich.space/logo.png
-        href: https://magnet-feed-sync.pkarpovich.space/?debug=true
     - Content Oracle:
         id: simple_icon
         icon: https://content-oracle.pkarpovich.space/favicon.ico
