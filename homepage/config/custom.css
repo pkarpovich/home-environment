@@ -67,3 +67,7 @@ ul:has(#simple_icon) {
 #footer {
     display: none !important;
 }
+
+#information-widgets {
+    display: none !important;
+}

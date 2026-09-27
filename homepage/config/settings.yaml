@@ -16,22 +16,29 @@ layout:
       header: false
       style: row
       columns: 2
-  Infrastructure:
+  Home & Network:
     icon: pi-alert
-    style: row
-    columns: 2
-  Home:
-    icon: home-assistant
-    style: row
-    columns: 2
+    style: columns
+    Network:
+      header: false
+      style: row
+      columns: 2
+    Hosts:
+      header: false
+      style: row
+      columns: 2
+    Home:
+      header: false
+      style: row
+      columns: 2
   Dev & Agents:
     icon: gitea
     style: row
-    columns: 2
+    columns: 4
   Observability & Health:
     icon: sh-fitbit-health-dashboard
     style: row
-    columns: 3
+    columns: 4
   Weather:
     style: columns
     columns: 4

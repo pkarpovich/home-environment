@@ -58,159 +58,146 @@
             type: jackett
             url: http://jackett:9117
             key: {{HOMEPAGE_VAR_JACKETT_KEY}}
-- Home:
-    - Home Assistant:
-        icon: home-assistant
-        href: {{HOMEPAGE_VAR_HOMEASSISTANT_URL}}
-        siteMonitor: {{HOMEPAGE_VAR_HOMEASSISTANT_URL}}
-        widget:
-          type: homeassistant
-          url: {{HOMEPAGE_VAR_HOMEASSISTANT_URL}}
-          key: {{HOMEPAGE_VAR_HOMEASSISTANT_KEY}}
-          custom:
-            - state: sensor.eve_weather_20ebs9901_temperature
-              label: Balcony
-            - state: sensor.zhimi_airp_vb4_pm2_5
-              label: PM2.5
-            - template: "{{ 'on' if is_state('binary_sensor.heating_season', 'on') else 'off' }}"
-              label: Heating season
-            - template: "{{ 'asleep' if is_state('input_boolean.sleep_mode', 'on') else 'awake' }}"
-              label: Sleep mode
-    - Home Climate:
-        icon: sh-home-assistant
-        href: "{{HOMEPAGE_VAR_GRAFANA_URL}}/d/home-climate"
-        server: alpha
-        container: victoriametrics
-        widget:
-          type: prometheusmetric
-          url: http://victoriametrics:8428
-          refreshInterval: 60000
-          metrics:
-            - label: Living room
-              query: homeassistant_sensor_temperature_celsius{entity="sensor.eve_weather_lr_temperature"}
-              format:
-                type: number
-                suffix: " °C"
-                options:
-                  maximumFractionDigits: 1
-            - label: Bedroom
-              query: homeassistant_sensor_temperature_celsius{entity="sensor.bedroom_eve_weather_bedroom_temperature"}
-              format:
-                type: number
-                suffix: " °C"
-                options:
-                  maximumFractionDigits: 1
-            - label: LR humidity
-              query: homeassistant_sensor_humidity_percent{entity="sensor.eve_weather_lr_humidity"}
-              format:
-                type: number
-                suffix: " %"
-                options:
-                  maximumFractionDigits: 1
-            - label: Bedroom humidity
-              query: homeassistant_sensor_humidity_percent{entity="sensor.bedroom_eve_weather_bedroom_humidity"}
-              format:
-                type: number
-                suffix: " %"
-                options:
-                  maximumFractionDigits: 1
-- Infrastructure:
-    - Unifi Controller:
-        icon: unifi
-        href: https://unifi.ui.com
-        siteMonitor: https://192.168.198.1
-        widget:
-          type: unifi
-          url: https://192.168.198.1
-          key: {{HOMEPAGE_VAR_UNIFI_CONTROLLER_KEY}}
-          fields: ["uptime", "wan", "lan_users", "wlan_users"]
-    - Traefik:
-        icon: traefik
-        href: {{HOMEPAGE_VAR_TRAEFIK_URL}}
-        server: alpha
-        container: traefik
-        widget:
-          type: traefik
-          url: {{HOMEPAGE_VAR_TRAEFIK_URL}}
-    - alpha:
-        icon: raspberry-pi
-        href: {{HOMEPAGE_VAR_GRAFANA_URL}}
-        widget:
-          type: prometheusmetric
-          url: http://prometheus:9090
-          refreshInterval: 60000
-          metrics:
-            - label: CPU
-              query: node_thermal_zone_temp{instance="pi-alpha",type="cpu-thermal"}
-              format:
-                type: number
-                suffix: " °C"
-                options:
-                  maximumFractionDigits: 0
-            - label: Load
-              query: node_load5{instance="pi-alpha"}
-              format:
-                type: number
-                options:
-                  maximumFractionDigits: 2
-            - label: Disk free
-              query: node_filesystem_avail_bytes{instance="pi-alpha",mountpoint="/"}
-              format:
-                type: bytes
-            - label: Uptime
-              query: node_time_seconds{instance="pi-alpha"} - node_boot_time_seconds{instance="pi-alpha"}
-              format:
-                type: duration
-    - bravo:
-        icon: raspberry-pi
-        href: {{HOMEPAGE_VAR_GRAFANA_URL}}
-        widget:
-          type: prometheusmetric
-          url: http://prometheus:9090
-          refreshInterval: 60000
-          metrics:
-            - label: CPU
-              query: node_thermal_zone_temp{instance="pi-bravo",type="cpu-thermal"}
-              format:
-                type: number
-                suffix: " °C"
-                options:
-                  maximumFractionDigits: 0
-            - label: Load
-              query: node_load5{instance="pi-bravo"}
-              format:
-                type: number
-                options:
-                  maximumFractionDigits: 2
-            - label: Disk free
-              query: node_filesystem_avail_bytes{instance="pi-bravo",mountpoint="/"}
-              format:
-                type: bytes
-            - label: Uptime
-              query: node_time_seconds{instance="pi-bravo"} - node_boot_time_seconds{instance="pi-bravo"}
-              format:
-                type: duration
-    - NATS:
-        icon: si-natsdotio
-        server: alpha
-        container: nats
-        widget:
-          type: customapi
-          url: http://nats:8222/varz
-          refreshInterval: 60000
-          mappings:
-            - field: connections
-              label: Clients
-              format: number
-            - field: in_msgs
-              label: Messages in
-              format: number
-            - field: out_msgs
-              label: Messages out
-              format: number
-            - field: uptime
-              label: Uptime
-              format: text
+- Home & Network:
+    - Network:
+      - Unifi Controller:
+          icon: unifi
+          href: https://unifi.ui.com
+          siteMonitor: https://192.168.198.1
+          widget:
+            type: unifi
+            url: https://192.168.198.1
+            key: {{HOMEPAGE_VAR_UNIFI_CONTROLLER_KEY}}
+            fields: ["uptime", "wan", "lan_users", "wlan_users"]
+      - Traefik:
+          icon: traefik
+          href: {{HOMEPAGE_VAR_TRAEFIK_URL}}
+          server: alpha
+          container: traefik
+          widget:
+            type: traefik
+            url: {{HOMEPAGE_VAR_TRAEFIK_URL}}
+    - Hosts:
+      - alpha:
+          icon: raspberry-pi
+          href: {{HOMEPAGE_VAR_GRAFANA_URL}}
+          widget:
+            type: prometheusmetric
+            url: http://prometheus:9090
+            refreshInterval: 60000
+            metrics:
+              - label: CPU
+                query: node_thermal_zone_temp{instance="pi-alpha",type="cpu-thermal"}
+                format:
+                  type: number
+                  suffix: " °C"
+                  options:
+                    maximumFractionDigits: 0
+              - label: Load
+                query: node_load5{instance="pi-alpha"}
+                format:
+                  type: number
+                  options:
+                    maximumFractionDigits: 2
+              - label: Disk free
+                query: node_filesystem_avail_bytes{instance="pi-alpha",mountpoint="/"}
+                format:
+                  type: bytes
+              - label: Uptime
+                query: (node_time_seconds{instance="pi-alpha"} - node_boot_time_seconds{instance="pi-alpha"}) / 86400
+                format:
+                  type: number
+                  suffix: " Days"
+                  options:
+                    maximumFractionDigits: 1
+      - bravo:
+          icon: raspberry-pi
+          href: {{HOMEPAGE_VAR_GRAFANA_URL}}
+          widget:
+            type: prometheusmetric
+            url: http://prometheus:9090
+            refreshInterval: 60000
+            metrics:
+              - label: CPU
+                query: node_thermal_zone_temp{instance="pi-bravo",type="cpu-thermal"}
+                format:
+                  type: number
+                  suffix: " °C"
+                  options:
+                    maximumFractionDigits: 0
+              - label: Load
+                query: node_load5{instance="pi-bravo"}
+                format:
+                  type: number
+                  options:
+                    maximumFractionDigits: 2
+              - label: Disk free
+                query: node_filesystem_avail_bytes{instance="pi-bravo",mountpoint="/"}
+                format:
+                  type: bytes
+              - label: Uptime
+                query: (node_time_seconds{instance="pi-bravo"} - node_boot_time_seconds{instance="pi-bravo"}) / 86400
+                format:
+                  type: number
+                  suffix: " Days"
+                  options:
+                    maximumFractionDigits: 1
+    - Home:
+      - Home Assistant:
+          icon: home-assistant
+          href: {{HOMEPAGE_VAR_HOMEASSISTANT_URL}}
+          siteMonitor: {{HOMEPAGE_VAR_HOMEASSISTANT_URL}}
+          widget:
+            type: homeassistant
+            url: {{HOMEPAGE_VAR_HOMEASSISTANT_URL}}
+            key: {{HOMEPAGE_VAR_HOMEASSISTANT_KEY}}
+            custom:
+              - state: sensor.eve_weather_20ebs9901_temperature
+                label: Balcony
+              - state: sensor.zhimi_airp_vb4_pm2_5
+                label: PM2.5
+              - template: "{{ 'on' if is_state('binary_sensor.heating_season', 'on') else 'off' }}"
+                label: Heating season
+              - template: "{{ 'asleep' if is_state('input_boolean.sleep_mode', 'on') else 'awake' }}"
+                label: Sleep mode
+      - Home Climate:
+          icon: sh-home-assistant
+          href: "{{HOMEPAGE_VAR_GRAFANA_URL}}/d/home-climate"
+          server: alpha
+          container: victoriametrics
+          widget:
+            type: prometheusmetric
+            url: http://victoriametrics:8428
+            refreshInterval: 60000
+            metrics:
+              - label: Living room
+                query: homeassistant_sensor_temperature_celsius{entity="sensor.eve_weather_lr_temperature"}
+                format:
+                  type: number
+                  suffix: " °C"
+                  options:
+                    maximumFractionDigits: 1
+              - label: Bedroom
+                query: homeassistant_sensor_temperature_celsius{entity="sensor.bedroom_eve_weather_bedroom_temperature"}
+                format:
+                  type: number
+                  suffix: " °C"
+                  options:
+                    maximumFractionDigits: 1
+              - label: LR humidity
+                query: homeassistant_sensor_humidity_percent{entity="sensor.eve_weather_lr_humidity"}
+                format:
+                  type: number
+                  suffix: " %"
+                  options:
+                    maximumFractionDigits: 1
+              - label: Bedroom humidity
+                query: homeassistant_sensor_humidity_percent{entity="sensor.bedroom_eve_weather_bedroom_humidity"}
+                format:
+                  type: number
+                  suffix: " %"
+                  options:
+                    maximumFractionDigits: 1
 - Dev & Agents:
     - Gitea:
         icon: gitea
@@ -247,13 +234,17 @@
           url: http://prometheus:9090
           refreshInterval: 60000
           metrics:
-            - label: 5h limit
-              query: max(tuclaw_subscription_utilization_percent{window="five_hour"})
+            - label: 7d limit
+              query: last_over_time(tuclaw_subscription_utilization_percent{window="seven_day"}[8d]) and on() (last_over_time(tuclaw_subscription_resets_at_seconds{window="seven_day"}[30d]) > time())
               format:
                 type: number
                 suffix: " %"
                 options:
                   maximumFractionDigits: 0
+            - label: 7d resets
+              query: (last_over_time(tuclaw_subscription_resets_at_seconds{window="seven_day"}[30d]) + clamp_min(ceil((time() - last_over_time(tuclaw_subscription_resets_at_seconds{window="seven_day"}[30d])) / 604800), 0) * 604800) * 1000
+              format:
+                type: relativeDate
             - label: Turns 24h
               query: round(sum(increase(tuclaw_turns_total[24h])))
               format:
@@ -281,34 +272,55 @@
               label: Stale
               format: number
 - Observability & Health:
-     - Health Check:
-        icon: gatus
-        href: {{HOMEPAGE_VAR_HEALTH_CHECK_URL}}
+    - Health Check:
+       icon: gatus
+       href: {{HOMEPAGE_VAR_HEALTH_CHECK_URL}}
+       server: alpha
+       container: gatus
+       widget:
+         type: gatus
+         url: http://gatus:8080
+         fields: ["up", "down", "uptime"]
+    - Grafana:
+       icon: grafana
+       href: {{HOMEPAGE_VAR_GRAFANA_URL}}
+       server: alpha
+       container: grafana
+       widget:
+         type: grafana
+         fields: ["dashboards", "datasources"]
+         url: {{HOMEPAGE_VAR_GRAFANA_URL}}
+         username: {{HOMEPAGE_VAR_GRAFANA_USER}}
+         password: {{HOMEPAGE_VAR_GRAFANA_PASSWORD}}
+    - Prometheus:
+       icon: prometheus
+       href: {{HOMEPAGE_VAR_PROMETHEUS_URL}}
+       server: alpha
+       container: prometheus
+       widget:
+         type: prometheus
+         url: {{HOMEPAGE_VAR_PROMETHEUS_URL}}
+    - NATS:
+        icon: si-natsdotio
         server: alpha
-        container: gatus
+        container: nats
         widget:
-          type: gatus
-          url: http://gatus:8080
-          fields: ["up", "down", "uptime"]
-     - Grafana:
-        icon: grafana
-        href: {{HOMEPAGE_VAR_GRAFANA_URL}}
-        server: alpha
-        container: grafana
-        widget:
-          type: grafana
-          fields: ["dashboards", "datasources"]
-          url: {{HOMEPAGE_VAR_GRAFANA_URL}}
-          username: {{HOMEPAGE_VAR_GRAFANA_USER}}
-          password: {{HOMEPAGE_VAR_GRAFANA_PASSWORD}}
-     - Prometheus:
-        icon: prometheus
-        href: {{HOMEPAGE_VAR_PROMETHEUS_URL}}
-        server: alpha
-        container: prometheus
-        widget:
-          type: prometheus
-          url: {{HOMEPAGE_VAR_PROMETHEUS_URL}}
+          type: customapi
+          url: http://nats:8222/varz
+          refreshInterval: 60000
+          mappings:
+            - field: connections
+              label: Clients
+              format: number
+            - field: in_msgs
+              label: In
+              format: number
+            - field: out_msgs
+              label: Out
+              format: number
+            - field: mem
+              label: Memory
+              format: bytes
 - Bookmarks:
     - Linkding:
         id: simple_icon
