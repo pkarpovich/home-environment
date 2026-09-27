@@ -31,10 +31,10 @@ The compose files are the source of truth; this table is the map. Everything bel
 
 | Compose file | Services | Exposed at |
 |---|---|---|
-| `compose.yml` | homepage, dozzle, phoenix, iSponsorBlockTV | `home.*`, `logs.*`, `phoenix.*` |
+| `compose.yml` | homepage, dozzle, iSponsorBlockTV | `home.*`, `logs.*` |
 | `compose-traefik.yml` | traefik (alpha + bravo) | `traefik.*` |
 | `compose-updater.yml` | updater (alpha + bravo) | `updater.*` |
-| `compose-grafana.yml` | grafana, prometheus, loki, tempo, influxdb, telegraf, otel-collector, mcp-grafana, whoami | `grafana.*`, `prometheus.*`, `mcp-grafana.*` |
+| `compose-grafana.yml` | grafana, prometheus, loki, tempo, otel-collector, mcp-grafana, whoami | `grafana.*`, `prometheus.*`, `mcp-grafana.*` |
 | `compose-homeassistant.yml` | homeassistant, matter-server | `homeassistant.*` |
 | `compose-gatus.yml` | gatus (uptime + heartbeat monitoring, telegram alerts) | `ping.*` |
 | `compose-media.yml` | tautulli | `tautulli.*` |
@@ -46,6 +46,7 @@ The compose files are the source of truth; this table is the map. Everything bel
 | `compose-nats.yml` | nats (JetStream; the message bus for tuclaw on bravo, turtle-hub, magnet-feed-sync and the Mac-side scripts - moved here from turtle-hub on 2026-09-14) | `:4222` on the LAN, no HTTP route |
 | `compose-seaweedfs.yml` | seaweedfs (S3 for tuclaw voice messages, generated images and turtle-hub artifacts; anonymous, no credentials - moved here from turtle-hub on 2026-09-14) | `s3-hub.*`, `:8333` on the LAN |
 | `compose-slowreader.yml` | slowreader (local-first RSS reader, built from a pinned upstream commit, behind Authelia; see the file header) | `slowreader.*` |
+| `compose-victoriametrics.yml` | victoriametrics (long-term store for the flat's own sensors, see [Home climate](#home-climate)) | internal only |
 | `compose-authelia.yml` | authelia (SSO portal + the `authelia@docker` forward-auth middleware, see [Authentication](#authentication)) | `auth.*` |
 | `compose-torrents.yml`, `compose-twitch.yml` | qbittorrent + flood, ganymede - standalone `-f` deploys, not in the alpha `include:` set | |
 | `compose-derp.yml` | private Tailscale DERP relay - **lasso only**, by hand: `docker compose -f compose-derp.yml up -d --build` (see [`docs/tailnet.md`](docs/tailnet.md)) | `derp.pkarpovich.dev`, STUN `3478/udp` |
@@ -95,6 +96,12 @@ Gitea (on the NAS, proxied at `git.*`): client id `gitea`, callback `https://git
 ## Backups
 
 Nightly restic snapshots from both Pis to an append-only rest-server on the Synology, offsite mirror + encrypted media archive to DigitalOcean Spaces, monthly retention prune, Gatus heartbeats end to end. Full design, schedules, and the restore runbook: [`backup/README.md`](backup/README.md).
+
+## Home climate
+
+The flat's own sensors live in VictoriaMetrics (`compose-victoriametrics.yml`): temperature, humidity and pressure from the three Eve Weather units, the four Eve Thermo radiator valves (temperature, target, mode, valve opening), and the Xiaomi purifier and fan. Home Assistant is the only collector - its `prometheus:` block in `volumes/homeassistant/configuration.yaml` (host-only, not in git) picks the entities, and VictoriaMetrics scrapes `/api/prometheus` once a minute with a dedicated long-lived token, `HA_PROMETHEUS_TOKEN` in `.env`. Retention is 100 years and separate from Prometheus. The room history back to July 2024 was imported from InfluxDB when it was retired on 2026-09-27; "Living room" and "Living_room" were merged into the Eve Weather LR series on the way.
+
+Outdoor weather is not stored at all. The Grafana dashboard "Home Climate" reads it live through the Infinity plugin: the Open-Meteo forecast (2 days back, 16 ahead) and its ERA5 archive for history, plus the current reading of the IMGW Łódź station. That is why the dashboard's default range reaches into the future; the room and history panels carry their own relative ranges.
 
 ## Monitoring
 

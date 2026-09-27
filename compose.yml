@@ -14,6 +14,7 @@ include:
   - path: compose-nats.yml
   - path: compose-seaweedfs.yml
   - path: compose-slowreader.yml
+  - path: compose-victoriametrics.yml
 
 services:
   homepage:
@@ -51,27 +52,18 @@ services:
       - HOMEPAGE_VAR_OPENMETEO_LONGITUDE=${OPENMETEO_LONGITUDE}
       - HOMEPAGE_VAR_OPENMETEO_TIMEZONE=${OPENMETEO_TIMEZONE}
       - HOMEPAGE_VAR_GRAFANA_URL=${GRAFANA_URL}
-      - HOMEPAGE_VAR_GRAFANA_USER=${GRAFANA_USER}
-      - HOMEPAGE_VAR_GRAFANA_PASSWORD=${GRAFANA_PASSWORD}
-      - HOMEPAGE_VAR_INFLUX_URL=${INFLUX_URL}
       - HOMEPAGE_VAR_TAUTULLI_URL=${TAUTULLI_URL}
       - HOMEPAGE_VAR_TAUTULLI_RAW_URL=${TAUTULLI_RAW_URL}
       - HOMEPAGE_VAR_TAUTULLI_KEY=${TAUTULLI_KEY}
       - HOMEPAGE_VAR_TORRENTS_URL=${TORRENTS_DOMAIN}
       - HOMEPAGE_VAR_TORRENTS_USER=${TORRENTS_USER}
       - HOMEPAGE_VAR_TORRENTS_PASS=${TORRENTS_PASS}
-      - HOMEPAGE_VAR_TORRENTS_UI_URL=${TORRENTS_UI_DOMAIN}
-      - HOMEPAGE_VAR_TORRENTS_UI_USER=${TORRENTS_UI_USER}
-      - HOMEPAGE_VAR_TORRENTS_UI_PASS=${TORRENTS_UI_PASS}
-      - HOMEPAGE_VAR_TWITCH_URL=${TWITCH_DOMAIN}
-      - HOMEPAGE_VAR_PHOENIX_URL=https://phoenix.${ROOT_DOMAIN}
+      - HOMEPAGE_VAR_JACKETT_KEY=${JACKETT_API_KEY}
       - HOMEPAGE_VAR_UNIFI_CONTROLLER_KEY=${UNIFI_CONTROLLER_KEY}
       - HOMEPAGE_VAR_PROMETHEUS_URL=${PROMETHEUS_URL}
       - HOMEPAGE_VAR_WINDY_EMBED_WIDGET_URL=${WINDY_EMBED_WIDGET_URL}
       - HOMEPAGE_VAR_HOMEASSISTANT_URL=${HOMEASSISTANT_DOMAIN}
       - HOMEPAGE_VAR_HOMEASSISTANT_KEY=${HOMEASSISTANT_KEY}
-      - HOMEPAGE_VAR_AUDIOBOOKSHELF_URL=https://audiobookshelf.${ROOT_DOMAIN}
-      - HOMEPAGE_VAR_AUDIOBOOKSHELF_KEY=${AUDIOBOOKSHELF_KEY}
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.homepage.rule=Host(`home.${ROOT_DOMAIN}`)"
@@ -108,34 +100,8 @@ services:
     depends_on:
       - traefik
 
-  phoenix:
-    container_name: phoenix
-    image: arizephoenix/phoenix:version-11.7
-    restart: unless-stopped
-    expose:
-      - 6006
-      - 4317
-    environment:
-      - PHOENIX_WORKING_DIR=/mnt/data
-    volumes:
-      - ./volumes/phoenix:/mnt/data
-    networks:
-      - proxy
-      - telemetry
-    labels:
-      - "traefik.enable=true"
-      - "traefik.docker.network=proxy"
-      - "traefik.http.routers.phoenix.rule=Host(`phoenix.${ROOT_DOMAIN}`)"
-      - "traefik.http.routers.phoenix.entrypoints=https"
-      - "traefik.http.routers.phoenix.tls.certresolver=le"
-      - "traefik.http.services.phoenix.loadbalancer.server.port=6006"
-    depends_on:
-      - traefik
-
 networks:
   proxy:
-    external: true
-  telemetry:
     external: true
 
 volumes:

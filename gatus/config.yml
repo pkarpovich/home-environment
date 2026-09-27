@@ -219,6 +219,18 @@ endpoints:
     alerts:
       - type: telegram
 
+  # Fails both when VictoriaMetrics is down and when its scrape of Home Assistant
+  # breaks (HA down, or the HA_PROMETHEUS_TOKEN revoked), since up{} is 0 then.
+  - name: Home sensors (VictoriaMetrics)
+    group: Local
+    url: "http://victoriametrics:8428/api/v1/query?query=up%7Bjob%3D%22homeassistant%22%7D"
+    interval: 5m
+    conditions:
+      - "[STATUS] == 200"
+      - "[BODY].data.result[0].value[1] == 1"
+    alerts:
+      - type: telegram
+
   # Turtle Hub
   # The wildcard cert for *.pkarpovich.space is already asserted by the External
   # group, so these endpoints skip CERTIFICATE_EXPIRATION to avoid ten identical

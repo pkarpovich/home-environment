@@ -28,7 +28,10 @@
 /var/lib/docker/volumes/turtle-hub_boosty-tokens
 /var/lib/docker/volumes/turtle-hub_nikki_data
 /var/lib/docker/volumes/home-environment_grafana
+# InfluxDB replaced by VictoriaMetrics on 2026-09-27; drop this line together with
+# docker volume rm home-environment_influxdb after 2026-10-04
 /var/lib/docker/volumes/home-environment_influxdb
+/var/lib/docker/volumes/home-environment_victoriametrics
 /var/lib/docker/volumes/home-environment_jackett
 /var/lib/docker/volumes/home-environment_tautili
 /var/lib/docker/volumes/home-environment_letsencrypt
