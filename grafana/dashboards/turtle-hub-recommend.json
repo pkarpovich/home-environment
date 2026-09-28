@@ -1,0 +1,507 @@
+{
+  "annotations": {
+    "list": []
+  },
+  "panels": [
+    {
+      "datasource": {
+        "type": "tempo",
+        "uid": "afae1qim4pkhsd"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "decimals": 2,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "reqps"
+        }
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 0,
+        "y": 0
+      },
+      "id": 1,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "tempo",
+            "uid": "afae1qim4pkhsd"
+          },
+          "query": "{resource.service.name=\"content-oracle\" && name=~\"GET /api/v2/content/.*\"} | rate()",
+          "queryType": "traceql",
+          "refId": "A",
+          "metricsQueryType": "instant"
+        }
+      ],
+      "title": "Requests/sec (last 5m)",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "tempo",
+        "uid": "afae1qim4pkhsd"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "decimals": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 2000000000
+              },
+              {
+                "color": "red",
+                "value": 5000000000
+              }
+            ]
+          },
+          "unit": "ns"
+        }
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 6,
+        "y": 0
+      },
+      "id": 2,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "tempo",
+            "uid": "afae1qim4pkhsd"
+          },
+          "query": "{resource.service.name=\"content-oracle\" && name=~\"GET /api/v2/content/.*\"} | quantile_over_time(duration, .95)",
+          "queryType": "traceql",
+          "refId": "A",
+          "metricsQueryType": "instant"
+        }
+      ],
+      "title": "P95 latency (last 5m)",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "tempo",
+        "uid": "afae1qim4pkhsd"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "decimals": 3,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 0.01
+              }
+            ]
+          },
+          "unit": "reqps"
+        }
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 12,
+        "y": 0
+      },
+      "id": 3,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "tempo",
+            "uid": "afae1qim4pkhsd"
+          },
+          "query": "{resource.service.name=\"content-oracle\" && name=~\"GET /api/v2/content/.*\" && status=error} | rate()",
+          "queryType": "traceql",
+          "refId": "A",
+          "metricsQueryType": "instant"
+        }
+      ],
+      "title": "Error rate (last 5m)",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "tempo",
+        "uid": "afae1qim4pkhsd"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "decimals": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 1
+              },
+              {
+                "color": "red",
+                "value": 10
+              }
+            ]
+          },
+          "unit": "short"
+        }
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 18,
+        "y": 0
+      },
+      "id": 4,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "reduceOptions": {
+          "calcs": [
+            "sum"
+          ],
+          "fields": "",
+          "values": false
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "tempo",
+            "uid": "afae1qim4pkhsd"
+          },
+          "query": "{resource.service.name=\"content-oracle\" && name=~\"GET /api/v2/content/.*\" && duration > 5s} | count_over_time()",
+          "queryType": "traceql",
+          "refId": "A",
+          "metricsQueryType": "instant"
+        }
+      ],
+      "title": "Slow requests (>5s, last 1h)",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "tempo",
+        "uid": "afae1qim4pkhsd"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "lineWidth": 2,
+            "showPoints": "never"
+          },
+          "unit": "ns"
+        }
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 4
+      },
+      "id": 5,
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "tempo",
+            "uid": "afae1qim4pkhsd"
+          },
+          "query": "{resource.service.name=\"content-oracle\" && name=~\"GET /api/v2/content/.*\"} | quantile_over_time(duration, .5, .95, .99)",
+          "queryType": "traceql",
+          "refId": "A",
+          "metricsQueryType": "range"
+        }
+      ],
+      "title": "Recommend latency percentiles",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "tempo",
+        "uid": "afae1qim4pkhsd"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "lineWidth": 2,
+            "showPoints": "never",
+            "stacking": {
+              "mode": "none"
+            }
+          },
+          "unit": "ns"
+        }
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 4
+      },
+      "id": 6,
+      "options": {
+        "legend": {
+          "calcs": [
+            "lastNotNull",
+            "max"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "tempo",
+            "uid": "afae1qim4pkhsd"
+          },
+          "query": "{resource.service.name=\"content-oracle\" && name=~\"recommender\\\\.stage\\\\..*\"} | quantile_over_time(duration, .95) by (name)",
+          "queryType": "traceql",
+          "refId": "A",
+          "metricsQueryType": "range"
+        }
+      ],
+      "title": "Recommender stage P95 (content-oracle)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "tempo",
+        "uid": "afae1qim4pkhsd"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "lineWidth": 2,
+            "showPoints": "never"
+          },
+          "unit": "ns"
+        }
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 12
+      },
+      "id": 7,
+      "options": {
+        "legend": {
+          "calcs": [
+            "lastNotNull",
+            "max"
+          ],
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "tempo",
+            "uid": "afae1qim4pkhsd"
+          },
+          "query": "{name=\"POST /mcp\" && kind=server} | quantile_over_time(duration, .95) by (resource.service.name)",
+          "queryType": "traceql",
+          "refId": "A",
+          "metricsQueryType": "range"
+        }
+      ],
+      "title": "MCP server P95 by service (apple-tv, youtube, overcast)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "tempo",
+        "uid": "afae1qim4pkhsd"
+      },
+      "fieldConfig": {
+        "defaults": {}
+      },
+      "gridPos": {
+        "h": 10,
+        "w": 12,
+        "x": 0,
+        "y": 20
+      },
+      "id": 8,
+      "options": {
+        "showHeader": true
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "tempo",
+            "uid": "afae1qim4pkhsd"
+          },
+          "limit": 20,
+          "query": "{resource.service.name=\"content-oracle\" && name=~\"GET /api/v2/content/.*\" && duration > 2s}",
+          "queryType": "traceql",
+          "refId": "A",
+          "tableType": "traces"
+        }
+      ],
+      "title": "Slowest recommend traces (last 6h)",
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "loki",
+        "uid": "bfafqsolnpb7kc"
+      },
+      "gridPos": {
+        "h": 10,
+        "w": 12,
+        "x": 12,
+        "y": 20
+      },
+      "id": 9,
+      "options": {
+        "dedupStrategy": "none",
+        "enableLogDetails": true,
+        "prettifyLogMessage": false,
+        "showCommonLabels": false,
+        "showLabels": false,
+        "showTime": true,
+        "sortOrder": "Descending",
+        "wrapLogMessage": true
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "loki",
+            "uid": "bfafqsolnpb7kc"
+          },
+          "expr": "{service_name=\"content-oracle\"} | json | duration_ms > 2000 or level=\"error\"",
+          "queryType": "range",
+          "refId": "A"
+        }
+      ],
+      "title": "content-oracle: recent slow + errors",
+      "type": "logs"
+    }
+  ],
+  "refresh": "30s",
+  "schemaVersion": 39,
+  "tags": [
+    "turtle-hub",
+    "recommend",
+    "content-oracle"
+  ],
+  "templating": {
+    "list": []
+  },
+  "time": {
+    "from": "now-3h",
+    "to": "now"
+  },
+  "timezone": "browser",
+  "title": "turtle-hub: Recommend Flow",
+  "uid": "turtle-hub-recommend"
+}

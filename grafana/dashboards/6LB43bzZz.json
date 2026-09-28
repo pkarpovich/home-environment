@@ -1,0 +1,1326 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "$$hashKey": "object:73",
+        "builtIn": 1,
+        "datasource": {
+          "type": "grafana",
+          "uid": "grafana"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "target": {
+          "limit": 100,
+          "matchAny": false,
+          "tags": [],
+          "type": "dashboard"
+        },
+        "type": "dashboard"
+      }
+    ]
+  },
+  "description": "Weather at home: outdoor from Open-Meteo (current conditions and the hourly archive of its forecasts), rooms from VictoriaMetrics. Rebuilt on 2026-09-27 when InfluxDB was retired; versions up to 11 are the InfluxDB original.",
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "liveNow": false,
+  "panels": [
+    {
+      "datasource": {
+        "type": "yesoreyeram-infinity-datasource",
+        "uid": "infinity"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "decimals": 2,
+          "mappings": [
+            {
+              "options": {
+                "match": "null",
+                "result": {
+                  "text": "N/A"
+                }
+              },
+              "type": "special"
+            }
+          ],
+          "max": 40,
+          "min": -20,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "#447ebc",
+                "value": 0
+              },
+              {
+                "color": "#629e51",
+                "value": 0
+              },
+              {
+                "color": "#EAB839",
+                "value": 25
+              },
+              {
+                "color": "#e24d42",
+                "value": 28
+              }
+            ]
+          },
+          "unit": "celsius"
+        }
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 4,
+        "x": 0,
+        "y": 0
+      },
+      "id": 73,
+      "maxDataPoints": 100,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "horizontal",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "13.0.2",
+      "targets": [
+        {
+          "columns": [
+            {
+              "selector": "temperature_2m",
+              "text": "Temperature",
+              "type": "number"
+            }
+          ],
+          "datasource": {
+            "type": "yesoreyeram-infinity-datasource",
+            "uid": "infinity"
+          },
+          "format": "table",
+          "parser": "backend",
+          "refId": "A",
+          "root_selector": "current",
+          "source": "url",
+          "type": "json",
+          "url": "https://api.open-meteo.com/v1/forecast?current=temperature_2m,weather_code&daily=sunrise,sunset&forecast_days=1&timeformat=unixtime&timezone=Europe%2FWarsaw",
+          "url_options": {
+            "method": "GET"
+          }
+        }
+      ],
+      "title": "Łódź Temperature",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "yesoreyeram-infinity-datasource",
+        "uid": "infinity"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [
+            {
+              "options": {
+                "match": "null",
+                "result": {
+                  "text": "N/A"
+                }
+              },
+              "type": "special"
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              }
+            ]
+          },
+          "unit": "dateTimeAsIsoNoDateIfToday"
+        }
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 4,
+        "x": 4,
+        "y": 0
+      },
+      "id": 74,
+      "maxDataPoints": 100,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "horizontal",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "13.0.2",
+      "targets": [
+        {
+          "columns": [
+            {
+              "selector": "sunrise",
+              "text": "sunrise",
+              "type": "number"
+            }
+          ],
+          "datasource": {
+            "type": "yesoreyeram-infinity-datasource",
+            "uid": "infinity"
+          },
+          "format": "table",
+          "parser": "backend",
+          "refId": "A",
+          "root_selector": "$map(daily.time, function($v,$i){ {\"sunrise\": daily.sunrise[$i]*1000} })",
+          "source": "url",
+          "type": "json",
+          "url": "https://api.open-meteo.com/v1/forecast?current=temperature_2m,weather_code&daily=sunrise,sunset&forecast_days=1&timeformat=unixtime&timezone=Europe%2FWarsaw",
+          "url_options": {
+            "method": "GET"
+          }
+        }
+      ],
+      "title": "Sunrise time",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "yesoreyeram-infinity-datasource",
+        "uid": "infinity"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [
+            {
+              "options": {
+                "0": {
+                  "index": 0,
+                  "text": "clear sky"
+                }
+              },
+              "type": "value"
+            },
+            {
+              "options": {
+                "1": {
+                  "index": 1,
+                  "text": "mainly clear"
+                }
+              },
+              "type": "value"
+            },
+            {
+              "options": {
+                "2": {
+                  "index": 2,
+                  "text": "partly cloudy"
+                }
+              },
+              "type": "value"
+            },
+            {
+              "options": {
+                "3": {
+                  "index": 3,
+                  "text": "overcast"
+                }
+              },
+              "type": "value"
+            },
+            {
+              "options": {
+                "45": {
+                  "index": 4,
+                  "text": "fog"
+                }
+              },
+              "type": "value"
+            },
+            {
+              "options": {
+                "48": {
+                  "index": 5,
+                  "text": "rime fog"
+                }
+              },
+              "type": "value"
+            },
+            {
+              "options": {
+                "51": {
+                  "index": 6,
+                  "text": "light drizzle"
+                }
+              },
+              "type": "value"
+            },
+            {
+              "options": {
+                "53": {
+                  "index": 7,
+                  "text": "drizzle"
+                }
+              },
+              "type": "value"
+            },
+            {
+              "options": {
+                "55": {
+                  "index": 8,
+                  "text": "dense drizzle"
+                }
+              },
+              "type": "value"
+            },
+            {
+              "options": {
+                "56": {
+                  "index": 9,
+                  "text": "freezing drizzle"
+                }
+              },
+              "type": "value"
+            },
+            {
+              "options": {
+                "57": {
+                  "index": 10,
+                  "text": "dense freezing drizzle"
+                }
+              },
+              "type": "value"
+            },
+            {
+              "options": {
+                "61": {
+                  "index": 11,
+                  "text": "light rain"
+                }
+              },
+              "type": "value"
+            },
+            {
+              "options": {
+                "63": {
+                  "index": 12,
+                  "text": "rain"
+                }
+              },
+              "type": "value"
+            },
+            {
+              "options": {
+                "65": {
+                  "index": 13,
+                  "text": "heavy rain"
+                }
+              },
+              "type": "value"
+            },
+            {
+              "options": {
+                "66": {
+                  "index": 14,
+                  "text": "freezing rain"
+                }
+              },
+              "type": "value"
+            },
+            {
+              "options": {
+                "67": {
+                  "index": 15,
+                  "text": "heavy freezing rain"
+                }
+              },
+              "type": "value"
+            },
+            {
+              "options": {
+                "71": {
+                  "index": 16,
+                  "text": "light snow"
+                }
+              },
+              "type": "value"
+            },
+            {
+              "options": {
+                "73": {
+                  "index": 17,
+                  "text": "snow"
+                }
+              },
+              "type": "value"
+            },
+            {
+              "options": {
+                "75": {
+                  "index": 18,
+                  "text": "heavy snow"
+                }
+              },
+              "type": "value"
+            },
+            {
+              "options": {
+                "77": {
+                  "index": 19,
+                  "text": "snow grains"
+                }
+              },
+              "type": "value"
+            },
+            {
+              "options": {
+                "80": {
+                  "index": 20,
+                  "text": "light showers"
+                }
+              },
+              "type": "value"
+            },
+            {
+              "options": {
+                "81": {
+                  "index": 21,
+                  "text": "showers"
+                }
+              },
+              "type": "value"
+            },
+            {
+              "options": {
+                "82": {
+                  "index": 22,
+                  "text": "violent showers"
+                }
+              },
+              "type": "value"
+            },
+            {
+              "options": {
+                "85": {
+                  "index": 23,
+                  "text": "snow showers"
+                }
+              },
+              "type": "value"
+            },
+            {
+              "options": {
+                "86": {
+                  "index": 24,
+                  "text": "heavy snow showers"
+                }
+              },
+              "type": "value"
+            },
+            {
+              "options": {
+                "95": {
+                  "index": 25,
+                  "text": "thunderstorm"
+                }
+              },
+              "type": "value"
+            },
+            {
+              "options": {
+                "96": {
+                  "index": 26,
+                  "text": "thunderstorm with hail"
+                }
+              },
+              "type": "value"
+            },
+            {
+              "options": {
+                "99": {
+                  "index": 27,
+                  "text": "thunderstorm with heavy hail"
+                }
+              },
+              "type": "value"
+            },
+            {
+              "options": {
+                "match": "null",
+                "result": {
+                  "text": "N/A"
+                }
+              },
+              "type": "special"
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "none"
+        }
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 4,
+        "x": 8,
+        "y": 0
+      },
+      "id": 76,
+      "maxDataPoints": 100,
+      "options": {
+        "colorMode": "none",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "horizontal",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "13.0.2",
+      "targets": [
+        {
+          "columns": [
+            {
+              "selector": "weather_code",
+              "text": "weather_code",
+              "type": "number"
+            }
+          ],
+          "datasource": {
+            "type": "yesoreyeram-infinity-datasource",
+            "uid": "infinity"
+          },
+          "format": "table",
+          "parser": "backend",
+          "refId": "A",
+          "root_selector": "current",
+          "source": "url",
+          "type": "json",
+          "url": "https://api.open-meteo.com/v1/forecast?current=temperature_2m,weather_code&daily=sunrise,sunset&forecast_days=1&timeformat=unixtime&timezone=Europe%2FWarsaw",
+          "url_options": {
+            "method": "GET"
+          }
+        }
+      ],
+      "title": "Weather condition",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "yesoreyeram-infinity-datasource",
+        "uid": "infinity"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 12,
+            "gradientMode": "hue",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "smooth",
+            "lineStyle": {
+              "fill": "solid"
+            },
+            "lineWidth": 4,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "showValues": false,
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "displayName": "Łódź",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "celsius"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byValue",
+              "options": {
+                "op": "gte",
+                "reducer": "allIsNull",
+                "value": 0
+              }
+            },
+            "properties": [
+              {
+                "id": "custom.hideFrom",
+                "value": {
+                  "legend": true,
+                  "tooltip": true,
+                  "viz": false
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 12,
+        "x": 12,
+        "y": 0
+      },
+      "id": 77,
+      "options": {
+        "annotations": {
+          "clustering": -1,
+          "multiLane": false
+        },
+        "legend": {
+          "calcs": [
+            "mean",
+            "lastNotNull",
+            "max",
+            "min"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "multi",
+          "sort": "asc"
+        }
+      },
+      "pluginVersion": "13.0.2",
+      "targets": [
+        {
+          "columns": [
+            {
+              "selector": "time",
+              "text": "Time",
+              "type": "timestamp_epoch"
+            },
+            {
+              "selector": "t",
+              "text": "Łódź",
+              "type": "number"
+            }
+          ],
+          "datasource": {
+            "type": "yesoreyeram-infinity-datasource",
+            "uid": "infinity"
+          },
+          "format": "timeseries",
+          "parser": "backend",
+          "refId": "A",
+          "root_selector": "$map(hourly.time, function($v,$i){ {\"time\": $v*1000, \"t\": hourly.temperature_2m[$i]} })[time <= $millis() and t != null]",
+          "source": "url",
+          "type": "json",
+          "url": "https://historical-forecast-api.open-meteo.com/v1/forecast?hourly=temperature_2m&timeformat=unixtime&timezone=GMT&start_date=${__from:date:YYYY-MM-DD}&end_date=${__to:date:YYYY-MM-DD}",
+          "url_options": {
+            "method": "GET"
+          }
+        }
+      ],
+      "title": "Temperature",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "yesoreyeram-infinity-datasource",
+        "uid": "infinity"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [
+            {
+              "options": {
+                "match": "null",
+                "result": {
+                  "text": "N/A"
+                }
+              },
+              "type": "special"
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "purple",
+                "value": 0
+              }
+            ]
+          },
+          "unit": "dateTimeAsIsoNoDateIfToday"
+        }
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 4,
+        "x": 4,
+        "y": 3
+      },
+      "id": 75,
+      "maxDataPoints": 100,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "horizontal",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "13.0.2",
+      "targets": [
+        {
+          "columns": [
+            {
+              "selector": "sunset",
+              "text": "sunset",
+              "type": "number"
+            }
+          ],
+          "datasource": {
+            "type": "yesoreyeram-infinity-datasource",
+            "uid": "infinity"
+          },
+          "format": "table",
+          "parser": "backend",
+          "refId": "A",
+          "root_selector": "$map(daily.time, function($v,$i){ {\"sunset\": daily.sunset[$i]*1000} })",
+          "source": "url",
+          "type": "json",
+          "url": "https://api.open-meteo.com/v1/forecast?current=temperature_2m,weather_code&daily=sunrise,sunset&forecast_days=1&timeformat=unixtime&timezone=Europe%2FWarsaw",
+          "url_options": {
+            "method": "GET"
+          }
+        }
+      ],
+      "title": "Sunset time",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "victoriametrics"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "max": 40,
+          "min": -25,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "orange",
+                "value": 24
+              },
+              {
+                "color": "red",
+                "value": 28
+              }
+            ]
+          },
+          "unit": "celsius"
+        }
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 3,
+        "x": 0,
+        "y": 6
+      },
+      "id": 71,
+      "maxDataPoints": 100,
+      "options": {
+        "barShape": "flat",
+        "barWidthFactor": 0.5,
+        "effects": {
+          "barGlow": false,
+          "centerGlow": false,
+          "gradient": false
+        },
+        "endpointMarker": "point",
+        "minVizHeight": 75,
+        "minVizWidth": 75,
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "segmentCount": 1,
+        "segmentSpacing": 0.3,
+        "shape": "gauge",
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true,
+        "sizing": "auto",
+        "sparkline": false,
+        "textMode": "auto"
+      },
+      "pluginVersion": "13.0.2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "victoriametrics"
+          },
+          "expr": "homeassistant_sensor_temperature_celsius{entity=\"sensor.eve_weather_20ebs9901_temperature\"}",
+          "legendFormat": "Balcony",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Balcony",
+      "transparent": true,
+      "type": "gauge"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "victoriametrics"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 15,
+            "gradientMode": "hue",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "smooth",
+            "lineStyle": {
+              "fill": "solid"
+            },
+            "lineWidth": 3,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "showValues": false,
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "decimals": 1,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 28
+              }
+            ]
+          },
+          "unit": "celsius"
+        }
+      },
+      "gridPos": {
+        "h": 12,
+        "w": 11,
+        "x": 3,
+        "y": 6
+      },
+      "id": 2,
+      "interval": "15m",
+      "options": {
+        "annotations": {
+          "clustering": -1,
+          "multiLane": false
+        },
+        "legend": {
+          "calcs": [
+            "min",
+            "max",
+            "mean",
+            "range"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "hoverProximity": 2,
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "pluginVersion": "13.0.2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "victoriametrics"
+          },
+          "expr": "avg_over_time(homeassistant_sensor_temperature_celsius{entity=~\"sensor.(eve_weather_20ebs9901|eve_weather_lr|bedroom_eve_weather_bedroom)_temperature\"}[$__interval])",
+          "legendFormat": "{{friendly_name}}",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Temperature",
+      "transformations": [
+        {
+          "id": "renameByRegex",
+          "options": {
+            "regex": "Eve Weather (Balcony|LR|Bedroom).*",
+            "renamePattern": "$1"
+          }
+        },
+        {
+          "id": "renameByRegex",
+          "options": {
+            "regex": "^LR$",
+            "renamePattern": "Living room"
+          }
+        }
+      ],
+      "transparent": true,
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "victoriametrics"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "continuous-BlPu"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 15,
+            "gradientMode": "hue",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "smooth",
+            "lineStyle": {
+              "fill": "solid"
+            },
+            "lineWidth": 3,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "showValues": false,
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "decimals": 1,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "red",
+                "value": 28
+              }
+            ]
+          },
+          "unit": "percent"
+        }
+      },
+      "gridPos": {
+        "h": 12,
+        "w": 10,
+        "x": 14,
+        "y": 6
+      },
+      "id": 72,
+      "interval": "15m",
+      "options": {
+        "annotations": {
+          "clustering": -1,
+          "multiLane": false
+        },
+        "legend": {
+          "calcs": [
+            "last"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "hoverProximity": 2,
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "pluginVersion": "13.0.2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "victoriametrics"
+          },
+          "expr": "avg_over_time(homeassistant_sensor_humidity_percent{entity=~\"sensor.(eve_weather_20ebs9901|eve_weather_lr|bedroom_eve_weather_bedroom)_humidity\"}[$__interval])",
+          "legendFormat": "{{friendly_name}}",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Humidity",
+      "transformations": [
+        {
+          "id": "renameByRegex",
+          "options": {
+            "regex": "Eve Weather (Balcony|LR|Bedroom).*",
+            "renamePattern": "$1"
+          }
+        },
+        {
+          "id": "renameByRegex",
+          "options": {
+            "regex": "^LR$",
+            "renamePattern": "Living room"
+          }
+        }
+      ],
+      "transparent": true,
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "victoriametrics"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "max": 40,
+          "min": -25,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "orange",
+                "value": 24
+              },
+              {
+                "color": "red",
+                "value": 28
+              }
+            ]
+          },
+          "unit": "celsius"
+        }
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 3,
+        "x": 0,
+        "y": 10
+      },
+      "id": 30,
+      "maxDataPoints": 100,
+      "options": {
+        "barShape": "flat",
+        "barWidthFactor": 0.5,
+        "effects": {
+          "barGlow": false,
+          "centerGlow": false,
+          "gradient": false
+        },
+        "endpointMarker": "point",
+        "minVizHeight": 75,
+        "minVizWidth": 75,
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "segmentCount": 1,
+        "segmentSpacing": 0.3,
+        "shape": "gauge",
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true,
+        "sizing": "auto",
+        "sparkline": false,
+        "textMode": "auto"
+      },
+      "pluginVersion": "13.0.2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "victoriametrics"
+          },
+          "expr": "homeassistant_sensor_temperature_celsius{entity=\"sensor.bedroom_eve_weather_bedroom_temperature\"}",
+          "legendFormat": "Bedroom",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Bedroom",
+      "transparent": true,
+      "type": "gauge"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "victoriametrics"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "max": 40,
+          "min": -25,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "orange",
+                "value": 24
+              },
+              {
+                "color": "red",
+                "value": 28
+              }
+            ]
+          },
+          "unit": "celsius"
+        }
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 3,
+        "x": 0,
+        "y": 14
+      },
+      "id": 70,
+      "maxDataPoints": 100,
+      "options": {
+        "barShape": "flat",
+        "barWidthFactor": 0.5,
+        "effects": {
+          "barGlow": false,
+          "centerGlow": false,
+          "gradient": false
+        },
+        "endpointMarker": "point",
+        "minVizHeight": 75,
+        "minVizWidth": 75,
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "segmentCount": 1,
+        "segmentSpacing": 0.3,
+        "shape": "gauge",
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true,
+        "sizing": "auto",
+        "sparkline": false,
+        "textMode": "auto"
+      },
+      "pluginVersion": "13.0.2",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "victoriametrics"
+          },
+          "expr": "homeassistant_sensor_temperature_celsius{entity=\"sensor.eve_weather_lr_temperature\"}",
+          "legendFormat": "Living Room",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Living Room",
+      "transparent": true,
+      "type": "gauge"
+    }
+  ],
+  "preload": false,
+  "refresh": "15m",
+  "schemaVersion": 42,
+  "tags": [
+    "influxdb"
+  ],
+  "templating": {
+    "list": []
+  },
+  "time": {
+    "from": "now-24h",
+    "to": "now"
+  },
+  "timepicker": {
+    "refresh_intervals": [
+      "5s",
+      "10s",
+      "30s",
+      "1m",
+      "5m",
+      "15m",
+      "30m",
+      "1h",
+      "2h",
+      "1d"
+    ]
+  },
+  "timezone": "browser",
+  "title": "Home Weather Station",
+  "uid": "6LB43bzZz"
+}

@@ -1,0 +1,165 @@
+script:
+  all_lights_red:
+    alias: All Lights Color
+    description: Set all accent lights to specified color
+    icon: mdi:palette
+    mode: single
+    fields:
+      color:
+        name: Color
+        description: Color name
+        example: red
+        default: red
+        selector:
+          select:
+            options:
+            - red
+            - blue
+            - green
+            - purple
+            - orange
+            - pink
+            - cyan
+            - white
+    variables:
+      color_map:
+        red:
+        - 0
+        - 100
+        orange:
+        - 30
+        - 100
+        yellow:
+        - 60
+        - 100
+        green:
+        - 120
+        - 100
+        cyan:
+        - 180
+        - 100
+        blue:
+        - 240
+        - 100
+        purple:
+        - 270
+        - 100
+        pink:
+        - 330
+        - 100
+        white:
+        - 0
+        - 0
+      hs: '{{ color_map[color] | default([0, 100]) }}'
+    sequence:
+    - target:
+        entity_id:
+        - light.yeelight_strip6_0x12f3d743
+        - light.yeelight_strip6_0x12fd3960
+        - light.hue_gradient_lightstrip_bottom
+        - light.hue_play_gradient_lightstrip_1
+        - light.hue_play_sofa
+        - light.hue_play_table_center
+        - light.hue_play_table_left
+        - light.hue_play_table_right
+      data:
+        brightness_pct: 100
+        hs_color: '{{ hs }}'
+        transition: 1
+      action: light.turn_on
+  wake_tv:
+    alias: Wake TV
+    icon: mdi:television-play
+    mode: single
+    description: 'For the once-a-fortnight case where the Apple TV is on but the panel
+      stayed dark. Does what you would do by hand, in order: first ask the Apple TV
+      to turn on, which makes it re-send the HDMI-CEC wake even when it is already awake
+      - measured waking the TV in about ten seconds from a paused Apple TV. If the panel
+      is still dark after 15 s, power-cycle the Apple TV, which is the other thing you
+      would reach for. Wake-on-LAN is not used: the TV is a wireless client on the IoT
+      VLAN and Home Assistant cannot put a broadcast frame there.'
+    sequence:
+    - action: media_player.turn_on
+      target:
+        entity_id: media_player.apple_tv
+    - wait_template: '{{ not is_state(''media_player.samsung_tv'', ''off'') }}'
+      timeout: 00:00:15
+      continue_on_timeout: true
+    - if:
+      - condition: state
+        entity_id: media_player.samsung_tv
+        state: 'off'
+      then:
+      - action: media_player.turn_off
+        target:
+          entity_id: media_player.apple_tv
+      - delay:
+          seconds: 4
+      - action: media_player.turn_on
+        target:
+          entity_id: media_player.apple_tv
+      - wait_template: '{{ not is_state(''media_player.samsung_tv'', ''off'') }}'
+        timeout: 00:00:20
+        continue_on_timeout: true
+  evening_colours:
+    alias: Evening colours
+    icon: mdi:palette
+    mode: single
+    description: 'Paints the living-room zone in two analogous colours, then records
+      what it painted. The recording has to happen here, not only in the Remember automation:
+      that one refuses to run while Hue Sync is on, and sunset fires 15 min before dusk,
+      so on any evening the TV was already playing the palette was applied and never
+      written down. With the TV already on, sunset painted with nothing recorded,
+      and hours later the zone was repainted at random - the sofa
+      strip went from red to purple even though Hue Sync never touched it.'
+    sequence:
+    - variables:
+        base_hue: '{{ [0, 30, 60, 180, 240, 270, 300] | random }}'
+        offset: '{{ range(30, 60) | random }}'
+        second_hue: '{{ ((base_hue | int + offset) % 360) }}'
+    - action: light.turn_on
+      target:
+        entity_id: light.sofa_strip
+      data:
+        brightness_pct: 100
+        hs_color:
+        - '{{ base_hue }}'
+        - 100
+        transition: 3
+    - action: light.turn_on
+      target:
+        entity_id: light.kitchen_strip
+      data:
+        brightness_pct: 60
+        hs_color:
+        - '{{ base_hue }}'
+        - 100
+        transition: 3
+    - action: light.turn_on
+      target:
+        entity_id: light.zone_tv
+      data:
+        brightness_pct: 100
+        hs_color:
+        - '{{ second_hue }}'
+        - 100
+        transition: 3
+    - delay:
+        seconds: 5
+    - action: scene.create
+      data:
+        scene_id: evening_lights
+        snapshot_entities:
+        - light.tv_strip_main
+        - light.tv_strip_bottom
+        - light.tv_downlight_left
+        - light.tv_downlight_right
+        - light.desk_downlight
+        - light.sofa_wall_uplight
+        - light.sofa_strip
+        - light.kitchen_strip
+    - action: input_datetime.set_datetime
+      target:
+        entity_id: input_datetime.tv_zone_snapshot_at
+      data:
+        timestamp: '{{ now().timestamp() }}'

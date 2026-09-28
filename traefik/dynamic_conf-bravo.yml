@@ -1,4 +1,0 @@
-# bravo cluster: intentionally empty dynamic config.
-# The shared traefik.yml enables the file provider, so this file must exist,
-# but bravo has no file-provider routers/services - all routing comes from
-# Docker labels (updater, traefik dashboard).

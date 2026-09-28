@@ -60,7 +60,7 @@ storage:
       path: /var/tempo/blocks
 
 overrides:
-  per_tenant_override_config: /etc/tempo-overrides.yaml
+  per_tenant_override_config: /etc/tempo/tempo-overrides.yaml
   defaults:
     metrics_generator:
       processors: [service-graphs, span-metrics]

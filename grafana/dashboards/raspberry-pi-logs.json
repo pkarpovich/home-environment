@@ -1,0 +1,344 @@
+{
+  "editable": true,
+  "panels": [
+    {
+      "datasource": {
+        "type": "loki",
+        "uid": "bfafqsolnpb7kc"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "blue",
+            "mode": "fixed"
+          },
+          "noValue": "0"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 8,
+        "x": 0,
+        "y": 0
+      },
+      "id": 1,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "loki",
+            "uid": "bfafqsolnpb7kc"
+          },
+          "expr": "sum(count_over_time({host=~\"$host\", script=~\"$script\"} |= \"$search\" [$__range]))",
+          "queryType": "instant",
+          "refId": "A"
+        }
+      ],
+      "title": "Total Logs",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "loki",
+        "uid": "bfafqsolnpb7kc"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "purple",
+            "mode": "fixed"
+          },
+          "noValue": "N/A",
+          "unit": "dateTimeFromNow"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 8,
+        "x": 8,
+        "y": 0
+      },
+      "id": 2,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "/^Time$/"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "loki",
+            "uid": "bfafqsolnpb7kc"
+          },
+          "expr": "{host=~\"$host\", script=~\"$script\"}",
+          "maxLines": 1,
+          "queryType": "instant",
+          "refId": "A"
+        }
+      ],
+      "title": "Last Activity",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "loki",
+        "uid": "bfafqsolnpb7kc"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "semi-dark-yellow",
+            "mode": "fixed"
+          },
+          "decimals": 1,
+          "displayName": "logs/hour",
+          "noValue": "0",
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 8,
+        "x": 16,
+        "y": 0
+      },
+      "id": 3,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "loki",
+            "uid": "bfafqsolnpb7kc"
+          },
+          "expr": "sum(rate({host=~\"$host\", script=~\"$script\"} [$__range])) * 3600",
+          "queryType": "instant",
+          "refId": "A"
+        }
+      ],
+      "title": "Log Rate",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "loki",
+        "uid": "bfafqsolnpb7kc"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "barAlignment": 0,
+            "drawStyle": "bars",
+            "fillOpacity": 50,
+            "stacking": {
+              "mode": "normal"
+            }
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 12,
+        "x": 0,
+        "y": 4
+      },
+      "id": 5,
+      "options": {
+        "tooltip": {
+          "mode": "multi"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "loki",
+            "uid": "bfafqsolnpb7kc"
+          },
+          "expr": "sum by (script) (count_over_time({host=~\"$host\", script=~\"$script\"} |= \"$search\" [5m]))",
+          "legendFormat": "{{script}}",
+          "refId": "A"
+        }
+      ],
+      "title": "Log Volume by Script",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "loki",
+        "uid": "bfafqsolnpb7kc"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "barAlignment": 0,
+            "drawStyle": "bars",
+            "fillOpacity": 50,
+            "stacking": {
+              "mode": "normal"
+            }
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 12,
+        "x": 12,
+        "y": 4
+      },
+      "id": 6,
+      "options": {
+        "tooltip": {
+          "mode": "multi"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "loki",
+            "uid": "bfafqsolnpb7kc"
+          },
+          "expr": "sum by (host) (count_over_time({host=~\"$host\", script=~\"$script\"} |= \"$search\" [5m]))",
+          "legendFormat": "{{host}}",
+          "refId": "A"
+        }
+      ],
+      "title": "Log Volume by Host",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "loki",
+        "uid": "bfafqsolnpb7kc"
+      },
+      "gridPos": {
+        "h": 14,
+        "w": 24,
+        "x": 0,
+        "y": 10
+      },
+      "id": 7,
+      "options": {
+        "dedupStrategy": "none",
+        "enableLogDetails": true,
+        "prettifyLogMessage": false,
+        "showCommonLabels": false,
+        "showLabels": true,
+        "showTime": true,
+        "sortOrder": "Descending",
+        "wrapLogMessage": true
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "loki",
+            "uid": "bfafqsolnpb7kc"
+          },
+          "expr": "{host=~\"$host\", script=~\"$script\"} |= \"$search\"",
+          "maxLines": 200,
+          "refId": "A"
+        }
+      ],
+      "title": "Logs",
+      "type": "logs"
+    }
+  ],
+  "refresh": "30s",
+  "tags": [
+    "turtle-harbor",
+    "loki"
+  ],
+  "templating": {
+    "list": [
+      {
+        "allValue": ".+",
+        "current": {
+          "text": "All",
+          "value": "$__all"
+        },
+        "datasource": {
+          "type": "loki",
+          "uid": "bfafqsolnpb7kc"
+        },
+        "includeAll": true,
+        "label": "Host",
+        "multi": true,
+        "name": "host",
+        "query": {
+          "label": "host",
+          "type": 1
+        },
+        "refresh": 2,
+        "type": "query"
+      },
+      {
+        "allValue": ".+",
+        "current": {
+          "text": "All",
+          "value": "$__all"
+        },
+        "datasource": {
+          "type": "loki",
+          "uid": "bfafqsolnpb7kc"
+        },
+        "includeAll": true,
+        "label": "Script",
+        "multi": true,
+        "name": "script",
+        "query": {
+          "label": "script",
+          "type": 1
+        },
+        "refresh": 2,
+        "type": "query"
+      },
+      {
+        "current": {
+          "text": "",
+          "value": ""
+        },
+        "label": "Search",
+        "name": "search",
+        "options": [],
+        "type": "textbox"
+      }
+    ]
+  },
+  "time": {
+    "from": "now-6h",
+    "to": "now"
+  },
+  "timezone": "browser",
+  "title": "Turtle Harbor",
+  "uid": "raspberry-pi-logs"
+}

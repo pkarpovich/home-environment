@@ -7,6 +7,8 @@ services:
       - GF_SECURITY_ADMIN_USER=${GRAFANA_USER}
       - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD}
       - GF_PLUGINS_PREINSTALL=yesoreyeram-infinity-datasource
+      - OPENMETEO_LATITUDE=${OPENMETEO_LATITUDE}
+      - OPENMETEO_LONGITUDE=${OPENMETEO_LONGITUDE}
       - GF_SERVER_ROOT_URL=https://grafana.${ROOT_DOMAIN}
       - GF_AUTH_GENERIC_OAUTH_ENABLED=true
       - GF_AUTH_GENERIC_OAUTH_NAME=Authelia
@@ -43,6 +45,8 @@ services:
       - "traefik.http.services.grafana.loadbalancer.server.port=3000"
     volumes:
       - grafana:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./grafana/dashboards:/etc/grafana/dashboards:ro
 
   prometheus:
     restart: unless-stopped
@@ -55,7 +59,7 @@ services:
       - --enable-feature=exemplar-storage
     volumes:
       - prometheus:/prometheus
-      - ./.config/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./.config/prometheus:/etc/prometheus:ro
     networks:
       - proxy
     labels:
@@ -91,13 +95,12 @@ services:
     restart: unless-stopped
     container_name: tempo
     image: grafana/tempo:3.0.3
-    command: ["-config.file=/etc/tempo.yaml"]
+    command: ["-config.file=/etc/tempo/tempo.yaml"]
     depends_on:
       tempo-init:
         condition: service_completed_successfully
     volumes:
-      - ./.config/tempo.yaml:/etc/tempo.yaml:ro
-      - ./.config/tempo-overrides.yaml:/etc/tempo-overrides.yaml:ro
+      - ./.config/tempo:/etc/tempo:ro
       - tempo:/var/tempo
     networks:
       - proxy
@@ -114,9 +117,9 @@ services:
     restart: unless-stopped
     container_name: loki
     image: grafana/loki:latest
-    command: ["-config.file=/etc/loki/loki-config.yml"]
+    command: ["-config.file=/etc/loki-config/loki-config.yml"]
     volumes:
-      - ./.config/loki-config.yml:/etc/loki/loki-config.yml:ro
+      - ./.config/loki:/etc/loki-config:ro
       - loki:/loki
     ports:
       - "3100:3100"
@@ -136,7 +139,7 @@ services:
     image: otel/opentelemetry-collector:latest
     command: ["--config=/etc/otel/config.yaml"]
     volumes:
-      - ./.config/otel-collector.yaml:/etc/otel/config.yaml:ro
+      - ./.config/otel-collector:/etc/otel:ro
     ports:
       - "4317:4317"
       - "4318:4318"

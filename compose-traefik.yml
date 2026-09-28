@@ -10,10 +10,8 @@ services:
       - HEALTH_CHECK_URL=${HEALTH_CHECK_URL}
       - NAS_URL=${DISKSTATION_URL}
       - PLEX_URL=${PLEX_URL}
-      - KIRA_CLIENT_URL=${KIRA_CLIENT_URL}
       - TORRENT_URL=${TORRENT_URL}
       - TORRENT_UI_URL=${TORRENT_UI_URL}
-      - TWITCH_URL=${TWITCH_URL}
       - HOMEASSISTANT_URL=${HOMEASSISTANT_URL}
       - CF_API_EMAIL=${CF_API_EMAIL}
       - CF_API_KEY=${CF_API_KEY}
@@ -26,8 +24,8 @@ services:
       - "443:443/udp"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
-      - ./traefik/traefik.yml:/etc/traefik/traefik.yml:ro
-      - ${TRAEFIK_DYNAMIC_CONF:-./traefik/dynamic_conf.yml}:/etc/traefik/dynamic_conf.yml:ro
+      - ./traefik/static:/etc/traefik:ro
+      - ${TRAEFIK_DYNAMIC_DIR:-./traefik/dynamic/alpha}:/etc/traefik-dynamic:ro
       - letsencrypt:/letsencrypt
     healthcheck:
       test: ["CMD", "traefik", "healthcheck", "--ping"]

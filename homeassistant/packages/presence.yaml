@@ -1,0 +1,81 @@
+template:
+  # Is anyone home. Built because a gate on a single tracker is a trap: the UniFi WiFi
+  # tracker can drop the phone while it sits at home, and sunset lights gated on that
+  # one entity then never run, even while GPS and motion both say someone is here.
+  # So this is an OR of every positive signal, never an AND: any one of them saying
+  # "home" is enough, and it reads away only when all of them agree nobody is here.
+  # Motion stops counting the moment the front door is used after it: otherwise the
+  # last movement before leaving keeps the sensor on for half an hour and the sunset
+  # automation lights an empty flat. Motion after a door event is someone who came
+  # in; motion before one may be someone who left.
+  # The phone-app legs (person + GPS) are only trusted while the companion app is
+  # actually reporting: its battery sensor is the liveness probe. The app can go
+  # silent for days while still claiming 'home', which would pin this sensor to
+  # 'on' forever - a presence sensor that can never read
+  # away is worse than none, because away-mode would silently stop working.
+  # Motion counts for 30 minutes after it stops - it is the only signal that survives a
+  # phone being off, on airplane mode or simply asleep on the charger, and it can only
+  # ever ADD presence, never remove it.
+  - binary_sensor:
+      - name: "Pavel home"
+        unique_id: pavel_home
+        device_class: presence
+        icon: mdi:account-check
+        state: >
+          {% set motion_sensors = ['binary_sensor.eve_motion_20eby9901_occupancy',
+                                   'binary_sensor.eve_motion_20eby9901_occupancy_2'] %}
+          {% set door = states.binary_sensor.front_door %}
+          {% set door_at = door.last_changed if door is not none else None %}
+          {% set ns = namespace(motion=false) %}
+          {% for m in motion_sensors %}
+            {% if states[m] is not none %}
+              {% set seen = states[m].last_changed %}
+              {% if is_state(m, 'on')
+                    or ((now() - seen).total_seconds() < 1800
+                        and (door_at is none or seen > door_at)) %}
+                {% set ns.motion = true %}
+              {% endif %}
+            {% endif %}
+          {% endfor %}
+          {% set probe = states.sensor.pavels_iphone_battery_level %}
+          {% set app_alive = probe is not none
+                             and (now() - probe.last_updated).total_seconds() < 21600 %}
+          {{ (app_alive and (is_state('person.pavel', 'home')
+                             or is_state('device_tracker.pavels_iphone', 'home')))
+             or is_state('device_tracker.pavel_iphone_wifi', 'home')
+             or ns.motion }}
+        attributes:
+          person: >
+            {{ states('person.pavel') }}
+          phone_gps: >
+            {{ states('device_tracker.pavels_iphone') }}
+          phone_wifi: >
+            {{ states('device_tracker.pavel_iphone_wifi') }}
+          recent_motion: >
+            {% set motion_sensors = ['binary_sensor.eve_motion_20eby9901_occupancy',
+                                     'binary_sensor.eve_motion_20eby9901_occupancy_2'] %}
+            {% set ns = namespace(best=99999) %}
+            {% for m in motion_sensors %}
+              {% if states[m] is not none %}
+                {% set age = 0 if is_state(m, 'on')
+                             else (now() - states[m].last_changed).total_seconds() %}
+                {% if age < ns.best %}{% set ns.best = age %}{% endif %}
+              {% endif %}
+            {% endfor %}
+            {{ 'нет данных' if ns.best == 99999
+               else (ns.best / 60) | round(0) | int ~ ' мин назад' }}
+          companion_app: >
+            {% set probe = states.sensor.pavels_iphone_battery_level %}
+            {% if probe is none %}нет сущности
+            {% else %}
+              {%- set h = (now() - probe.last_updated).total_seconds() / 3600 -%}
+              {{ 'жив, молчит %.0f ч' | format(h) if h < 6 else 'ЗАЛИПЛО, молчит %.0f ч' | format(h) }}
+            {% endif %}
+          holding: >
+            {% set probe = states.sensor.pavels_iphone_battery_level %}
+            {% set app_alive = probe is not none
+                               and (now() - probe.last_updated).total_seconds() < 21600 %}
+            {% if app_alive and is_state('person.pavel', 'home') %}person
+            {% elif app_alive and is_state('device_tracker.pavels_iphone', 'home') %}phone_gps
+            {% elif is_state('device_tracker.pavel_iphone_wifi', 'home') %}phone_wifi
+            {% else %}motion or nothing{% endif %}

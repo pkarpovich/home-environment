@@ -1,0 +1,71 @@
+apiVersion: 1
+
+deleteDatasources:
+  - name: youtube-prod
+    orgId: 1
+  - name: Local InfluxDB
+    orgId: 1
+
+datasources:
+  - name: prometheus
+    uid: cev72gsw2rthcb
+    type: prometheus
+    access: proxy
+    url: http://prometheus:9090
+    editable: false
+
+  - name: VictoriaMetrics
+    uid: victoriametrics
+    type: prometheus
+    access: proxy
+    url: http://victoriametrics:8428
+    editable: false
+    jsonData:
+      httpMethod: POST
+      prometheusType: Prometheus
+      timeInterval: 60s
+
+  - name: loki
+    uid: bfafqsolnpb7kc
+    type: loki
+    access: proxy
+    url: http://loki:3100
+    editable: false
+    jsonData:
+      derivedFields:
+        - name: trace_id
+          datasourceUid: afae1qim4pkhsd
+          matcherType: regex
+          matcherRegex: '"trace_id":"([a-f0-9]+)"'
+          url: '$${__value.raw}'
+
+  - name: tempo
+    uid: afae1qim4pkhsd
+    type: tempo
+    access: proxy
+    url: http://tempo:3200
+    editable: false
+    jsonData:
+      tracesToLogsV2:
+        datasourceUid: bfafqsolnpb7kc
+        filterByTraceID: true
+        customQuery: false
+        tags:
+          - key: service
+            value: service
+
+  - name: Infinity
+    uid: infinity
+    type: yesoreyeram-infinity-datasource
+    editable: false
+    jsonData:
+      secureQueryName1: latitude
+      secureQueryName2: longitude
+      allowedHosts:
+        - https://api.open-meteo.com
+        - https://archive-api.open-meteo.com
+        - https://historical-forecast-api.open-meteo.com
+        - https://danepubliczne.imgw.pl
+    secureJsonData:
+      secureQueryValue1: $OPENMETEO_LATITUDE
+      secureQueryValue2: $OPENMETEO_LONGITUDE

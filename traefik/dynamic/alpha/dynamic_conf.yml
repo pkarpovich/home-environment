@@ -14,13 +14,6 @@ http:
       tls:
         certResolver: le
 
-    kira-client-router:
-      rule: "Host(`kira.{{env "ROOT_DOMAIN"}}`)"
-      entryPoints: [ "https" ]
-      service: "kira-client-service"
-      tls:
-        certResolver: le
-
     qbittorrent-router:
       rule: "Host(`torrents.{{env "ROOT_DOMAIN"}}`)"
       entryPoints: [ "https" ]
@@ -35,13 +28,6 @@ http:
       tls:
         certResolver: le
 
-    twitch-router:
-      rule: "Host(`twitch.{{env "ROOT_DOMAIN"}}`)"
-      entryPoints: [ "https" ]
-      service: "twitch-service"
-      tls:
-        certResolver: le
-
     homeassistant-router:
       rule: "Host(`homeassistant.{{env "ROOT_DOMAIN"}}`)"
       entryPoints: [ "https" ]
@@ -53,20 +39,6 @@ http:
       rule: "Host(`tuclaw.{{env "ROOT_DOMAIN"}}`)"
       entryPoints: [ "https" ]
       service: "tuclaw-service"
-      tls:
-        certResolver: le
-
-    tuclaw-voice-router:
-      rule: "Host(`tuclaw-voice.{{env "ROOT_DOMAIN"}}`)"
-      entryPoints: [ "https" ]
-      service: "tuclaw-voice-service"
-      tls:
-        certResolver: le
-
-    audiobookshelf-router:
-      rule: "Host(`audiobookshelf.{{env "ROOT_DOMAIN"}}`)"
-      entryPoints: [ "https" ]
-      service: "audiobookshelf-service"
       tls:
         certResolver: le
 
@@ -88,11 +60,6 @@ http:
         servers:
           - url: "{{env "PLEX_URL"}}"
 
-    kira-client-service:
-      loadBalancer:
-        servers:
-          - url: "{{env "KIRA_CLIENT_URL"}}"
-
     qbittorrent-service:
       loadBalancer:
         servers:
@@ -103,11 +70,6 @@ http:
         servers:
           - url: "{{env "TORRENT_UI_URL"}}"
 
-    twitch-service:
-      loadBalancer:
-        servers:
-          - url: "{{env "TWITCH_URL"}}"
-
     homeassistant-service:
       loadBalancer:
         servers:
@@ -117,16 +79,6 @@ http:
       loadBalancer:
         servers:
           - url: "http://192.168.199.72:9090"
-
-    tuclaw-voice-service:
-      loadBalancer:
-        servers:
-          - url: "http://192.168.199.72:8000"
-
-    audiobookshelf-service:
-      loadBalancer:
-        servers:
-          - url: "http://192.168.198.2:13378"
 
     ralphex-farm-service:
       loadBalancer:

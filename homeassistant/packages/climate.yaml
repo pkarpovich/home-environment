@@ -1,0 +1,110 @@
+template:
+  # Tells what to do with the two balcony doors - one advice for both rooms,
+  # since they share the same balcony wall. The balcony sensor sits in the sun,
+  # so around midday it reports its own heated casing (69.8 C on 5 Aug, while the
+  # air was nowhere near that) instead of the air. That absolute number is
+  # useless, but comparing it with the rooms still points the right way and errs
+  # towards "close", which is the safe direction here. The reference is the
+  # COOLER of the two rooms: letting heat into the colder one costs more than
+  # missing a little cooling in the warmer.
+  # The state is the action rather than the physics - it asks for something only
+  # while the doors are actually in the wrong position, so doing what it says
+  # clears it and no separate hysteresis is needed. The 0.3 margin on the opening
+  # side, and 0.2 on the closing one, stop it reacting to a fraction of a
+  # degree: without the second margin the two curves cross back and forth for
+  # a few minutes at dawn and the advice flickers (3 changes in 4 min on 3 Aug).
+  - sensor:
+      - name: "Balcony airing"
+        unique_id: balcony_airing_advice
+        icon: mdi:door-sliding
+        availability: >
+          {{ states('sensor.eve_weather_20ebs9901_temperature') | is_number
+             and states('sensor.eve_weather_lr_temperature') | is_number
+             and states('sensor.bedroom_eve_weather_bedroom_temperature') | is_number }}
+        state: >
+          {% set balcony = states('sensor.eve_weather_20ebs9901_temperature') | float %}
+          {% set coolest = [states('sensor.eve_weather_lr_temperature') | float,
+                            states('sensor.bedroom_eve_weather_bedroom_temperature') | float] | min %}
+          {% set open_doors = (1 if is_state('binary_sensor.balcony_door_lr', 'on') else 0)
+                            + (1 if is_state('binary_sensor.balcony_door_bedroom', 'on') else 0) %}
+          {% if open_doors > 0 and balcony > coolest + 0.2 %}close
+          {% elif open_doors < 2 and balcony < coolest - 0.3 %}open
+          {% else %}ok{% endif %}
+        attributes:
+          balcony: >
+            {{ states('sensor.eve_weather_20ebs9901_temperature') | float | round(1) }}
+          living_room: >
+            {{ states('sensor.eve_weather_lr_temperature') | float | round(1) }}
+          bedroom: >
+            {{ states('sensor.bedroom_eve_weather_bedroom_temperature') | float | round(1) }}
+          reference_room: >
+            {% set lr = states('sensor.eve_weather_lr_temperature') | float %}
+            {% set bed = states('sensor.bedroom_eve_weather_bedroom_temperature') | float %}
+            {{ 'bedroom' if bed <= lr else 'living_room' }}
+          margin: >
+            {% set balcony = states('sensor.eve_weather_20ebs9901_temperature') | float %}
+            {% set coolest = [states('sensor.eve_weather_lr_temperature') | float,
+                              states('sensor.bedroom_eve_weather_bedroom_temperature') | float] | min %}
+            {{ (coolest - balcony) | round(1) }}
+          door_living_room: >
+            {{ states('binary_sensor.balcony_door_lr') }}
+          door_bedroom: >
+            {{ states('binary_sensor.balcony_door_bedroom') }}
+          asleep: >
+            {{ is_state('input_boolean.asleep', 'on') }}
+
+  # Outside temperature as a plain recorded number, so the statistics platform can
+  # average it. met.no rather than the balcony sensor: that one sits in direct sun
+  # and reports its own casing - 69.8 C on 5 Aug.
+  - sensor:
+      - name: "Outdoor temperature"
+        unique_id: outdoor_temperature
+        unit_of_measurement: "°C"
+        device_class: temperature
+        state_class: measurement
+        availability: >
+          {{ state_attr('weather.forecast_home', 'temperature') is not none }}
+        state: >
+          {{ state_attr('weather.forecast_home', 'temperature') | float }}
+
+  # Whether the building is plausibly heating. The plant in the basement starts on
+  # its own and cannot be reached from here, so this mirrors the rule Polish
+  # managers actually use: the season opens once the DAILY AVERAGE outside stays
+  # near 10-12 C for two or three days in a row, not on a single cold reading. An
+  # instantaneous test was wrong - one cold August night, with 22 C by day, would
+  # have flipped it on while the plant stayed off all summer.
+  # Hysteresis on purpose: on below 12, off only above 15. Between the two it holds
+  # whatever it already was, so a wobbling autumn cannot switch the radiators on and
+  # off every day.
+  # The average is only trusted once its window is at least 90% full. That check is
+  # what stops a half-filled buffer being read as a three-day mean: refilling during
+  # a cold night would otherwise average a few cold hours and open the season on the
+  # strength of one night, the exact failure this design exists to avoid. Until then
+  # it falls back to the current reading against the same 12 C threshold, which is
+  # the historical form of the rule - a 19:00 reading below 12 C three days running.
+  - binary_sensor:
+      - name: "Heating season"
+        unique_id: heating_season
+        icon: mdi:radiator
+        state: >
+          {% set avg = states('sensor.outdoor_temp_3d') | float(-999) %}
+          {% set cov = state_attr('sensor.outdoor_temp_3d', 'age_coverage_ratio') | float(0) %}
+          {% set ready = avg > -900 and cov >= 0.9 %}
+          {% set live = state_attr('weather.forecast_home', 'temperature') | float(0) %}
+          {% set t = avg if ready else live %}
+          {% if t < 12 %}true
+          {% elif t > 15 %}false
+          {% else %}{{ this.state == 'on' }}{% endif %}
+        attributes:
+          basis: >
+            {% set avg = states('sensor.outdoor_temp_3d') | float(-999) %}
+            {% set cov = state_attr('sensor.outdoor_temp_3d', 'age_coverage_ratio') | float(0) %}
+            {{ '3-day average' if (avg > -900 and cov >= 0.9)
+               else 'current reading, window only %d%% full' | format((cov * 100) | round(0)) }}
+          window_full: >
+            {{ (state_attr('sensor.outdoor_temp_3d', 'age_coverage_ratio') | float(0) * 100)
+               | round(0) }}
+          outdoor_3d_average: >
+            {{ states('sensor.outdoor_temp_3d') }}
+          outdoor_now: >
+            {{ state_attr('weather.forecast_home', 'temperature') }}

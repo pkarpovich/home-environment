@@ -18,7 +18,7 @@ services:
       - HA_PROMETHEUS_TOKEN=${HA_PROMETHEUS_TOKEN}
     volumes:
       - victoriametrics:/storage
-      - ./.config/victoriametrics/scrape.yml:/etc/victoriametrics/scrape.yml:ro
+      - ./.config/victoriametrics:/etc/victoriametrics:ro
     expose:
       - 8428
     networks:

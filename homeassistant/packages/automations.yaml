@@ -1,0 +1,648 @@
+automation:
+- id: '1763663090566'
+  alias: Bathroom Motion
+  description: ''
+  conditions:
+  - condition: state
+    entity_id: input_boolean.sleep_mode
+    state: 'off'
+  use_blueprint:
+    path: homeassistant/motion_light.yaml
+    input:
+      motion_entity: binary_sensor.eve_motion_20eby9901_occupancy_2
+      light_target:
+        entity_id:
+        - light.wc_right
+        - light.wc_left
+      no_motion_wait: 30
+- id: '1763663259613'
+  alias: Bedroom Motion
+  description: ''
+  conditions:
+  - condition: state
+    entity_id: input_boolean.sleep_mode
+    state: 'off'
+  use_blueprint:
+    path: homeassistant/motion_light.yaml
+    input:
+      motion_entity: binary_sensor.eve_motion_20eby9901_occupancy
+      light_target:
+        entity_id:
+        - light.hue_ambiance_spot_left
+        - light.hue_ambiance_spot_right
+      no_motion_wait: 30
+- id: '1763770875723'
+  alias: Sunset lights with analogous colors
+  description: Two colors close to each other on color wheel. Presence comes from
+    binary_sensor.pavel_home, which ORs every positive signal - person, phone GPS,
+    phone WiFi and recent motion - so one tracker dropping out cannot black out the
+    flat. The rule lives in that one entity; change it there and every
+    automation follows. The colouring itself lives in script.evening_colours so the
+    same recipe can be re-applied when the TV was in the way at sunset.
+  triggers:
+  - event: sunset
+    offset: -00:15:00
+    trigger: sun
+  actions:
+  - action: script.evening_colours
+  conditions:
+  - &id001
+    condition: state
+    entity_id: binary_sensor.pavel_home
+    state: 'on'
+- id: '1763772494801'
+  alias: Morning heating max
+  description: Runs every morning at 08:00. The season gate gets applied ONLY to the
+    radiators - it used to sit at the top level, which also blocked the Divoom display
+    and left it dark for a whole day. The display has nothing to do with heating and
+    must come on whatever the weather, but only with someone home, or it lights an
+    empty flat all morning. Welcome home turns it on at arrival, so skipping it here
+    loses nothing.
+  triggers:
+  - trigger: time
+    at: 08:00:00
+  actions:
+  - if:
+    - condition: template
+      value_template: '{{ is_state(''binary_sensor.heating_season'', ''on'') or now()
+        < as_datetime(''2026-09-28T00:00:00+02:00'') }}'
+    then:
+    - target:
+        entity_id:
+        - climate.eve_thermo_20ebp1701_3
+        - climate.eve_thermo_20ebp1701_4
+        - climate.eve_thermo_20ebp1701
+      data:
+        hvac_mode: heat
+        temperature: 30
+      action: climate.set_temperature
+  - if:
+    - condition: state
+      entity_id: binary_sensor.pavel_home
+      state: 'on'
+    then:
+    - type: turn_on
+      device_id: 20859f0d47cb85cf552f3a16a6eb71c8
+      entity_id: c5c6398c1eec3238905b6d8906dbe1e3
+      domain: light
+      brightness_pct: 50
+  conditions: []
+- id: '1763772750831'
+  alias: Night heating off
+  description: Turn off thermostats at 10 PM daily
+  triggers:
+  - trigger: time
+    at: '22:00:00'
+  actions:
+  - target:
+      entity_id:
+      - climate.eve_thermo_20ebp1701_3
+      - climate.eve_thermo_20ebp1701_4
+      - climate.eve_thermo_20ebp1701
+      - climate.eve_thermo_20ebp1701_2
+    data:
+      hvac_mode: 'off'
+    action: climate.set_hvac_mode
+- id: '1763773178650'
+  alias: Wake up heating bedroom
+  description: 'Turn on bedroom thermostat to max when sleep mode ends Gated on binary_sensor.heating_season
+    so it stops commanding valves through the summer: the building''s own plant decides
+    when heat is available and cannot be reached from here, so the gate follows outside
+    temperature rather than a calendar - a September cold snap re-enables it on its
+    own.'
+  triggers:
+  - trigger: state
+    entity_id: input_boolean.sleep_mode
+    to: 'off'
+  actions:
+  - target:
+      entity_id: climate.eve_thermo_20ebp1701_2
+    data:
+      hvac_mode: heat
+      temperature: 30
+    action: climate.set_temperature
+  conditions:
+  - &id005
+    condition: template
+    value_template: '{{ is_state(''binary_sensor.heating_season'', ''on'') or now()
+      < as_datetime(''2026-09-28T00:00:00+02:00'') }}'
+- id: '1764178900000'
+  alias: Blackout Mode
+  description: Turn off all lights and Divoom when blackout button pressed
+  triggers:
+  - trigger: state
+    entity_id: input_button.blackout_mode
+  actions:
+  - action: light.turn_off
+    target:
+      entity_id:
+      - light.zone_tv
+      - light.zone_room
+      - light.festavia_string_lights_1
+      - light.bedroom
+      - light.wc
+    data:
+      transition: 2
+  - action: light.turn_off
+    target:
+      entity_id: light.divoom_pixoo_64_light
+  - action: input_boolean.turn_on
+    target:
+      entity_id: input_boolean.sleep_mode
+  mode: single
+- id: '1766522772828'
+  alias: Restore sunset lights after Hue Sync off
+  description: 'Hue Sync releases the TV zone, so the zone gets back the palette it
+    had before streaming. The palette is recorded by whoever paints it - the evening_colours
+    script on sunset and on coming home, the Remember automation on a manual recolour
+    - so the snapshot always matches what was last put on the walls. The only check
+    left is that the snapshot still exists: scene.create scenes live in memory and
+    are lost on a Home Assistant restart, and only then is the zone painted fresh.
+    An earlier version also compared the snapshot''s age against sunset, which is
+    where two bugs lived - a scene''s own state is its last activation, not its creation,
+    and sunset paints ~19 min before sun.sun flips, so the evening palette always
+    looked stale and every TV session ended in a new random look.'
+  triggers:
+  - trigger: state
+    entity_id: switch.sync_box_light_sync
+    from: 'on'
+    to: 'off'
+    for:
+      seconds: 2
+  conditions:
+  - condition: or
+    conditions:
+    - condition: state
+      entity_id: sun.sun
+      state: below_horizon
+    - condition: sun
+      after: sunset
+      after_offset: -00:15:00
+  actions:
+  - delay:
+      seconds: 3
+  - if:
+    - condition: template
+      value_template: '{{ states.scene.evening_lights is not none }}'
+    then:
+    - &id002
+      action: scene.turn_on
+      target:
+        entity_id: scene.evening_lights
+      data:
+        transition: 3
+    else:
+    - &id003
+      action: script.evening_colours
+  mode: single
+- id: '1766524487779'
+  alias: Christmas tree on sunset
+  description: 'Only fires while the phone is on the home WiFi, otherwise it lights
+    an empty flat. The tracker
+    needs about five minutes to report a departure, so leaving just before sunset
+    still slips through - away mode cleans that up a few minutes later. The tree lights
+    are gated on the entity being available rather than on a date: this one stayed
+    up until August and only died in the 36 C heat, so the calendar says nothing about
+    whether there is a tree. Plug the lights back in - whenever that is - and both
+    this and the arrival automation resume on their own. Presence comes from binary_sensor.pavel_home,
+    which ORs every positive signal - person, phone GPS, phone WiFi and recent motion
+    - so one tracker dropping out cannot black out the flat. The rule
+    lives in that one entity; change it there and every automation follows.'
+  triggers:
+  - trigger: sun
+    event: sunset
+    offset: -00:15:00
+  actions:
+  - action: light.turn_on
+    target:
+      entity_id: light.festavia_string_lights_1
+  conditions:
+  - *id001
+  - &id004
+    condition: template
+    value_template: '{{ states(''light.festavia_string_lights_1'') not in [''unavailable'',
+      ''unknown''] }}'
+- id: '1767038637929'
+  alias: Away mode - lights off
+  description: 'Phone left the WiFi and the front door was closed around the same
+    time - treat as departure and kill the lights. Either event may land first, so
+    both are triggers and each waits for the other. Before switching off, two guards
+    run: the phone must still be away, AND the front door must have been untouched
+    for 150 s. The door guard is what makes the short 2 min grace safe - walking back
+    in changes the door, so a run that is about to fire is cancelled even if the phone
+    has not rejoined the WiFi yet. Total reaction is ~7 min from the door closing
+    (UniFi needs ~5 min to call the phone away, then 2 min grace).'
+  mode: restart
+  triggers:
+  - trigger: state
+    entity_id: device_tracker.pavel_iphone_wifi
+    from: home
+    to: not_home
+    id: phone_left
+  - trigger: state
+    entity_id: binary_sensor.front_door
+    from: 'on'
+    to: 'off'
+    id: door_closed
+  actions:
+  - choose:
+    - conditions:
+      - condition: trigger
+        id: door_closed
+      sequence:
+      - wait_template: '{{ is_state(''device_tracker.pavel_iphone_wifi'', ''not_home'')
+          }}'
+        timeout: 00:12:00
+        continue_on_timeout: false
+    - conditions:
+      - condition: trigger
+        id: phone_left
+      sequence:
+      - condition: template
+        value_template: '{{ is_state(''binary_sensor.front_door'', ''off'') and (now()
+          - states.binary_sensor.front_door.last_changed).total_seconds() < 900 }}'
+  - delay: 00:02:00
+  - condition: state
+    entity_id: device_tracker.pavel_iphone_wifi
+    state: not_home
+  - condition: template
+    value_template: "{{ (now() - states.binary_sensor.front_door.last_changed).total_seconds()\n
+      \  > 150 }}"
+  - action: light.turn_off
+    target:
+      entity_id:
+      - light.living_room_all
+      - light.bedroom
+      - light.wc
+- id: '1767038655915'
+  alias: Welcome home - lights on
+  description: 'Arrival fires on whichever lands first: the front door opening while
+    the phone is still off the WiFi, or the phone rejoining. The door path is ~20
+    s faster and it self-heals a premature away-mode switch-off
+    - reopening the door brings the light straight back, which is what makes a shorter
+    away delay safe. Evening is the same threshold the sunset automations use - 15
+    min before sunset - rather than sun.sun going below_horizon, which can lag it by
+    20 minutes: returning inside that gap used to leave the lights off. The
+    below_horizon branch of the OR is what keeps late-night arrivals working, since
+    a plain ''after sunset'' condition turns false at midnight. The Divoom pixel display
+    is restored on EVERY arrival, day or night: away mode switches it off with the
+    rest of living_room_all and nothing else turns it back on until its own 08:00
+    schedule. Coming home uses the same choice as the post-sync restore instead of
+    a bare turn_on: a plain turn_on carries no colour, so every lamp came up on whatever
+    the bridge still held for it and the zone arrived mismatched whenever sunset
+    had been skipped.'
+  mode: single
+  triggers:
+  - trigger: state
+    entity_id: device_tracker.pavel_iphone_wifi
+    from: not_home
+    to: home
+    id: phone_home
+  - trigger: state
+    entity_id: binary_sensor.front_door
+    from: 'off'
+    to: 'on'
+    id: door_opened
+  - trigger: numeric_state
+    entity_id: zone.home
+    above: 0
+    id: zone_home
+  conditions:
+  - condition: template
+    value_template: "{{ (trigger | default({})).get('id', '') != 'door_opened'\n   or
+      is_state('device_tracker.pavel_iphone_wifi', 'not_home') }}"
+  actions:
+  - action: light.turn_on
+    target:
+      entity_id: light.divoom_pixoo_64_light
+  - if:
+    - condition: or
+      conditions:
+      - condition: state
+        entity_id: sun.sun
+        state: below_horizon
+      - condition: sun
+        after: sunset
+        after_offset: -00:15:00
+    then:
+    - if:
+      - condition: template
+        value_template: '{{ states.scene.evening_lights is not none }}'
+      then:
+      - *id002
+      else:
+      - *id003
+    - if:
+      - *id004
+      then:
+      - action: light.turn_on
+        target:
+          entity_id: light.festavia_string_lights_1
+        data:
+          transition: 3
+- id: '1785650000001'
+  alias: Ventilation - living room heating off
+  description: Close the living room radiator valves while the balcony door is open,
+    then put them back exactly as they were. Both branches are gated on binary_sensor.heating_season.
+    The open branch used to test the balcony sensor directly, which sits in direct
+    sun and reads its own casing - on a cold bright winter day that reads well above
+    the threshold and the valves would have been left open with the door open. The
+    close branch had no seasonal test at all, only 'a snapshot exists', so a scene
+    left over from winter could switch heating back on in summer.
+  mode: single
+  triggers:
+  - trigger: state
+    entity_id: binary_sensor.balcony_door_lr
+    to: 'on'
+    for: 00:02:00
+    id: opened
+  - trigger: state
+    entity_id: binary_sensor.balcony_door_lr
+    to: 'off'
+    id: closed
+  conditions: []
+  actions:
+  - choose:
+    - conditions:
+      - condition: trigger
+        id: opened
+      - *id005
+      - condition: template
+        value_template: '{{ states(''climate.eve_thermo_20ebp1701_3'') != ''off''
+          or states(''climate.eve_thermo_20ebp1701_4'') != ''off'' }}'
+      sequence:
+      - action: scene.create
+        data:
+          scene_id: pre_vent_lr
+          snapshot_entities: &id006
+          - climate.eve_thermo_20ebp1701_3
+          - climate.eve_thermo_20ebp1701_4
+      - action: climate.set_hvac_mode
+        target:
+          entity_id: *id006
+        data:
+          hvac_mode: 'off'
+    - conditions:
+      - condition: trigger
+        id: closed
+      - *id005
+      - condition: template
+        value_template: '{{ states.scene.pre_vent_lr is not none }}'
+      sequence:
+      - action: scene.turn_on
+        target:
+          entity_id: scene.pre_vent_lr
+- id: '1785650000002'
+  alias: Ventilation - bedroom heating off
+  description: Close the bedroom radiator valves while the balcony door is open, then
+    put them back exactly as they were. Both branches are gated on binary_sensor.heating_season.
+    The open branch used to test the balcony sensor directly, which sits in direct
+    sun and reads its own casing - on a cold bright winter day that reads well above
+    the threshold and the valves would have been left open with the door open. The
+    close branch had no seasonal test at all, only 'a snapshot exists', so a scene
+    left over from winter could switch heating back on in summer.
+  mode: single
+  triggers:
+  - trigger: state
+    entity_id: binary_sensor.balcony_door_bedroom
+    to: 'on'
+    for: 00:02:00
+    id: opened
+  - trigger: state
+    entity_id: binary_sensor.balcony_door_bedroom
+    to: 'off'
+    id: closed
+  conditions: []
+  actions:
+  - choose:
+    - conditions:
+      - condition: trigger
+        id: opened
+      - *id005
+      - condition: template
+        value_template: '{{ states(''climate.eve_thermo_20ebp1701_2'') != ''off''
+          }}'
+      sequence:
+      - action: scene.create
+        data:
+          scene_id: pre_vent_bedroom
+          snapshot_entities: &id007
+          - climate.eve_thermo_20ebp1701_2
+      - action: climate.set_hvac_mode
+        target:
+          entity_id: *id007
+        data:
+          hvac_mode: 'off'
+    - conditions:
+      - condition: trigger
+        id: closed
+      - *id005
+      - condition: template
+        value_template: '{{ states.scene.pre_vent_bedroom is not none }}'
+      sequence:
+      - action: scene.turn_on
+        target:
+          entity_id: scene.pre_vent_bedroom
+- id: '1785700000001'
+  alias: Asleep flag
+  description: 'Maintains input_boolean.asleep as the one honest "actually asleep"
+    signal, which is what the agent service reads. It is deliberately neither of the
+    two existing signals: the blackout button means "lights off" and fires at the
+    real bedtime, while sleep_mode is a schedule that flips hours before anyone
+    actually lies down. So the flag is raised by the blackout press and cleared
+    when sleep_mode ends, which is the live wake signal. The night window on the
+    press guards against a stray daytime one, which would otherwise report sleep
+    until the next morning.'
+  mode: single
+  triggers:
+  - trigger: state
+    entity_id: input_button.blackout_mode
+    id: bedtime
+  - trigger: state
+    entity_id: input_boolean.sleep_mode
+    to: 'off'
+    id: wake
+  actions:
+  - choose:
+    - conditions:
+      - condition: trigger
+        id: bedtime
+      - condition: time
+        after: '21:00:00'
+        before: 08:00:00
+      sequence:
+      - action: input_boolean.turn_on
+        target:
+          entity_id: input_boolean.asleep
+    - conditions:
+      - condition: trigger
+        id: wake
+      sequence:
+      - action: input_boolean.turn_off
+        target:
+          entity_id: input_boolean.asleep
+- id: '1785700000002'
+  alias: Remember TV zone colour
+  description: 'Snapshots the living-room look after a hand recolour, so the TV going
+    off and coming home both give that look back instead of a new random one. It covers
+    all eight lamps, not just the six Hue Sync drives: the snapshot is what Welcome
+    home turns the room on with, and while it held only the sync zone, coming home
+    after dark lit the TV wall and left the sofa and kitchen strips dark. Restoring the two extra lamps after a sync release
+    costs nothing, since sync never touches them and they already hold the values
+    being written. mode: restart plus the two-minute wait means it snapshots two minutes
+    after the room stops changing, never mid-change - shorter than that and it captures
+    the mess Hue Sync leaves while releasing the zone (8s median, 91s at worst).'
+  mode: restart
+  triggers:
+  - trigger: state
+    entity_id:
+    - light.tv_strip_main
+    - light.tv_strip_bottom
+    - light.tv_downlight_left
+    - light.tv_downlight_right
+    - light.desk_downlight
+    - light.sofa_wall_uplight
+    - light.sofa_strip
+    - light.kitchen_strip
+  conditions:
+  - condition: state
+    entity_id: switch.sync_box_light_sync
+    state: 'off'
+  - condition: template
+    value_template: '{{ expand([''light.tv_strip_main'', ''light.tv_strip_bottom'',
+      ''light.tv_downlight_left'', ''light.tv_downlight_right'', ''light.desk_downlight'',
+      ''light.sofa_wall_uplight'', ''light.sofa_strip'', ''light.kitchen_strip''])
+      | selectattr(''state'', ''eq'', ''on'') | list | count > 0 }}'
+  actions:
+  - delay:
+      minutes: 2
+  - condition: state
+    entity_id: switch.sync_box_light_sync
+    state: 'off'
+  - condition: template
+    value_template: '{{ expand([''light.tv_strip_main'', ''light.tv_strip_bottom'',
+      ''light.tv_downlight_left'', ''light.tv_downlight_right'', ''light.desk_downlight'',
+      ''light.sofa_wall_uplight'', ''light.sofa_strip'', ''light.kitchen_strip''])
+      | selectattr(''state'', ''eq'', ''on'') | list | count > 0 }}'
+  - action: scene.create
+    data:
+      scene_id: evening_lights
+      snapshot_entities:
+      - light.tv_strip_main
+      - light.tv_strip_bottom
+      - light.tv_downlight_left
+      - light.tv_downlight_right
+      - light.desk_downlight
+      - light.sofa_wall_uplight
+      - light.sofa_strip
+      - light.kitchen_strip
+  - action: input_datetime.set_datetime
+    target:
+      entity_id: input_datetime.tv_zone_snapshot_at
+    data:
+      timestamp: '{{ now().timestamp() }}'
+- id: '1785700000003'
+  alias: Heating season change
+  description: 'Acts on the moment binary_sensor.heating_season flips, which nothing
+    else does: the radiator automations only consult the flag at their own fixed times,
+    so a season that opens at 14:00 in October would leave the flat unheated until
+    08:00 the next morning, and one that closes at 11:00 in April would leave the
+    valves wide open until 22:00. Opening only acts between 08:00 and 22:00 - outside
+    that window the night-off rule is what should hold, and Morning heating max picks
+    it up at 08:00 anyway. The bedroom is deliberately not warmed on the opening edge;
+    it follows Wake up heating bedroom, which is tied to getting up rather than to
+    the clock. Closing is unconditional and covers all four, mirroring Night heating
+    off - switching radiators off is never the wrong thing to do. The triggers deliberately
+    match on the destination only, with no from: - a template entity passes through
+    unavailable on every template reload and on every Home Assistant restart, so an
+    edge written as from ''on'' to ''off'' is silently missed whenever the season
+    changes across a restart. Firing again on the way back from unavailable is harmless:
+    both branches are idempotent, and the opening one does exactly what Morning heating
+    max does daily anyway.'
+  mode: single
+  triggers:
+  - trigger: state
+    entity_id: binary_sensor.heating_season
+    to: 'on'
+    id: season_on
+  - trigger: state
+    entity_id: binary_sensor.heating_season
+    to: 'off'
+    id: season_off
+  actions:
+  - choose:
+    - conditions:
+      - condition: trigger
+        id: season_on
+      - condition: time
+        after: 08:00:00
+        before: '22:00:00'
+      sequence:
+      - action: climate.set_temperature
+        target:
+          entity_id:
+          - climate.eve_thermo_20ebp1701_3
+          - climate.eve_thermo_20ebp1701_4
+          - climate.eve_thermo_20ebp1701
+        data:
+          hvac_mode: heat
+          temperature: 30
+    - conditions:
+      - condition: trigger
+        id: season_off
+      sequence:
+      - action: climate.set_hvac_mode
+        target:
+          entity_id:
+          - climate.eve_thermo_20ebp1701_3
+          - climate.eve_thermo_20ebp1701_4
+          - climate.eve_thermo_20ebp1701
+          - climate.eve_thermo_20ebp1701_2
+        data:
+          hvac_mode: 'off'
+- id: '1785700000004'
+  alias: Samsung TV - turn on through the Apple TV
+  description: 'Replaces the implicit Wake-on-LAN the Samsung integration is dropping
+    in 2026.8. WoL cannot work here and never did: the TV is a wireless client on
+    the IoT SSID (VLAN 2, 192.168.199.x) while Home Assistant sits in 192.168.198.3,
+    and a magic packet is a layer-2 broadcast that does not cross the router. Even
+    a unicast packet delivered straight to the TV - it answers ICMP in standby - left
+    it asleep, so its wireless chip does not implement wake-on-wireless at all. Its
+    web API is equally dead in standby: 8001/8002/9197 accept TCP but the TLS handshake
+    never completes.
+
+    The work itself lives in script.wake_tv so the dashboard button and the tile share
+    one escalation path.'
+  mode: single
+  triggers:
+  - trigger: samsungtv.turn_on
+    entity_id:
+    - media_player.samsung_tv
+  actions:
+  - action: script.wake_tv
+- id: '1785700000005'
+  alias: Wake on arrival
+  description: sleep_mode is switched by Apple Home schedules, and the morning switch-off
+    only happens where the phone wakes up. After a night away the flat stays asleep
+    and every motion light stays dead. So arriving
+    home during the day with sleep_mode still on ends it, which also clears the asleep
+    flag and opens the bedroom radiator the way a normal wake-up does. The window
+    ends at 20:00, before the earliest evening switch-on at 22:20, so a late return
+    never cancels a night that has already started.
+  mode: single
+  triggers:
+  - trigger: state
+    entity_id: binary_sensor.pavel_home
+    from: 'off'
+    to: 'on'
+  conditions:
+  - condition: state
+    entity_id: input_boolean.sleep_mode
+    state: 'on'
+  - condition: time
+    after: 05:00:00
+    before: '20:00:00'
+  actions:
+  - action: input_boolean.turn_off
+    target:
+      entity_id: input_boolean.sleep_mode

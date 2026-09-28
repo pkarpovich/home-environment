@@ -15,7 +15,7 @@ providers:
     exposedByDefault: false
     watch: true
   file:
-    filename: /etc/traefik/dynamic_conf.yml
+    directory: /etc/traefik-dynamic
     watch: true
 
 entryPoints:
