@@ -1,0 +1,3027 @@
+{
+  "panels": [
+    {
+      "datasource": {
+        "type": "loki",
+        "uid": "bfafqsolnpb7kc"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "drawStyle": "bars",
+            "fillOpacity": 50,
+            "lineWidth": 0,
+            "pointSize": 1,
+            "stacking": {
+              "mode": "normal"
+            }
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "error"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "red",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "warn"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "yellow",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "info"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "green",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "debug"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "blue",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 24,
+        "x": 0,
+        "y": 21
+      },
+      "id": 1,
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "multi"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "loki",
+            "uid": "bfafqsolnpb7kc"
+          },
+          "expr": "sum by (detected_level) (count_over_time({app=\"tuclaw\", component=~\"$component\"} [$__auto]))",
+          "legendFormat": "{{detected_level}}",
+          "refId": "A"
+        }
+      ],
+      "title": "Log Volume",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "loki",
+        "uid": "bfafqsolnpb7kc"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "drawStyle": "bars",
+            "fillOpacity": 50,
+            "lineWidth": 0,
+            "pointSize": 1,
+            "stacking": {
+              "mode": "normal"
+            }
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "daemon"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "purple",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "agent"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "orange",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 24,
+        "x": 0,
+        "y": 27
+      },
+      "id": 2,
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "multi"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "loki",
+            "uid": "bfafqsolnpb7kc"
+          },
+          "expr": "sum by (component) (count_over_time({app=\"tuclaw\", component=~\"$component\"} [$__auto]))",
+          "legendFormat": "{{component}}",
+          "refId": "A"
+        }
+      ],
+      "title": "Log Volume by Component",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "loki",
+        "uid": "bfafqsolnpb7kc"
+      },
+      "gridPos": {
+        "h": 12,
+        "w": 24,
+        "x": 0,
+        "y": 41
+      },
+      "id": 3,
+      "options": {
+        "dedupStrategy": "none",
+        "enableLogDetails": true,
+        "prettifyLogMessage": true,
+        "showCommonLabels": false,
+        "showLabels": false,
+        "showTime": true,
+        "sortOrder": "Descending",
+        "wrapLogMessage": true
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "loki",
+            "uid": "bfafqsolnpb7kc"
+          },
+          "expr": "{app=\"tuclaw\", component=\"daemon\", component=~\"$component\"} |= `$search` | json | line_format \"⛓ DAEMON | {{.level | ToUpper}} | [{{.component}}] {{.msg}}{{if .chat_id}} chat={{.chat_id}}{{end}}{{if .topic_id}} topic={{.topic_id}}{{end}}{{if .context}} ctx={{.context}}{{end}}{{if .duration}} duration={{.duration}}{{end}}{{if .container_action}} action={{.container_action}}{{end}}{{if .error}} error={{.error}}{{end}}\"",
+          "refId": "daemon"
+        },
+        {
+          "datasource": {
+            "type": "loki",
+            "uid": "bfafqsolnpb7kc"
+          },
+          "expr": "{app=\"tuclaw\", component=\"agent\", component=~\"$component\"} |= `$search` |~ \"^\\\\{\" | json | line_format \"✨ AGENT  | {{.level | ToUpper}} | [{{.msg}}]{{if .tool}} tool={{.tool}}{{end}}{{if .tool_id}} id={{.tool_id}}{{end}}{{if .content_len}} len={{.content_len}}{{end}}{{if .error}} error={{.error}}{{end}}\"",
+          "refId": "agent"
+        },
+        {
+          "datasource": {
+            "type": "loki",
+            "uid": "bfafqsolnpb7kc"
+          },
+          "expr": "{app=\"tuclaw\", component=\"agent\", component=~\"$component\"} |= `$search` !~ \"^\\\\{\" | regexp \"(?P<text>.*)\" | line_format \"🐚 CLI    | {{.text}}\"",
+          "refId": "cli"
+        }
+      ],
+      "title": "Logs",
+      "type": "logs"
+    },
+    {
+      "datasource": {
+        "type": "loki",
+        "uid": "bfafqsolnpb7kc"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "text",
+            "mode": "fixed"
+          },
+          "thresholds": {
+            "steps": [
+              {
+                "color": "text",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 0,
+        "y": 17
+      },
+      "id": 10,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "sum"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "loki",
+            "uid": "bfafqsolnpb7kc"
+          },
+          "expr": "sum(count_over_time({app=\"tuclaw\", component=~\"$component\"} [$__auto]))",
+          "legendFormat": "",
+          "queryType": "range",
+          "refId": "A"
+        }
+      ],
+      "title": "Total Logs",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "loki",
+        "uid": "bfafqsolnpb7kc"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "red",
+            "mode": "fixed"
+          },
+          "thresholds": {
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 1
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 6,
+        "y": 17
+      },
+      "id": 11,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "sum"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "loki",
+            "uid": "bfafqsolnpb7kc"
+          },
+          "expr": "sum(count_over_time({app=\"tuclaw\", component=~\"$component\"} |~ \"^\\\\{\" | json | level=\"ERROR\" [$__auto]))",
+          "legendFormat": "",
+          "queryType": "range",
+          "refId": "A"
+        }
+      ],
+      "title": "Errors",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "loki",
+        "uid": "bfafqsolnpb7kc"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "yellow",
+            "mode": "fixed"
+          },
+          "thresholds": {
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 1
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 12,
+        "y": 17
+      },
+      "id": 12,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "sum"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "loki",
+            "uid": "bfafqsolnpb7kc"
+          },
+          "expr": "sum(count_over_time({app=\"tuclaw\", component=~\"$component\"} |~ \"^\\\\{\" | json | level=\"WARN\" [$__auto]))",
+          "legendFormat": "",
+          "queryType": "range",
+          "refId": "A"
+        }
+      ],
+      "title": "Warnings",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "loki",
+        "uid": "bfafqsolnpb7kc"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "text",
+            "mode": "fixed"
+          },
+          "thresholds": {
+            "steps": [
+              {
+                "color": "text",
+                "value": null
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 18,
+        "y": 17
+      },
+      "id": 13,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "loki",
+            "uid": "bfafqsolnpb7kc"
+          },
+          "expr": "sum(rate({app=\"tuclaw\", component=~\"$component\"} [$__auto])) * 60",
+          "legendFormat": "",
+          "queryType": "range",
+          "refId": "A"
+        }
+      ],
+      "title": "Log Rate / min",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "loki",
+        "uid": "bfafqsolnpb7kc"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "fixed"
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "error"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "red",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "warn"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "yellow",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "info"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "green",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "debug"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "blue",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 0,
+        "y": 33
+      },
+      "id": 20,
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "right",
+          "values": [
+            "value",
+            "percent"
+          ]
+        },
+        "pieType": "donut",
+        "reduceOptions": {
+          "calcs": [],
+          "fields": "",
+          "values": true
+        },
+        "tooltip": {
+          "mode": "single"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "loki",
+            "uid": "bfafqsolnpb7kc"
+          },
+          "expr": "sum by (detected_level) (count_over_time({app=\"tuclaw\", component=~\"$component\"} [$__range]))",
+          "legendFormat": "{{detected_level}}",
+          "maxDataPoints": 1,
+          "queryType": "instant",
+          "refId": "A"
+        }
+      ],
+      "title": "Log Level Distribution",
+      "type": "piechart"
+    },
+    {
+      "datasource": {
+        "type": "loki",
+        "uid": "bfafqsolnpb7kc"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 16,
+        "x": 8,
+        "y": 33
+      },
+      "id": 21,
+      "options": {
+        "dedupStrategy": "none",
+        "enableLogDetails": true,
+        "prettifyLogMessage": true,
+        "showCommonLabels": false,
+        "showLabels": true,
+        "showTime": true,
+        "sortOrder": "Descending",
+        "wrapLogMessage": true
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "loki",
+            "uid": "bfafqsolnpb7kc"
+          },
+          "expr": "{app=\"tuclaw\", component=~\"$component\"} |~ \"^\\\\{\" | json | level=~\"ERROR|WARN\" | line_format \"{{.level | ToUpper}} [{{.component}}] {{.msg}}{{if .error}} error={{.error}}{{end}}{{if .chat_id}} chat={{.chat_id}}{{end}}{{if .context}} ctx={{.context}}{{end}}\"",
+          "refId": "A"
+        }
+      ],
+      "title": "Recent Errors & Warnings",
+      "type": "logs"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 30,
+      "title": "System",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "cev72gsw2rthcb"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "max": 100,
+          "min": 0,
+          "thresholds": {
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 60
+              },
+              {
+                "color": "red",
+                "value": 85
+              }
+            ]
+          },
+          "unit": "percent"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 6,
+        "x": 0,
+        "y": 1
+      },
+      "id": 31,
+      "options": {
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "cev72gsw2rthcb"
+          },
+          "expr": "100 - (avg(rate(node_cpu_seconds_total{instance=\"pi-bravo\", mode=\"idle\"}[5m])) * 100)",
+          "refId": "A"
+        }
+      ],
+      "title": "CPU Usage",
+      "type": "gauge"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "cev72gsw2rthcb"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "text",
+            "mode": "fixed"
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Used"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "bytes"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Total"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "bytes"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Usage %"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "percent"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "mode": "thresholds"
+                }
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "steps": [
+                    {
+                      "color": "green",
+                      "value": null
+                    },
+                    {
+                      "color": "yellow",
+                      "value": 70
+                    },
+                    {
+                      "color": "red",
+                      "value": 90
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 6,
+        "x": 6,
+        "y": 1
+      },
+      "id": 32,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "value_and_name"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "cev72gsw2rthcb"
+          },
+          "expr": "node_memory_MemTotal_bytes{instance=\"pi-bravo\"} - node_memory_MemAvailable_bytes{instance=\"pi-bravo\"}",
+          "legendFormat": "Used",
+          "refId": "used"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "cev72gsw2rthcb"
+          },
+          "expr": "node_memory_MemTotal_bytes{instance=\"pi-bravo\"}",
+          "legendFormat": "Total",
+          "refId": "total"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "cev72gsw2rthcb"
+          },
+          "expr": "100 * (1 - node_memory_MemAvailable_bytes{instance=\"pi-bravo\"} / node_memory_MemTotal_bytes{instance=\"pi-bravo\"})",
+          "legendFormat": "Usage %",
+          "refId": "pct"
+        }
+      ],
+      "title": "RAM Usage",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "cev72gsw2rthcb"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "max": 90,
+          "min": 20,
+          "thresholds": {
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 60
+              },
+              {
+                "color": "orange",
+                "value": 70
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "celsius"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 6,
+        "x": 12,
+        "y": 1
+      },
+      "id": 33,
+      "options": {
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "cev72gsw2rthcb"
+          },
+          "expr": "node_hwmon_temp_celsius{instance=\"pi-bravo\", sensor=\"temp0\"}",
+          "refId": "A"
+        }
+      ],
+      "title": "CPU Temperature",
+      "type": "gauge"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "cev72gsw2rthcb"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "text",
+            "mode": "fixed"
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Used"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "bytes"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Total"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "bytes"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Usage %"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "percent"
+              },
+              {
+                "id": "color",
+                "value": {
+                  "mode": "thresholds"
+                }
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "steps": [
+                    {
+                      "color": "green",
+                      "value": null
+                    },
+                    {
+                      "color": "yellow",
+                      "value": 70
+                    },
+                    {
+                      "color": "red",
+                      "value": 90
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 6,
+        "x": 18,
+        "y": 1
+      },
+      "id": 34,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "value_and_name"
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "cev72gsw2rthcb"
+          },
+          "expr": "node_filesystem_size_bytes{instance=\"pi-bravo\", mountpoint=\"/\"} - node_filesystem_avail_bytes{instance=\"pi-bravo\", mountpoint=\"/\"}",
+          "legendFormat": "Used",
+          "refId": "used"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "cev72gsw2rthcb"
+          },
+          "expr": "node_filesystem_size_bytes{instance=\"pi-bravo\", mountpoint=\"/\"}",
+          "legendFormat": "Total",
+          "refId": "total"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "cev72gsw2rthcb"
+          },
+          "expr": "100 - (node_filesystem_avail_bytes{instance=\"pi-bravo\", mountpoint=\"/\"} / node_filesystem_size_bytes{instance=\"pi-bravo\", mountpoint=\"/\"} * 100)",
+          "legendFormat": "Usage %",
+          "refId": "pct"
+        }
+      ],
+      "title": "Disk Usage",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "cev72gsw2rthcb"
+      },
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 6,
+        "x": 0,
+        "y": 6
+      },
+      "id": 40,
+      "targets": [
+        {
+          "expr": "100 - (avg(rate(node_cpu_seconds_total{instance=\"pi-bravo\", mode=\"idle\"}[5m])) * 100)",
+          "legendFormat": "CPU",
+          "refId": "A"
+        }
+      ],
+      "title": "CPU %",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "cev72gsw2rthcb"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "bytes"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 6,
+        "x": 6,
+        "y": 6
+      },
+      "id": 41,
+      "targets": [
+        {
+          "expr": "node_memory_MemTotal_bytes{instance=\"pi-bravo\"} - node_memory_MemAvailable_bytes{instance=\"pi-bravo\"}",
+          "legendFormat": "RAM Used",
+          "refId": "A"
+        }
+      ],
+      "title": "RAM",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "cev72gsw2rthcb"
+      },
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 6,
+        "x": 12,
+        "y": 6
+      },
+      "id": 42,
+      "targets": [
+        {
+          "expr": "node_hwmon_temp_celsius{instance=\"pi-bravo\", sensor=\"temp0\"}",
+          "legendFormat": "Temperature",
+          "refId": "A"
+        }
+      ],
+      "title": "Temperature",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "cev72gsw2rthcb"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "bytes"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 6,
+        "x": 18,
+        "y": 6
+      },
+      "id": 43,
+      "targets": [
+        {
+          "expr": "node_filesystem_size_bytes{instance=\"pi-bravo\", mountpoint=\"/\"} - node_filesystem_avail_bytes{instance=\"pi-bravo\", mountpoint=\"/\"}",
+          "legendFormat": "Disk Used",
+          "refId": "A"
+        }
+      ],
+      "title": "Disk",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "cev72gsw2rthcb"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "purple",
+            "mode": "fixed"
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 6,
+        "x": 0,
+        "y": 12
+      },
+      "id": 50,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "targets": [
+        {
+          "expr": "count(container_last_seen{instance=\"pi-bravo\", name=~\".+\"})",
+          "legendFormat": "Containers",
+          "refId": "A"
+        }
+      ],
+      "title": "Running Containers",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "cev72gsw2rthcb"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "fillOpacity": 10
+          },
+          "unit": "percent"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 9,
+        "x": 6,
+        "y": 12
+      },
+      "id": 51,
+      "options": {
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "expr": "topk(10, rate(container_cpu_usage_seconds_total{instance=\"pi-bravo\", name=~\".+\"}[5m]) * 100)",
+          "legendFormat": "{{name}}",
+          "refId": "A"
+        }
+      ],
+      "title": "Container CPU",
+      "transformations": [
+        {
+          "id": "renameByRegex",
+          "options": {
+            "regex": "(.*)chat-[0-9-]+-topic-0($|[^0-9].*)",
+            "renamePattern": "$1General$2"
+          }
+        },
+        {
+          "id": "renameByRegex",
+          "options": {
+            "regex": "(.*)chat-[0-9-]+-topic-2($|[^0-9].*)",
+            "renamePattern": "$1Media Review$2"
+          }
+        },
+        {
+          "id": "renameByRegex",
+          "options": {
+            "regex": "(.*)chat-[0-9-]+-topic-44($|[^0-9].*)",
+            "renamePattern": "$1Dev$2"
+          }
+        },
+        {
+          "id": "renameByRegex",
+          "options": {
+            "regex": "(.*)chat-[0-9-]+-topic-55($|[^0-9].*)",
+            "renamePattern": "$1Shopping$2"
+          }
+        },
+        {
+          "id": "renameByRegex",
+          "options": {
+            "regex": "(.*)chat-[0-9-]+-topic-60($|[^0-9].*)",
+            "renamePattern": "$1Runaway Games$2"
+          }
+        },
+        {
+          "id": "renameByRegex",
+          "options": {
+            "regex": "(.*)chat-[0-9-]+-topic-135($|[^0-9].*)",
+            "renamePattern": "$1DC$2"
+          }
+        },
+        {
+          "id": "renameByRegex",
+          "options": {
+            "regex": "(.*)chat-[0-9-]+-topic-159($|[^0-9].*)",
+            "renamePattern": "$1Monitoring$2"
+          }
+        },
+        {
+          "id": "renameByRegex",
+          "options": {
+            "regex": "(.*)chat-[0-9-]+-topic-463($|[^0-9].*)",
+            "renamePattern": "$1Clipper$2"
+          }
+        },
+        {
+          "id": "renameByRegex",
+          "options": {
+            "regex": "(.*)chat-[0-9-]+-topic-918($|[^0-9].*)",
+            "renamePattern": "$1Magnet Feed$2"
+          }
+        },
+        {
+          "id": "renameByRegex",
+          "options": {
+            "regex": "(.*)chat-[0-9-]+-topic-606160($|[^0-9].*)",
+            "renamePattern": "$1todoist$2"
+          }
+        },
+        {
+          "id": "renameByRegex",
+          "options": {
+            "regex": "(.*)chat-[0-9-]+-topic-606609($|[^0-9].*)",
+            "renamePattern": "$1Test Sasha$2"
+          }
+        },
+        {
+          "id": "renameByRegex",
+          "options": {
+            "regex": "(.*)chat-[0-9-]+-topic-606929($|[^0-9].*)",
+            "renamePattern": "$1mailbox$2"
+          }
+        },
+        {
+          "id": "renameByRegex",
+          "options": {
+            "regex": "(.*)chat--?\\d+-topic-(\\d+)($|[^0-9].*)",
+            "renamePattern": "$1topic $2$3"
+          }
+        },
+        {
+          "id": "renameByRegex",
+          "options": {
+            "regex": "(.*)topic 731($|[^0-9].*)",
+            "renamePattern": "$1Turtle Stories$2"
+          }
+        }
+      ],
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "cev72gsw2rthcb"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "fillOpacity": 10
+          },
+          "unit": "bytes"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 9,
+        "x": 15,
+        "y": 12
+      },
+      "id": 52,
+      "options": {
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "expr": "topk(10, container_memory_working_set_bytes{instance=\"pi-bravo\", name=~\".+\"})",
+          "legendFormat": "{{name}}",
+          "refId": "A"
+        }
+      ],
+      "title": "Container RAM",
+      "transformations": [
+        {
+          "id": "renameByRegex",
+          "options": {
+            "regex": "(.*)chat-[0-9-]+-topic-0($|[^0-9].*)",
+            "renamePattern": "$1General$2"
+          }
+        },
+        {
+          "id": "renameByRegex",
+          "options": {
+            "regex": "(.*)chat-[0-9-]+-topic-2($|[^0-9].*)",
+            "renamePattern": "$1Media Review$2"
+          }
+        },
+        {
+          "id": "renameByRegex",
+          "options": {
+            "regex": "(.*)chat-[0-9-]+-topic-44($|[^0-9].*)",
+            "renamePattern": "$1Dev$2"
+          }
+        },
+        {
+          "id": "renameByRegex",
+          "options": {
+            "regex": "(.*)chat-[0-9-]+-topic-55($|[^0-9].*)",
+            "renamePattern": "$1Shopping$2"
+          }
+        },
+        {
+          "id": "renameByRegex",
+          "options": {
+            "regex": "(.*)chat-[0-9-]+-topic-60($|[^0-9].*)",
+            "renamePattern": "$1Runaway Games$2"
+          }
+        },
+        {
+          "id": "renameByRegex",
+          "options": {
+            "regex": "(.*)chat-[0-9-]+-topic-135($|[^0-9].*)",
+            "renamePattern": "$1DC$2"
+          }
+        },
+        {
+          "id": "renameByRegex",
+          "options": {
+            "regex": "(.*)chat-[0-9-]+-topic-159($|[^0-9].*)",
+            "renamePattern": "$1Monitoring$2"
+          }
+        },
+        {
+          "id": "renameByRegex",
+          "options": {
+            "regex": "(.*)chat-[0-9-]+-topic-463($|[^0-9].*)",
+            "renamePattern": "$1Clipper$2"
+          }
+        },
+        {
+          "id": "renameByRegex",
+          "options": {
+            "regex": "(.*)chat-[0-9-]+-topic-918($|[^0-9].*)",
+            "renamePattern": "$1Magnet Feed$2"
+          }
+        },
+        {
+          "id": "renameByRegex",
+          "options": {
+            "regex": "(.*)chat-[0-9-]+-topic-606160($|[^0-9].*)",
+            "renamePattern": "$1todoist$2"
+          }
+        },
+        {
+          "id": "renameByRegex",
+          "options": {
+            "regex": "(.*)chat-[0-9-]+-topic-606609($|[^0-9].*)",
+            "renamePattern": "$1Test Sasha$2"
+          }
+        },
+        {
+          "id": "renameByRegex",
+          "options": {
+            "regex": "(.*)chat-[0-9-]+-topic-606929($|[^0-9].*)",
+            "renamePattern": "$1mailbox$2"
+          }
+        },
+        {
+          "id": "renameByRegex",
+          "options": {
+            "regex": "(.*)chat--?\\d+-topic-(\\d+)($|[^0-9].*)",
+            "renamePattern": "$1topic $2$3"
+          }
+        },
+        {
+          "id": "renameByRegex",
+          "options": {
+            "regex": "(.*)topic 731($|[^0-9].*)",
+            "renamePattern": "$1Turtle Stories$2"
+          }
+        }
+      ],
+      "type": "timeseries"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 70
+      },
+      "id": 60,
+      "title": "API Usage",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "cev72gsw2rthcb"
+      },
+      "description": "Limit-weighted tokens over the dashboard range: in + 5*out + 2*cache_write_1h + 1.25*other_writes. Cache reads excluded - overnight calibration showed they are ~free for subscription limits. ~1.5M = 1% of the weekly window. Note: increase() slightly undercounts when a new context/kind label combo is born mid-range.",
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue",
+                "value": null
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 0,
+        "y": 91
+      },
+      "id": 61,
+      "options": {
+        "graphMode": "none",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "targets": [
+        {
+          "expr": "(sum(increase(tuclaw_anthropic_input_tokens_total[$__range])) or vector(0)) + 5*(sum(increase(tuclaw_anthropic_output_tokens_total[$__range])) or vector(0)) + 2*(sum(increase(tuclaw_anthropic_cache_creation_tokens_total{ttl=\"1h\"}[$__range])) or vector(0)) + 1.25*(sum(increase(tuclaw_anthropic_cache_creation_tokens_total{ttl!=\"1h\"}[$__range])) or vector(0))",
+          "refId": "A"
+        }
+      ],
+      "title": "Weighted Spend",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "cev72gsw2rthcb"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 4,
+        "y": 91
+      },
+      "id": 62,
+      "options": {
+        "graphMode": "none",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "targets": [
+        {
+          "expr": "sum(increase(tuclaw_anthropic_output_tokens_total[$__range])) or vector(0)",
+          "refId": "A"
+        }
+      ],
+      "title": "Output Tokens",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "cev72gsw2rthcb"
+      },
+      "description": "Share of context served from cache over the dashboard range.",
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 30
+              },
+              {
+                "color": "green",
+                "value": 55
+              }
+            ]
+          },
+          "unit": "percent"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 8,
+        "y": 91
+      },
+      "id": 63,
+      "options": {
+        "graphMode": "none",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "targets": [
+        {
+          "expr": "100 * sum(increase(tuclaw_anthropic_cache_read_tokens_total[$__range])) / (sum(increase(tuclaw_anthropic_cache_read_tokens_total[$__range])) + sum(increase(tuclaw_anthropic_input_tokens_total[$__range])) + sum(increase(tuclaw_anthropic_cache_creation_tokens_total[$__range])))",
+          "refId": "A"
+        }
+      ],
+      "title": "Cache Hit Rate",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "cev72gsw2rthcb"
+      },
+      "description": "cache_creation with 5m/unknown TTL. Subagent sessions legitimately write 5m; sustained main-loop volume means a container lost ENABLE_PROMPT_CACHING_1H.",
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 1
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 12,
+        "y": 91
+      },
+      "id": 64,
+      "options": {
+        "graphMode": "none",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "targets": [
+        {
+          "expr": "sum(increase(tuclaw_anthropic_cache_creation_tokens_total{ttl!=\"1h\"}[$__range])) or vector(0)",
+          "refId": "A"
+        }
+      ],
+      "title": "5m Cache Leak (expect 0)",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "loki",
+        "uid": "bfafqsolnpb7kc"
+      },
+      "description": "Latest subscription utilization from the claude-usage-bar shipper (5h / 7d windows).",
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 70
+              },
+              {
+                "color": "red",
+                "value": 90
+              }
+            ]
+          },
+          "unit": "percent"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 16,
+        "y": 91
+      },
+      "id": 69,
+      "options": {
+        "graphMode": "none",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "loki",
+            "uid": "bfafqsolnpb7kc"
+          },
+          "expr": "max(last_over_time({script=\"claude-usage-push\", stream=\"stdout\"} | json | msg=`subscription_usage` | unwrap pct5h [$__range]))",
+          "legendFormat": "5h",
+          "queryType": "instant",
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "loki",
+            "uid": "bfafqsolnpb7kc"
+          },
+          "expr": "max(last_over_time({script=\"claude-usage-push\", stream=\"stdout\"} | json | msg=`subscription_usage` | unwrap pct7d [$__range]))",
+          "legendFormat": "7d",
+          "queryType": "instant",
+          "refId": "B"
+        }
+      ],
+      "title": "Subscription Used",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "cev72gsw2rthcb"
+      },
+      "description": "Completed agent turns over the dashboard range (all kinds).",
+      "fieldConfig": {
+        "defaults": {
+          "decimals": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 20,
+        "y": 91
+      },
+      "id": 70,
+      "options": {
+        "graphMode": "none",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "targets": [
+        {
+          "expr": "sum(increase(tuclaw_turns_total[$__range])) or vector(0)",
+          "refId": "A"
+        }
+      ],
+      "title": "Turns",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "cev72gsw2rthcb"
+      },
+      "description": "Who burns the limits: user chat, voice, scheduled tasks, dreams, a2a. kind=idle is out-of-turn traffic (CLI sidecars past the grace window, crashes). Weights: out x5, cache read x0.1, 1h write x2, other writes x1.25.",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "drawStyle": "line",
+            "fillOpacity": 25,
+            "lineWidth": 1,
+            "stacking": {
+              "mode": "normal"
+            }
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 95
+      },
+      "id": 65,
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "expr": "(sum by (kind) (rate(tuclaw_anthropic_input_tokens_total[5m])) + 5*sum by (kind) (rate(tuclaw_anthropic_output_tokens_total[5m]))) * 3600",
+          "legendFormat": "{{kind}}",
+          "refId": "A"
+        },
+        {
+          "expr": "2 * sum by (kind) (rate(tuclaw_anthropic_cache_creation_tokens_total{ttl=\"1h\"}[5m])) * 3600",
+          "legendFormat": "{{kind}} cache-write-1h",
+          "refId": "B"
+        },
+        {
+          "expr": "1.25 * sum by (kind) (rate(tuclaw_anthropic_cache_creation_tokens_total{ttl!=\"1h\"}[5m])) * 3600",
+          "legendFormat": "{{kind}} cache-write-5m",
+          "refId": "C"
+        }
+      ],
+      "title": "Spend by Kind (weighted, per hour)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "cev72gsw2rthcb"
+      },
+      "description": "All writes should land in 1h after the ENABLE_PROMPT_CACHING_1H deploy; 5m beyond subagent noise = a container lost the env.",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "drawStyle": "line",
+            "fillOpacity": 25,
+            "lineWidth": 1,
+            "stacking": {
+              "mode": "normal"
+            }
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 95
+      },
+      "id": 66,
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "expr": "sum by (ttl) (rate(tuclaw_anthropic_cache_creation_tokens_total[5m])) * 3600",
+          "legendFormat": "{{ttl}}",
+          "refId": "A"
+        }
+      ],
+      "title": "Cache Creation by TTL (per hour)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "cev72gsw2rthcb"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "lineWidth": 1
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 103
+      },
+      "id": 67,
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "expr": "sum(rate(tuclaw_anthropic_input_tokens_total[5m])) * 60",
+          "legendFormat": "input",
+          "refId": "A"
+        },
+        {
+          "expr": "sum(rate(tuclaw_anthropic_output_tokens_total[5m])) * 60",
+          "legendFormat": "output",
+          "refId": "B"
+        },
+        {
+          "expr": "sum(rate(tuclaw_anthropic_cache_read_tokens_total[5m])) * 60",
+          "legendFormat": "cache read",
+          "refId": "C"
+        },
+        {
+          "expr": "sum(rate(tuclaw_anthropic_cache_creation_tokens_total[5m])) * 60",
+          "legendFormat": "cache creation",
+          "refId": "D"
+        }
+      ],
+      "title": "Tokens by Type (per min)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "cev72gsw2rthcb"
+      },
+      "description": "Which topic burns the limits. Same weights as Spend by Kind.",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "drawStyle": "line",
+            "fillOpacity": 25,
+            "lineWidth": 1,
+            "stacking": {
+              "mode": "normal"
+            }
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 103
+      },
+      "id": 68,
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "expr": "(sum by (context) (rate(tuclaw_anthropic_input_tokens_total[5m])) + 5*sum by (context) (rate(tuclaw_anthropic_output_tokens_total[5m]))) * 3600",
+          "legendFormat": "{{context}}",
+          "refId": "A"
+        },
+        {
+          "expr": "(2*sum by (context) (rate(tuclaw_anthropic_cache_creation_tokens_total{ttl=\"1h\"}[5m])) + 1.25*sum by (context) (rate(tuclaw_anthropic_cache_creation_tokens_total{ttl!=\"1h\"}[5m]))) * 3600",
+          "legendFormat": "{{context}} cache-write",
+          "refId": "B"
+        }
+      ],
+      "title": "Spend by Context (weighted, per hour)",
+      "transformations": [
+        {
+          "id": "renameByRegex",
+          "options": {
+            "regex": "(.*)chat-[0-9-]+-topic-0($|[^0-9].*)",
+            "renamePattern": "$1General$2"
+          }
+        },
+        {
+          "id": "renameByRegex",
+          "options": {
+            "regex": "(.*)chat-[0-9-]+-topic-2($|[^0-9].*)",
+            "renamePattern": "$1Media Review$2"
+          }
+        },
+        {
+          "id": "renameByRegex",
+          "options": {
+            "regex": "(.*)chat-[0-9-]+-topic-44($|[^0-9].*)",
+            "renamePattern": "$1Dev$2"
+          }
+        },
+        {
+          "id": "renameByRegex",
+          "options": {
+            "regex": "(.*)chat-[0-9-]+-topic-55($|[^0-9].*)",
+            "renamePattern": "$1Shopping$2"
+          }
+        },
+        {
+          "id": "renameByRegex",
+          "options": {
+            "regex": "(.*)chat-[0-9-]+-topic-60($|[^0-9].*)",
+            "renamePattern": "$1Runaway Games$2"
+          }
+        },
+        {
+          "id": "renameByRegex",
+          "options": {
+            "regex": "(.*)chat-[0-9-]+-topic-135($|[^0-9].*)",
+            "renamePattern": "$1DC$2"
+          }
+        },
+        {
+          "id": "renameByRegex",
+          "options": {
+            "regex": "(.*)chat-[0-9-]+-topic-159($|[^0-9].*)",
+            "renamePattern": "$1Monitoring$2"
+          }
+        },
+        {
+          "id": "renameByRegex",
+          "options": {
+            "regex": "(.*)chat-[0-9-]+-topic-463($|[^0-9].*)",
+            "renamePattern": "$1Clipper$2"
+          }
+        },
+        {
+          "id": "renameByRegex",
+          "options": {
+            "regex": "(.*)chat-[0-9-]+-topic-918($|[^0-9].*)",
+            "renamePattern": "$1Magnet Feed$2"
+          }
+        },
+        {
+          "id": "renameByRegex",
+          "options": {
+            "regex": "(.*)chat-[0-9-]+-topic-606160($|[^0-9].*)",
+            "renamePattern": "$1todoist$2"
+          }
+        },
+        {
+          "id": "renameByRegex",
+          "options": {
+            "regex": "(.*)chat-[0-9-]+-topic-606609($|[^0-9].*)",
+            "renamePattern": "$1Test Sasha$2"
+          }
+        },
+        {
+          "id": "renameByRegex",
+          "options": {
+            "regex": "(.*)chat-[0-9-]+-topic-606929($|[^0-9].*)",
+            "renamePattern": "$1mailbox$2"
+          }
+        },
+        {
+          "id": "renameByRegex",
+          "options": {
+            "regex": "(.*)chat--?\\d+-topic-(\\d+)($|[^0-9].*)",
+            "renamePattern": "$1topic $2$3"
+          }
+        },
+        {
+          "id": "renameByRegex",
+          "options": {
+            "regex": "(.*)topic 731($|[^0-9].*)",
+            "renamePattern": "$1Turtle Stories$2"
+          }
+        }
+      ],
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "cev72gsw2rthcb"
+      },
+      "description": "Per-topic context window fill (fed per turn from the agent snapshot; dreaming pressure indicator).",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "lineWidth": 1
+          },
+          "max": 100,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 50
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "percent"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 111
+      },
+      "id": 71,
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "expr": "tuclaw_context_window_percent",
+          "legendFormat": "{{context}}",
+          "refId": "A"
+        }
+      ],
+      "title": "Context Window Fill",
+      "transformations": [
+        {
+          "id": "renameByRegex",
+          "options": {
+            "regex": "(.*)chat-[0-9-]+-topic-0($|[^0-9].*)",
+            "renamePattern": "$1General$2"
+          }
+        },
+        {
+          "id": "renameByRegex",
+          "options": {
+            "regex": "(.*)chat-[0-9-]+-topic-2($|[^0-9].*)",
+            "renamePattern": "$1Media Review$2"
+          }
+        },
+        {
+          "id": "renameByRegex",
+          "options": {
+            "regex": "(.*)chat-[0-9-]+-topic-44($|[^0-9].*)",
+            "renamePattern": "$1Dev$2"
+          }
+        },
+        {
+          "id": "renameByRegex",
+          "options": {
+            "regex": "(.*)chat-[0-9-]+-topic-55($|[^0-9].*)",
+            "renamePattern": "$1Shopping$2"
+          }
+        },
+        {
+          "id": "renameByRegex",
+          "options": {
+            "regex": "(.*)chat-[0-9-]+-topic-60($|[^0-9].*)",
+            "renamePattern": "$1Runaway Games$2"
+          }
+        },
+        {
+          "id": "renameByRegex",
+          "options": {
+            "regex": "(.*)chat-[0-9-]+-topic-135($|[^0-9].*)",
+            "renamePattern": "$1DC$2"
+          }
+        },
+        {
+          "id": "renameByRegex",
+          "options": {
+            "regex": "(.*)chat-[0-9-]+-topic-159($|[^0-9].*)",
+            "renamePattern": "$1Monitoring$2"
+          }
+        },
+        {
+          "id": "renameByRegex",
+          "options": {
+            "regex": "(.*)chat-[0-9-]+-topic-463($|[^0-9].*)",
+            "renamePattern": "$1Clipper$2"
+          }
+        },
+        {
+          "id": "renameByRegex",
+          "options": {
+            "regex": "(.*)chat-[0-9-]+-topic-918($|[^0-9].*)",
+            "renamePattern": "$1Magnet Feed$2"
+          }
+        },
+        {
+          "id": "renameByRegex",
+          "options": {
+            "regex": "(.*)chat-[0-9-]+-topic-606160($|[^0-9].*)",
+            "renamePattern": "$1todoist$2"
+          }
+        },
+        {
+          "id": "renameByRegex",
+          "options": {
+            "regex": "(.*)chat-[0-9-]+-topic-606609($|[^0-9].*)",
+            "renamePattern": "$1Test Sasha$2"
+          }
+        },
+        {
+          "id": "renameByRegex",
+          "options": {
+            "regex": "(.*)chat-[0-9-]+-topic-606929($|[^0-9].*)",
+            "renamePattern": "$1mailbox$2"
+          }
+        },
+        {
+          "id": "renameByRegex",
+          "options": {
+            "regex": "(.*)chat--?\\d+-topic-(\\d+)($|[^0-9].*)",
+            "renamePattern": "$1topic $2$3"
+          }
+        },
+        {
+          "id": "renameByRegex",
+          "options": {
+            "regex": "(.*)topic 731($|[^0-9].*)",
+            "renamePattern": "$1Turtle Stories$2"
+          }
+        }
+      ],
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "loki",
+        "uid": "bfafqsolnpb7kc"
+      },
+      "description": "Subscription window utilization (5h / 7d) from claude-usage-bar history shipped off the Mac every 10 min. Covers all subscription usage incl. laptop Claude Code.",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "drawStyle": "line",
+            "fillOpacity": 12,
+            "lineInterpolation": "stepAfter",
+            "lineWidth": 2,
+            "showPoints": "never",
+            "spanNulls": true
+          },
+          "max": 100,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 70
+              },
+              {
+                "color": "red",
+                "value": 90
+              }
+            ]
+          },
+          "unit": "percent"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 111
+      },
+      "id": 72,
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "loki",
+            "uid": "bfafqsolnpb7kc"
+          },
+          "expr": "max(last_over_time({script=\"claude-usage-push\", stream=\"stdout\"} | json | msg=`subscription_usage` | unwrap pct5h [45m]))",
+          "legendFormat": "5h",
+          "queryType": "range",
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "loki",
+            "uid": "bfafqsolnpb7kc"
+          },
+          "expr": "max(last_over_time({script=\"claude-usage-push\", stream=\"stdout\"} | json | msg=`subscription_usage` | unwrap pct7d [45m]))",
+          "legendFormat": "7d",
+          "queryType": "range",
+          "refId": "B"
+        }
+      ],
+      "title": "Subscription Utilization",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "loki",
+        "uid": "bfafqsolnpb7kc"
+      },
+      "description": "Completed turns per interval, counted from the daemon 'turn' events in Loki (exact - the Prometheus counter is too sparse for rate() and misses each label combo's first turn).",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "drawStyle": "bars",
+            "fillOpacity": 60,
+            "lineWidth": 1,
+            "stacking": {
+              "mode": "normal"
+            }
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 0,
+        "y": 119
+      },
+      "id": 73,
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "loki",
+            "uid": "bfafqsolnpb7kc"
+          },
+          "expr": "sum by (kind) (count_over_time({app=\"tuclaw\", component=\"daemon\"} |= `\"msg\":\"turn\"` | json | msg=`turn` [$__auto]))",
+          "legendFormat": "{{kind}}",
+          "queryType": "range",
+          "refId": "A"
+        }
+      ],
+      "title": "Turns by Kind",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "cev72gsw2rthcb"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "lineWidth": 1
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 8,
+        "y": 119
+      },
+      "id": 74,
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "expr": "sum by (status_code) (rate(tuclaw_anthropic_requests_total[5m])) * 60",
+          "legendFormat": "{{status_code}}",
+          "refId": "A"
+        }
+      ],
+      "title": "Requests Over Time",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "cev72gsw2rthcb"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "lineWidth": 1
+          },
+          "unit": "s"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 16,
+        "y": 119
+      },
+      "id": 75,
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.50, sum(rate(tuclaw_anthropic_request_duration_seconds_bucket[5m])) by (le))",
+          "legendFormat": "p50",
+          "refId": "A"
+        },
+        {
+          "expr": "histogram_quantile(0.95, sum(rate(tuclaw_anthropic_request_duration_seconds_bucket[5m])) by (le))",
+          "legendFormat": "p95",
+          "refId": "B"
+        },
+        {
+          "expr": "histogram_quantile(0.99, sum(rate(tuclaw_anthropic_request_duration_seconds_bucket[5m])) by (le))",
+          "legendFormat": "p99",
+          "refId": "C"
+        }
+      ],
+      "title": "Request Latency (p50 / p95 / p99)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "loki",
+        "uid": "bfafqsolnpb7kc"
+      },
+      "description": "One row per completed agent turn (daemon 'turn' wide event). 7d % (est) = the turn's estimated share of the WEEKLY subscription window from its own tokens: (in + 5*out + 2*cache_write) / 1.5M = 1%. Calibrated 2026-07-12 on the clean dream night: SDK-true night spend 1.8M matched the observed +1pp weekly move (earlier 500k figure undercounted the wire - increase() misses series born mid-window at full value). Accuracy ~+/-40%; refined as clean nights accumulate. Red = a single turn ate ~2% of the week. Cache write = newly written context; Ctx % = window fill after the turn.",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "auto",
+            "filterable": false
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Cache write"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "short"
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-text"
+                }
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "green",
+                      "value": null
+                    },
+                    {
+                      "color": "yellow",
+                      "value": 50000
+                    },
+                    {
+                      "color": "red",
+                      "value": 300000
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Ctx %"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "percent"
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-text"
+                }
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "green",
+                      "value": null
+                    },
+                    {
+                      "color": "orange",
+                      "value": 50
+                    },
+                    {
+                      "color": "red",
+                      "value": 80
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Cache read"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "short"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Output"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "short"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Duration"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "ms"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "7d % (est)"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "percent"
+              },
+              {
+                "id": "decimals",
+                "value": 2
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-text"
+                }
+              },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    {
+                      "color": "green",
+                      "value": null
+                    },
+                    {
+                      "color": "yellow",
+                      "value": 0.5
+                    },
+                    {
+                      "color": "red",
+                      "value": 2
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 12,
+        "w": 24,
+        "x": 0,
+        "y": 71
+      },
+      "id": 76,
+      "options": {
+        "footer": {
+          "show": false
+        },
+        "sortBy": [
+          {
+            "desc": true,
+            "displayName": "Time"
+          }
+        ]
+      },
+      "targets": [
+        {
+          "expr": "{app=\"tuclaw\", component=\"daemon\"} |= `\"msg\":\"turn\"` | json | msg=`turn`",
+          "maxLines": 200,
+          "queryType": "range",
+          "refId": "A"
+        }
+      ],
+      "title": "Recent Turns",
+      "transformations": [
+        {
+          "id": "extractFields",
+          "options": {
+            "format": "json",
+            "keepTime": true,
+            "replace": true,
+            "source": "labels"
+          }
+        },
+        {
+          "id": "convertFieldType",
+          "options": {
+            "conversions": [
+              {
+                "destinationType": "number",
+                "targetField": "duration_ms"
+              },
+              {
+                "destinationType": "number",
+                "targetField": "input_tokens"
+              },
+              {
+                "destinationType": "number",
+                "targetField": "output_tokens"
+              },
+              {
+                "destinationType": "number",
+                "targetField": "cache_read_tokens"
+              },
+              {
+                "destinationType": "number",
+                "targetField": "cache_creation_tokens"
+              },
+              {
+                "destinationType": "number",
+                "targetField": "iterations"
+              },
+              {
+                "destinationType": "number",
+                "targetField": "context_percent"
+              },
+              {
+                "destinationType": "number",
+                "targetField": "api_ms"
+              }
+            ]
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "w_out",
+            "binary": {
+              "left": "output_tokens",
+              "operator": "*",
+              "right": "5"
+            },
+            "mode": "binary"
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "w_cc",
+            "binary": {
+              "left": "cache_creation_tokens",
+              "operator": "*",
+              "right": "2"
+            },
+            "mode": "binary"
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "w_s1",
+            "binary": {
+              "left": "input_tokens",
+              "operator": "+",
+              "right": "w_out"
+            },
+            "mode": "binary"
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "w_total",
+            "binary": {
+              "left": "w_s1",
+              "operator": "+",
+              "right": "w_cc"
+            },
+            "mode": "binary"
+          }
+        },
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "pct_7d_est",
+            "binary": {
+              "left": "w_total",
+              "operator": "/",
+              "right": "1500000"
+            },
+            "mode": "binary"
+          }
+        },
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "api_ms": true,
+              "app": true,
+              "component": true,
+              "component_extracted": true,
+              "context": true,
+              "context_tokens": true,
+              "detected_level": true,
+              "host": true,
+              "level": true,
+              "model": true,
+              "msg": true,
+              "request_id": true,
+              "service_name": true,
+              "time": true,
+              "w_cc": true,
+              "w_out": true,
+              "w_s1": true,
+              "w_total": true
+            },
+            "indexByName": {
+              "7d % (est)": 3,
+              "Cache read": 6,
+              "Cache write": 5,
+              "Ctx %": 4,
+              "Duration": 10,
+              "Failed": 11,
+              "Input": 8,
+              "Iter": 9,
+              "Kind": 2,
+              "Output": 7,
+              "Time": 0,
+              "Topic": 1
+            },
+            "renameByName": {
+              "cache_creation_tokens": "Cache write",
+              "cache_read_tokens": "Cache read",
+              "context_percent": "Ctx %",
+              "duration_ms": "Duration",
+              "failed": "Failed",
+              "input_tokens": "Input",
+              "iterations": "Iter",
+              "kind": "Kind",
+              "output_tokens": "Output",
+              "pct_7d_est": "7d % (est)",
+              "topic": "Topic"
+            }
+          }
+        }
+      ],
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "type": "loki",
+        "uid": "bfafqsolnpb7kc"
+      },
+      "description": "Newly written cache tokens per turn, by kind. Spikes = cold starts or heavy tool loops; clusters of red mornings = expired cache.",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "drawStyle": "bars",
+            "fillOpacity": 60,
+            "lineWidth": 1,
+            "stacking": {
+              "mode": "normal"
+            }
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 83
+      },
+      "id": 77,
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "expr": "sum by (kind) (sum_over_time({app=\"tuclaw\", component=\"daemon\"} |= `\"msg\":\"turn\"` | json | msg=`turn` | unwrap cache_creation_tokens [$__auto]))",
+          "legendFormat": "{{kind}}",
+          "queryType": "range",
+          "refId": "A"
+        }
+      ],
+      "title": "Turn Cost Over Time (cache write per turn)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "loki",
+        "uid": "bfafqsolnpb7kc"
+      },
+      "description": "What a typical turn costs over the dashboard range - read the tail, not the average.",
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 83
+      },
+      "id": 78,
+      "options": {
+        "bucketCount": 30
+      },
+      "targets": [
+        {
+          "expr": "{app=\"tuclaw\", component=\"daemon\"} |= `\"msg\":\"turn\"` | json | msg=`turn`",
+          "maxLines": 1000,
+          "queryType": "range",
+          "refId": "A"
+        }
+      ],
+      "title": "Turn Cost Distribution (cache write)",
+      "transformations": [
+        {
+          "id": "extractFields",
+          "options": {
+            "format": "json",
+            "keepTime": false,
+            "replace": true,
+            "source": "labels"
+          }
+        },
+        {
+          "id": "convertFieldType",
+          "options": {
+            "conversions": [
+              {
+                "destinationType": "number",
+                "targetField": "cache_creation_tokens"
+              }
+            ]
+          }
+        },
+        {
+          "id": "organize",
+          "options": {
+            "includeByName": {
+              "cache_creation_tokens": true
+            },
+            "renameByName": {
+              "cache_creation_tokens": "Cache write per turn"
+            }
+          }
+        }
+      ],
+      "type": "histogram"
+    }
+  ],
+  "refresh": "15m",
+  "schemaVersion": 39,
+  "tags": [
+    "tuclaw",
+    "logs",
+    "loki"
+  ],
+  "templating": {
+    "list": [
+      {
+        "allValue": ".+",
+        "current": {
+          "text": "All",
+          "value": "$__all"
+        },
+        "includeAll": true,
+        "label": "Component",
+        "multi": false,
+        "name": "component",
+        "options": [
+          {
+            "selected": true,
+            "text": "All",
+            "value": "$__all"
+          },
+          {
+            "selected": false,
+            "text": "daemon",
+            "value": "daemon"
+          },
+          {
+            "selected": false,
+            "text": "agent",
+            "value": "agent"
+          }
+        ],
+        "query": "daemon,agent",
+        "type": "custom"
+      },
+      {
+        "current": {
+          "text": "",
+          "value": ""
+        },
+        "label": "Search",
+        "name": "search",
+        "type": "textbox"
+      }
+    ]
+  },
+  "time": {
+    "from": "now-12h",
+    "to": "now"
+  },
+  "timezone": "browser",
+  "title": "Tuclaw Logs",
+  "uid": "tuclaw-logs"
+}

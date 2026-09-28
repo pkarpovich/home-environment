@@ -12,9 +12,11 @@ This repo drives two separate Raspberry Pis (separate Docker daemons), named wit
 - **mbp** - the Mac (colima), not a Pi and not part of the spot deploys. It runs exactly one container, the ralphex-farm execution runner, from `compose-ralphex-runner.yml` and its own `.env.mbp`, brought up by hand. Nothing on it is exposed: the runner only dials out to the farm on bravo. Its state lives under `$HOME/ralphex` and is outside the backup audit below - the clones and caches are disposable and its credentials are provisioned by hand.
 - **lasso** - the DigitalOcean droplet in Frankfurt, behind its own Traefik ([traefik-docker-gateway](https://github.com/pkarpovich/traefik-docker-gateway)) and not part of the spot deploys either. It runs one thing from here, the tailnet's private DERP relay from `compose-derp.yml`, brought up by hand, and its own tailscaled is the tailnet's peer relay; the exit node on the same box comes from [vpn-exit-node](https://github.com/pkarpovich/vpn-exit-node). See [`docs/tailnet.md`](docs/tailnet.md) for why the relay exists and what the tailnet looks like.
 
-So the *file set* per host is chosen by the deploy task (`include:` for alpha vs `-f` flags for bravo); the *values* per host come from `.env`. There are no `-bravo` duplicate compose files - `bravo`'s `.env` sets `ROOT_DOMAIN=bravo.pkarpovich.space`, so the shared `traefik/traefik.yml` issues the `*.bravo.pkarpovich.space` wildcard cert and the `updater.${ROOT_DOMAIN}` route resolves to the bravo zone with zero edits.
+So the *file set* per host is chosen by the deploy task (`include:` for alpha vs `-f` flags for bravo); the *values* per host come from `.env`. There are no `-bravo` duplicate compose files - `bravo`'s `.env` sets `ROOT_DOMAIN=bravo.pkarpovich.space`, so the shared `traefik/static/traefik.yml` issues the `*.bravo.pkarpovich.space` wildcard cert and the `updater.${ROOT_DOMAIN}` route resolves to the bravo zone with zero edits.
 
-Deploy via [spot](https://github.com/umputun/spot), wrapped in [mise](https://mise.jdx.dev/) tasks:
+alpha and bravo deploy themselves: a timer on each host fast-forwards to `origin/main` within five minutes of a merge, runs the host's compose command and reports to Telegram - see [`autodeploy/README.md`](autodeploy/README.md). The file set per host comes from `DEPLOY_HOST` in `/etc/autodeploy/env`.
+
+A manual deploy still works via [spot](https://github.com/umputun/spot), wrapped in [mise](https://mise.jdx.dev/) tasks:
 
 ```sh
 mise run deploy-alpha   # full stack on the first Pi
@@ -23,7 +25,7 @@ mise run deploy-bravo   # traefik + updater on the second Pi
 
 Secrets are never committed. Each host holds its own `.env` (git-ignored); alpha pulls some values from its on-host `stash` KV, while bravo has no KV so its `.env` is placed on the host manually. The repo ships `.env.bravo.example` as a non-secret template for the bravo host.
 
-The shared Traefik HTTPS entrypoint sets `respondingTimeouts` (read/idle = 600s) so long requests through the proxy - notably Gitea container-registry image pushes - do not hit the default cutoffs. This applies to both clusters since `traefik/traefik.yml` is shared.
+The shared Traefik HTTPS entrypoint sets `respondingTimeouts` (read/idle = 600s) so long requests through the proxy - notably Gitea container-registry image pushes - do not hit the default cutoffs. This applies to both clusters since `traefik/static/traefik.yml` is shared.
 
 ## Services
 
@@ -61,6 +63,9 @@ Not everything here is a container. [`subnet-relay/`](subnet-relay/README.md) is
 - **New service** = its own `compose-<name>.yml` + an entry in `compose.yml`'s `include:` list (or service block in an existing themed file). Traefik exposure via labels: `Host(\`<sub>.${ROOT_DOMAIN}\`)` + `entrypoints=https` + `tls.certresolver=le`. Wildcard DNS resolves any new subdomain to alpha automatically.
 - **Healthchecks are expensive on a Pi**: steady-state interval 5m minimum (a 10s default across a dozen containers once cost a third of the CPU). For containers whose Traefik routing waits on `health: starting`, add `start_period` + `start_interval` so the router appears seconds after boot, not minutes.
 - **Backup coverage moves with the change**: anything that creates persistent state on alpha or bravo must land in `backup/hosts/<host>/includes.txt` (or a dump hook in `pre-backup.sh` for databases, or `audit-ignore.txt` with a reason) in the same PR. A weekly audit diffs live volumes/projects/db-containers against these lists and reports drift to telegram.
+- **Mount config directories, never single files**: `git pull` replaces a changed file with a new inode, and a container that bind-mounts the file itself keeps reading the old one until it is recreated - `docker compose up -d` does not notice, since the compose file did not change. Every service config lives in its own directory (`.config/<service>/`, `gatus/`, `traefik/static/`, `traefik/dynamic/<host>/`) and the directory is what gets mounted.
+- **Grafana is provisioned from the repo**: datasources, dashboards and alerting live in `grafana/` and are read-only in the Grafana UI. To change a dashboard, edit it in the UI, copy the JSON model ("Export" > "Export as JSON", external sharing off) over `grafana/dashboards/<uid>.json` and open a PR; Grafana reloads the directory within 30 seconds of the deploy. A dashboard deleted from the directory disappears from Grafana.
+- **Hand-written Home Assistant config lives in `homeassistant/packages/`**, mounted read-only into `/config/packages`: template sensors, integration blocks, and every automation and script. They are read-only in the HA UI, so a change is a YAML edit and a PR. Everything Home Assistant writes itself (`.storage`, the database, `secrets.yaml`) stays in the host-only `volumes/homeassistant/` and is covered by the restic backup; `automations.yaml` and `scripts.yaml` there stay empty, and anything created in the UI editor lands in them until it is moved into a package.
 - **Putting a service behind SSO** = one router label, `middlewares=authelia@docker`, after listing every non-browser caller of that host. See [Authentication](#authentication).
 
 ## Authentication
@@ -99,9 +104,9 @@ Nightly restic snapshots from both Pis to an append-only rest-server on the Syno
 
 ## Home climate
 
-The flat's own sensors live in VictoriaMetrics (`compose-victoriametrics.yml`): temperature, humidity and pressure from the three Eve Weather units, the four Eve Thermo radiator valves (temperature, target, mode, valve opening), and the Xiaomi purifier and fan. Home Assistant is the only collector - its `prometheus:` block in `volumes/homeassistant/configuration.yaml` (host-only, not in git) picks the entities, and VictoriaMetrics scrapes `/api/prometheus` once a minute with a dedicated long-lived token, `HA_PROMETHEUS_TOKEN` in `.env`. Retention is 100 years and separate from Prometheus. The room history back to July 2024 was imported from InfluxDB when it was retired on 2026-09-27; "Living room" and "Living_room" were merged into the Eve Weather LR series on the way.
+The flat's own sensors live in VictoriaMetrics (`compose-victoriametrics.yml`): temperature, humidity and pressure from the three Eve Weather units, the four Eve Thermo radiator valves (temperature, target, mode, valve opening), and the Xiaomi purifier and fan. Home Assistant is the only collector - its `prometheus:` block in `homeassistant/packages/monitoring.yaml` picks the entities, and VictoriaMetrics scrapes `/api/prometheus` once a minute with a dedicated long-lived token, `HA_PROMETHEUS_TOKEN` in `.env`. Retention is 100 years and separate from Prometheus. The room history back to July 2024 was imported from InfluxDB when it was retired on 2026-09-27; "Living room" and "Living_room" were merged into the Eve Weather LR series on the way.
 
-Outdoor weather is not stored at all. The Grafana dashboard "Home Climate" reads it live through the Infinity plugin: the Open-Meteo forecast (2 days back, 16 ahead) and its ERA5 archive for history, plus the current reading of the IMGW Łódź station. That is why the dashboard's default range reaches into the future; the room and history panels carry their own relative ranges.
+Outdoor weather is not stored at all. The Grafana dashboard "Home Climate" reads it live through the Infinity plugin: the Open-Meteo forecast (2 days back, 16 ahead) and its ERA5 archive for history, plus the current reading of the IMGW Łódź station. The flat's coordinates are not in the dashboards: the Infinity datasource appends `latitude`/`longitude` to every request from `OPENMETEO_LATITUDE`/`OPENMETEO_LONGITUDE` in `.env`, so the dashboard URLs carry only the other parameters. That is why the dashboard's default range reaches into the future; the room and history panels carry their own relative ranges.
 
 ## Monitoring
 

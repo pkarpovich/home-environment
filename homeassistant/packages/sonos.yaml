@@ -1,0 +1,46 @@
+# Sonos lives on the WiFi subnet (192.168.199.x) while HA sits on 192.168.198.x,
+# so SSDP discovery multicast never reaches it. Pin the coordinator by IP - the
+# surrounds are bonded to the Arc and are reached through it.
+sonos:
+  media_player:
+    hosts:
+      - 192.168.199.83
+
+template:
+  - light:
+      - name: "Sonos Volume"
+        unique_id: sonos_arc_volume_slider
+        icon: mdi:volume-high
+        state: >
+          {{ not state_attr('media_player.sonos_arc', 'is_volume_muted')
+             and (state_attr('media_player.sonos_arc', 'volume_level') or 0) > 0 }}
+        level: >
+          {{ ((state_attr('media_player.sonos_arc', 'volume_level') or 0) * 255) | round(0) }}
+        set_level:
+          - action: media_player.volume_set
+            target:
+              entity_id: media_player.sonos_arc
+            data:
+              volume_level: "{{ (brightness / 255) | round(3) }}"
+        turn_on:
+          - action: media_player.volume_mute
+            target:
+              entity_id: media_player.sonos_arc
+            data:
+              is_volume_muted: false
+          - if:
+              - condition: template
+                value_template: >
+                  {{ (state_attr('media_player.sonos_arc', 'volume_level') or 0) == 0 }}
+            then:
+              - action: media_player.volume_set
+                target:
+                  entity_id: media_player.sonos_arc
+                data:
+                  volume_level: 0.15
+        turn_off:
+          - action: media_player.volume_mute
+            target:
+              entity_id: media_player.sonos_arc
+            data:
+              is_volume_muted: true

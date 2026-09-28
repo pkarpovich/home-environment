@@ -1,0 +1,49 @@
+template:
+  # Counts entities that dropped off, and is what the Gatus check reads.
+  # Trigger-based on purpose: as a plain state template it walked every entity in
+  # the machine, which put it on an all-states listener - and since the counter is
+  # itself a sensor, its own updates fed straight back in. Home Assistant caught
+  # that as a loop and skipped the render ("Template loop detected ... skipping
+  # template render", logged 5, 20 and 25 Aug). On 25 Aug the skip landed 24
+  # seconds after the Eve Thermo came back, and the entity never rendered again -
+  # frozen at 6 with an empty device list, so state and attributes disagreed and
+  # Gatus alerted on a healthy flat. A minute tick cannot loop and cannot freeze;
+  # the flat has no need for sub-second knowledge of this, and Gatus polls every
+  # five minutes anyway. The startup trigger keeps the sensor from sitting at
+  # "unknown" for up to a minute after a restart, which would fail the check.
+  - triggers:
+      - trigger: time_pattern
+        minutes: "/1"
+      - trigger: homeassistant
+        event: start
+    sensor:
+      - name: "Unavailable Devices Count"
+        state: >
+          {% set unavailable = states
+             | selectattr('domain', 'in', ['light', 'switch', 'climate', 'lock', 'cover', 'sensor'])
+             | rejectattr('entity_id', 'search', 'airplay|iphone|ipad|macbook|unnamed_room|unavailable_devices_count')
+             | selectattr('state', 'eq', 'unavailable')
+             | list %}
+          {{ unavailable | count }}
+        attributes:
+          devices: >
+            {% set unavailable = states
+               | selectattr('domain', 'in', ['light', 'switch', 'climate', 'lock', 'cover', 'sensor'])
+               | rejectattr('entity_id', 'search', 'airplay|iphone|ipad|macbook|unnamed_room|unavailable_devices_count')
+               | selectattr('state', 'eq', 'unavailable')
+               | list %}
+            {{ unavailable | map(attribute='entity_id') | list }}
+
+# Climate sensors for VictoriaMetrics, which scrapes /api/prometheus once a minute
+# with its own long-lived token (HA_PROMETHEUS_TOKEN in the home-environment .env).
+# This replaced the 15-minute "Weather to InfluxDB" automation on 2026-09-27.
+prometheus:
+  filter:
+    include_entity_globs:
+      - sensor.eve_weather_*
+      - sensor.bedroom_eve_weather_*
+      - sensor.eve_thermo_*
+      - sensor.zhimi_*_temperature
+      - sensor.zhimi_*_humidity
+      - sensor.zhimi_*_pm2_5
+      - climate.eve_thermo_*

@@ -1,0 +1,11 @@
+apiVersion: 1
+contactPoints:
+    - orgId: 1
+      name: grafana-default-email
+      receivers:
+        - uid: cewlanxtfafi8c
+          type: email
+          settings:
+            addresses: nas@pkarpovich.space
+            singleEmail: false
+          disableResolveMessage: false

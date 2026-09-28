@@ -1,0 +1,4 @@
+# bravo cluster: intentionally empty dynamic config.
+# The shared traefik.yml reads every file in this host's dynamic directory;
+# this file only keeps the directory in git. bravo has no file-provider
+# routers/services - all routing comes from Docker labels (updater, traefik dashboard).

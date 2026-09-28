@@ -1,0 +1,13 @@
+[Unit]
+Description=deploy home-environment when origin/main moves
+Wants=network-online.target
+After=network-online.target docker.service
+
+[Service]
+Type=oneshot
+User=@USER@
+EnvironmentFile=/etc/autodeploy/env
+StateDirectory=autodeploy
+ExecStart=/usr/local/bin/autodeploy
+TimeoutStartSec=20min
+Nice=10

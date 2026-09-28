@@ -10,6 +10,7 @@ services:
       - NET_RAW
     volumes:
       - ./volumes/homeassistant:/config
+      - ./homeassistant/packages:/config/packages:ro
       - /etc/localtime:/etc/localtime:ro
       - /run/dbus:/run/dbus:rw
     devices:
