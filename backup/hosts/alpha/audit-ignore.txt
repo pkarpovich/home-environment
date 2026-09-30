@@ -15,6 +15,7 @@ cc-bench-pg
 /var/lib/docker/volumes/turtle-hub_youtube_postgres
 /var/lib/docker/volumes/turtle-hub_overcast_postgres
 /var/lib/docker/volumes/turtle-hub_pgvector_postgres
+/var/lib/docker/volumes/turtle-hub_heap_postgres
 # pre-18 postgres volumes, kept for rollback after the 2026-09-20 upgrade;
 # drop these four lines together with the volumes (docker volume rm) after 2026-09-27
 /var/lib/docker/volumes/turtle-hub_content_collector_postgres_data
