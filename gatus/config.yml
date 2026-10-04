@@ -433,7 +433,8 @@ endpoints:
     interval: 5m
     conditions:
       - "[STATUS] == 200"
-      - "[BODY] == ok"
+      - "[BODY].status == ok"
+      - "[BODY].pandascore == ok"
     alerts:
       - type: telegram
 
