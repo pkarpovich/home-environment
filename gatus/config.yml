@@ -260,6 +260,115 @@ endpoints:
     interval: 5m
     conditions:
       - "[STATUS] == 200"
+      - "[BODY].healthy == true"
+    alerts:
+      - type: telegram
+
+  - name: Stream Recorder MCP
+    group: Turtle Hub
+    url: "https://stream-recorder.pkarpovich.space/mcp"
+    method: POST
+    headers:
+      Content-Type: application/json
+    body: '{"jsonrpc":"2.0","id":1,"method":"tools/list","params":{}}'
+    interval: 5m
+    conditions:
+      - "[STATUS] == 200"
+      - "len([BODY].result.tools) > 0"
+    alerts:
+      - type: telegram
+
+  - name: Streamcast Twitch resolve
+    group: Turtle Hub
+    url: "https://streamcast.pkarpovich.space/resolve"
+    method: POST
+    headers:
+      Content-Type: application/json
+    body: '{"channels":[{"channel":"twitch","source":"twitch"}]}'
+    interval: 10m
+    client:
+      timeout: 60s
+    conditions:
+      - "[STATUS] == 200"
+      - "len([BODY].failed) == 0"
+    alerts:
+      - type: telegram
+
+  - name: Plex MCP
+    group: Turtle Hub
+    url: "https://plex-mcp.pkarpovich.space/mcp"
+    method: POST
+    headers:
+      Content-Type: application/json
+    body: '{"jsonrpc":"2.0","id":1,"method":"tools/list","params":{}}'
+    interval: 5m
+    conditions:
+      - "[STATUS] == 200"
+      - "len([BODY].result.tools) > 0"
+    alerts:
+      - type: telegram
+
+  - name: Trakt MCP
+    group: Turtle Hub
+    url: "https://trakt-mcp.pkarpovich.space/mcp"
+    method: POST
+    headers:
+      Content-Type: application/json
+    body: '{"jsonrpc":"2.0","id":1,"method":"tools/list","params":{}}'
+    interval: 5m
+    conditions:
+      - "[STATUS] == 200"
+      - "len([BODY].result.tools) > 0"
+    alerts:
+      - type: telegram
+
+  - name: Telegram User MCP
+    group: Turtle Hub
+    url: "https://telegram-user-mcp.pkarpovich.space/healthz"
+    interval: 5m
+    conditions:
+      - "[STATUS] == 200"
+      - "[BODY].authorized == true"
+    alerts:
+      - type: telegram
+
+  - name: Telegram User MCP tools
+    group: Turtle Hub
+    url: "https://telegram-user-mcp.pkarpovich.space/mcp"
+    method: POST
+    headers:
+      Content-Type: application/json
+    body: '{"jsonrpc":"2.0","id":1,"method":"tools/list","params":{}}'
+    interval: 5m
+    conditions:
+      - "[STATUS] == 200"
+      - "len([BODY].result.tools) > 0"
+    alerts:
+      - type: telegram
+
+  - name: WhatsApp Monitor MCP
+    group: Turtle Hub
+    url: "https://whatsapp-monitor-mcp.pkarpovich.space/healthz"
+    interval: 2m
+    conditions:
+      - "[STATUS] == 200"
+      - "[BODY].is_linked == true"
+      - "[BODY].is_connected == true"
+    alerts:
+      - type: telegram
+        failure-threshold: 5
+
+  - name: WhatsApp Monitor MCP tools
+    group: Turtle Hub
+    url: "https://whatsapp-monitor-mcp.pkarpovich.space/mcp"
+    method: POST
+    headers:
+      Content-Type: application/json
+    body: '{"jsonrpc":"2.0","id":1,"method":"tools/list","params":{}}'
+    interval: 5m
+    conditions:
+      - "[STATUS] == 200"
+      - "len([BODY].result.tools) > 0"
     alerts:
       - type: telegram
 
