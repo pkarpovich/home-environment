@@ -433,7 +433,8 @@ endpoints:
     interval: 5m
     conditions:
       - "[STATUS] == 200"
-      - "[BODY] == ok"
+      - "[BODY].status == ok"
+      - "[BODY].pandascore == ok"
     alerts:
       - type: telegram
 
@@ -474,6 +475,48 @@ endpoints:
     conditions:
       - "[STATUS] == 200"
       - "[BODY].status == ok"
+    alerts:
+      - type: telegram
+
+  - name: Content Collector
+    group: Turtle Hub
+    url: "https://apple-tv.pkarpovich.space/healthz"
+    interval: 5m
+    conditions:
+      - "[STATUS] == 200"
+      - "[BODY].status == ok"
+      - "[BODY].apple_tv == connected"
+    alerts:
+      - type: telegram
+
+  - name: Nikki BFF
+    group: Turtle Hub
+    url: "http://nikki-bff:8080/healthz"
+    interval: 5m
+    conditions:
+      - "[STATUS] == 200"
+      - "[BODY].status == ok"
+    alerts:
+      - type: telegram
+
+  - name: Heap
+    group: Turtle Hub
+    url: "https://heap.pkarpovich.space/healthz"
+    interval: 5m
+    conditions:
+      - "[STATUS] == 200"
+      - "[BODY].database == ok"
+      - "[BODY].storage == ok"
+    alerts:
+      - type: telegram
+
+  - name: Jackett MCP
+    group: Turtle Hub
+    url: "https://jackett-mcp.pkarpovich.space/healthz"
+    interval: 5m
+    conditions:
+      - "[STATUS] == 200"
+      - "[BODY].jackett == ok"
     alerts:
       - type: telegram
 
