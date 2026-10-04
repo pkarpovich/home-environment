@@ -424,6 +424,16 @@ endpoints:
     alerts:
       - type: telegram
 
+  - name: Media Metadata MCP
+    group: Turtle Hub
+    url: "https://media-metadata-mcp.pkarpovich.space/healthz"
+    interval: 5m
+    conditions:
+      - "[STATUS] == 200"
+      - "[BODY].tmdb == ok"
+    alerts:
+      - type: telegram
+
   - name: Obsidian MCP
     group: Turtle Hub
     url: "https://obsidian-mcp.pkarpovich.space/healthz"
