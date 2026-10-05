@@ -1,0 +1,14 @@
+#!/bin/sh
+set -eu
+
+repo=$1
+case "$repo" in
+  *..* | *[!A-Za-z0-9._/-]* | */*/* | /* | */) echo "rejected repository name" >&2; exit 1 ;;
+  */*) ;;
+  *) echo "rejected repository name" >&2; exit 1 ;;
+esac
+
+curl -fsS -m 30 -o /dev/null -X POST \
+  -H "Authorization: token ${GITEA_TOKEN}" \
+  "${GITEA_URL}/api/v1/repos/${repo}/mirror-sync"
+echo "mirror sync queued for ${repo}"

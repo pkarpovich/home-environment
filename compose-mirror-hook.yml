@@ -1,0 +1,30 @@
+# GitHub push webhook that makes Gitea sync its pull mirror at once - lasso
+# only, deployed by hand:
+#   docker compose -f compose-mirror-hook.yml up -d --build
+#
+# GitHub cannot reach Gitea (git.pkarpovich.space resolves to a LAN address), so
+# the webhook lands on lasso, which can: its tailscaled accepts pi-alpha's subnet
+# routes. The hook checks GitHub's X-Hub-Signature-256 against
+# GITHUB_WEBHOOK_SECRET and calls POST /api/v1/repos/<full_name>/mirror-sync with
+# GITEA_TOKEN (scope write:repository). Both come from .env on lasso.
+services:
+  mirror-hook:
+    build: ./mirror-hook
+    image: mirror-hook:local
+    container_name: mirror-hook
+    restart: unless-stopped
+    environment:
+      GITHUB_WEBHOOK_SECRET: ${GITHUB_WEBHOOK_SECRET:?}
+      GITEA_TOKEN: ${GITEA_TOKEN:?}
+      GITEA_URL: https://git.pkarpovich.space
+    networks:
+      - proxy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.mirror-hook.rule=Host(`hooks.pkarpovich.dev`) && Path(`/hooks/github-push`)"
+      - "traefik.http.routers.mirror-hook.entrypoints=web-secure"
+      - "traefik.http.services.mirror-hook.loadbalancer.server.port=9000"
+
+networks:
+  proxy:
+    external: true

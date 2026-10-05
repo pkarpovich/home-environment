@@ -27,7 +27,18 @@ This changes the restore order below: the registry every turtle-hub image is pul
 
 ### Mirror latency
 
-turtle-hub reaches Gitea as a pull mirror of GitHub, and the release workflow runs on the mirror, so a merge deploys only after Gitea fetches it. GitHub cannot reach Gitea (it resolves to a LAN address), so there is no webhook. Two timers bound the delay instead: the `update_mirrors` cron task and each mirror's own interval. Gitea's defaults (cron every 10 minutes, minimum interval 10 minutes) let a merge wait about 20 minutes. `compose-gitea.yml` lowers both to one minute (`GITEA__mirror__MIN_INTERVAL`, `GITEA__cron_0x2E_update_mirrors__SCHEDULE`; a dot in a section name is escaped as `_0x2E_`). The per-repository interval is not in the config: set it to `1m` under the mirror's Settings > Repository > Mirror Settings for repositories that deploy on merge (turtle-hub), and leave the rest at their slower intervals.
+turtle-hub reaches Gitea as a pull mirror of GitHub, and the release workflow runs on the mirror, so a merge deploys only after Gitea fetches it. On its own schedule that is up to about 20 minutes: the `update_mirrors` cron task and the mirror's interval both default to 10 minutes, and 10 minutes is also the smallest interval the UI accepts.
+
+GitHub cannot reach Gitea (`git.pkarpovich.space` resolves to a LAN address), so its push webhook goes to lasso instead: `compose-mirror-hook.yml` runs [adnanh/webhook](https://github.com/adnanh/webhook) behind lasso's Traefik at `https://hooks.pkarpovich.dev/hooks/github-push`. It accepts only a `push` event whose `X-Hub-Signature-256` matches `GITHUB_WEBHOOK_SECRET`, and then calls `POST /api/v1/repos/<repository.full_name>/mirror-sync` on Gitea, which lasso reaches through pi-alpha's subnet route. GitHub and Gitea use the same `owner/name`, so one hook serves every mirrored repository; a push to a repository that is not mirrored gets an error from Gitea and changes nothing. The schedule stays at the defaults and is the fallback when a delivery is lost.
+
+Setup, once:
+
+1. Cloudflare: a proxied `hooks.pkarpovich.dev` record to lasso (lasso's Traefik issues staging certificates, so the record must stay orange-clouded).
+2. Gitea: an access token with scope `write:repository` (read access cannot trigger a sync).
+3. lasso: `GITHUB_WEBHOOK_SECRET` (any random string) and `GITEA_TOKEN` in `~/home-environment/.env`, then `docker compose -f compose-mirror-hook.yml up -d --build`.
+4. GitHub, per repository: a webhook to the url above, content type `application/json`, the same secret, push events only. GitHub has no account-wide webhooks outside organisations.
+
+`docker logs mirror-hook` on lasso shows every delivery and the result of the sync call; GitHub's webhook page shows the response (`queued` when the signature matched).
 
 ## Docker networks created by hand
 
