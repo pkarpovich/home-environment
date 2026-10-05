@@ -25,6 +25,21 @@ Gitea moved here from the Synology on 2026-09-13 (`compose-gitea.yml`). Its whol
 
 This changes the restore order below: the registry every turtle-hub image is pulled from IS this container, so Gitea has to be up (as part of the home-environment stack) before turtle-hub can start. `gitea/packages` is deliberately not backed up: after a restore the registry is empty until the Gitea Actions workflows rebuild the images, which is a push to each repository or a re-run of its last workflow.
 
+### Mirror latency
+
+turtle-hub reaches Gitea as a pull mirror of GitHub, and the release workflow runs on the mirror, so a merge deploys only after Gitea fetches it. On its own schedule that is up to about 20 minutes: the `update_mirrors` cron task and the mirror's interval both default to 10 minutes, and 10 minutes is also the smallest interval the UI accepts.
+
+GitHub cannot reach Gitea (`git.pkarpovich.space` resolves to a LAN address), so its push webhook goes to lasso instead: `compose-mirror-hook.yml` runs [adnanh/webhook](https://github.com/adnanh/webhook) behind lasso's Traefik at `https://hooks.pkarpovich.dev/hooks/github-push`. It accepts only a `push` event whose `X-Hub-Signature-256` matches `GITHUB_WEBHOOK_SECRET`, and then calls `POST /api/v1/repos/<repository.full_name>/mirror-sync` on Gitea, which lasso reaches through pi-alpha's subnet route. GitHub and Gitea use the same `owner/name`, so one hook serves every mirrored repository; a push to a repository that is not mirrored gets an error from Gitea and changes nothing. The schedule stays at the defaults and is the fallback when a delivery is lost.
+
+Setup, once:
+
+1. Cloudflare: a proxied `hooks.pkarpovich.dev` record to lasso (lasso's Traefik issues staging certificates, so the record must stay orange-clouded).
+2. Gitea: an access token with scope `write:repository` (read access cannot trigger a sync).
+3. lasso: `GITHUB_WEBHOOK_SECRET` (any random string) and `GITEA_TOKEN` in `~/home-environment/.env`, then `docker compose -f compose-mirror-hook.yml up -d --build`.
+4. GitHub, per repository: a webhook to the url above, content type `application/json`, the same secret, push events only. GitHub has no account-wide webhooks outside organisations.
+
+`docker logs mirror-hook` on lasso shows every delivery and the result of the sync call; GitHub's webhook page shows the response (`queued` when the signature matched).
+
 ## Docker networks created by hand
 
 `spot.yml` creates none of these on alpha:

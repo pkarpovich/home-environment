@@ -1,0 +1,20 @@
+- id: github-push
+  execute-command: /usr/local/bin/mirror-sync
+  pass-arguments-to-command:
+    - source: payload
+      name: repository.full_name
+  response-message: queued
+  trigger-rule:
+    and:
+      - match:
+          type: payload-hmac-sha256
+          secret: '{{ getenv "GITHUB_WEBHOOK_SECRET" }}'
+          parameter:
+            source: header
+            name: X-Hub-Signature-256
+      - match:
+          type: value
+          value: push
+          parameter:
+            source: header
+            name: X-GitHub-Event
