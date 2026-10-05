@@ -8,6 +8,8 @@ services:
       - USER_GID=1000
       - GITEA_CUSTOM=/data/gitea
       - TZ=Europe/Warsaw
+      - GITEA__mirror__MIN_INTERVAL=1m
+      - GITEA__cron_0x2E_update_mirrors__SCHEDULE=@every 1m
     volumes:
       - /srv/gitea:/data
     ports:

@@ -25,6 +25,10 @@ Gitea moved here from the Synology on 2026-09-13 (`compose-gitea.yml`). Its whol
 
 This changes the restore order below: the registry every turtle-hub image is pulled from IS this container, so Gitea has to be up (as part of the home-environment stack) before turtle-hub can start. `gitea/packages` is deliberately not backed up: after a restore the registry is empty until the Gitea Actions workflows rebuild the images, which is a push to each repository or a re-run of its last workflow.
 
+### Mirror latency
+
+turtle-hub reaches Gitea as a pull mirror of GitHub, and the release workflow runs on the mirror, so a merge deploys only after Gitea fetches it. GitHub cannot reach Gitea (it resolves to a LAN address), so there is no webhook. Two timers bound the delay instead: the `update_mirrors` cron task and each mirror's own interval. Gitea's defaults (cron every 10 minutes, minimum interval 10 minutes) let a merge wait about 20 minutes. `compose-gitea.yml` lowers both to one minute (`GITEA__mirror__MIN_INTERVAL`, `GITEA__cron_0x2E_update_mirrors__SCHEDULE`; a dot in a section name is escaped as `_0x2E_`). The per-repository interval is not in the config: set it to `1m` under the mirror's Settings > Repository > Mirror Settings for repositories that deploy on merge (turtle-hub), and leave the rest at their slower intervals.
+
 ## Docker networks created by hand
 
 `spot.yml` creates none of these on alpha:
