@@ -43,7 +43,7 @@ The compose files are the source of truth; this table is the map. Everything bel
 | `compose-jackett.yml` | jackett, flaresolverr (stateless CF solver, also used by scripts on both hosts) | `jackett.*`, `flaresolverr.*` |
 | `compose-linkding.yml` | linkding (bookmarks) | `bookmarks.*` |
 | `compose-ryot.yml` | ryot + postgres (media/fitness tracker) | `ryot.*` |
-| `compose-deploy.yml` | stash (KV for secrets) | `stash.*` |
+| `compose-deploy.yml` | stash (KV for secrets; audit log on, see `/audit` as admin) | `stash.*` |
 | `compose-gitea.yml` | gitea (git hosting, container registry, Actions control plane; the runner is on mbp) | `git.*`, ssh on `:4022` |
 | `compose-nats.yml` | nats (JetStream; the message bus for tuclaw on bravo, turtle-hub, magnet-feed-sync and the Mac-side scripts - moved here from turtle-hub on 2026-09-14) | `:4222` on the LAN, no HTTP route |
 | `compose-seaweedfs.yml` | seaweedfs (S3 for tuclaw voice messages, generated images and turtle-hub artifacts; anonymous, no credentials - moved here from turtle-hub on 2026-09-14) | `s3-hub.*`, `:8333` on the LAN |
