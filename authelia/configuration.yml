@@ -171,16 +171,7 @@ identity_providers:
           - key_id: 'hub-reminders-2026-10'
             algorithm: 'RS256'
             use: 'sig'
-            key: |
-              -----BEGIN PUBLIC KEY-----
-              MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA3SZrZmlreOVj2Nql6D1Z
-              Yb2lJf9B0cX9tzKi0ar0IryLeENCr7p4uAr9DAzFxYo09WB34hABry88so+7gsaS
-              1n6a5AcC+aFoGRTxvDXVfao7t6AWRSLkfMbR2yrw9AbqnGxhRABUl5bSwSGWweSG
-              hXda67Lt+nzzntywtHsquX+q1lH1GXdhHCE2c5SuJ5APBnaN9Ko7qd82PQqRbdDF
-              yQYvp/zucE1OfL0KqPlnduW5FMD//YORRnveCzsN9oA6VXtUQ7foOeOl++SnIprU
-              cEG2liepPctmuffLeL9b6ZdFHMo8IM1c39X8XqbHWYVhXoPEOy8qOhRv8BAZweqf
-              gwIDAQAB
-              -----END PUBLIC KEY-----
+            key: {{ secret "/config/secrets/hub-reminders.pub" | mindent 14 "|" | msquote }}
         access_token_signed_response_alg: 'RS256'
         lifespan: 'machine'
 
