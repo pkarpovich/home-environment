@@ -168,7 +168,7 @@ identity_providers:
         pushed_authorization_request_endpoint_auth_method: 'private_key_jwt'
         pushed_authorization_request_endpoint_auth_signing_alg: 'RS256'
         jwks:
-          - key_id: 'hub-reminders-2026-10'
+          - key_id: 'hub-reminders-2026-10-07'
             algorithm: 'RS256'
             use: 'sig'
             key: {{ secret "/config/secrets/hub-reminders.pub" | mindent 14 "|" | msquote }}
