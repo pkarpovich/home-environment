@@ -150,7 +150,6 @@ identity_providers:
         token_endpoint_auth_method: 'client_secret_basic'
       - client_id: 'hub-reminders'
         client_name: 'turtle-hub reminders'
-        client_secret: '{{ secret "/config/secrets/hub-reminders.client_secret" }}'
         public: false
         grant_types:
           - 'client_credentials'
@@ -160,7 +159,28 @@ identity_providers:
         audience:
           - 'https://eventkit-bridge'
         requested_audience_mode: 'explicit'
-        token_endpoint_auth_method: 'client_secret_basic'
+        token_endpoint_auth_method: 'private_key_jwt'
+        token_endpoint_auth_signing_alg: 'RS256'
+        introspection_endpoint_auth_method: 'private_key_jwt'
+        introspection_endpoint_auth_signing_alg: 'RS256'
+        revocation_endpoint_auth_method: 'private_key_jwt'
+        revocation_endpoint_auth_signing_alg: 'RS256'
+        pushed_authorization_request_endpoint_auth_method: 'private_key_jwt'
+        pushed_authorization_request_endpoint_auth_signing_alg: 'RS256'
+        jwks:
+          - key_id: 'hub-reminders-2026-10'
+            algorithm: 'RS256'
+            use: 'sig'
+            key: |
+              -----BEGIN PUBLIC KEY-----
+              MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA3SZrZmlreOVj2Nql6D1Z
+              Yb2lJf9B0cX9tzKi0ar0IryLeENCr7p4uAr9DAzFxYo09WB34hABry88so+7gsaS
+              1n6a5AcC+aFoGRTxvDXVfao7t6AWRSLkfMbR2yrw9AbqnGxhRABUl5bSwSGWweSG
+              hXda67Lt+nzzntywtHsquX+q1lH1GXdhHCE2c5SuJ5APBnaN9Ko7qd82PQqRbdDF
+              yQYvp/zucE1OfL0KqPlnduW5FMD//YORRnveCzsN9oA6VXtUQ7foOeOl++SnIprU
+              cEG2liepPctmuffLeL9b6ZdFHMo8IM1c39X8XqbHWYVhXoPEOy8qOhRv8BAZweqf
+              gwIDAQAB
+              -----END PUBLIC KEY-----
         access_token_signed_response_alg: 'RS256'
         lifespan: 'machine'
 
