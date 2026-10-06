@@ -48,6 +48,12 @@ identity_providers:
   oidc:
     jwks:
       - key: {{ secret "/config/secrets/oidc.pem" | mindent 10 "|" | msquote }}
+    lifespans:
+      custom:
+        machine:
+          grants:
+            client_credentials:
+              access_token: '15m'
     claims_policies:
       grafana:
         id_token:
@@ -142,6 +148,21 @@ identity_providers:
         access_token_signed_response_alg: 'none'
         userinfo_signed_response_alg: 'none'
         token_endpoint_auth_method: 'client_secret_basic'
+      - client_id: 'hub-reminders'
+        client_name: 'turtle-hub reminders'
+        client_secret: '{{ secret "/config/secrets/hub-reminders.client_secret" }}'
+        public: false
+        grant_types:
+          - 'client_credentials'
+        scopes:
+          - 'bridge:reminders.read'
+          - 'bridge:reminders.write'
+        audience:
+          - 'https://eventkit-bridge'
+        requested_audience_mode: 'explicit'
+        token_endpoint_auth_method: 'client_secret_basic'
+        access_token_signed_response_alg: 'RS256'
+        lifespan: 'machine'
 
 storage:
   local:
