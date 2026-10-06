@@ -540,6 +540,49 @@ endpoints:
     alerts:
       - type: telegram
 
+  - name: Calendar
+    group: Turtle Hub
+    url: "https://calendar.pkarpovich.space/healthz"
+    interval: 5m
+    conditions:
+      - "[STATUS] == 200"
+      - "[BODY].status == ok"
+      - "[BODY].bridge == ok"
+    alerts:
+      - type: telegram
+
+  - name: Reminders
+    group: Turtle Hub
+    url: "https://reminders.pkarpovich.space/healthz"
+    interval: 5m
+    conditions:
+      - "[STATUS] == 200"
+      - "[BODY].status == ok"
+      - "[BODY].bridge == ok"
+    alerts:
+      - type: telegram
+
+  - name: Mail
+    group: Turtle Hub
+    url: "https://mail.pkarpovich.space/healthz"
+    interval: 5m
+    conditions:
+      - "[STATUS] == 200"
+      - "[BODY].status == ok"
+      - "[BODY].bridge == ok"
+    alerts:
+      - type: telegram
+
+  - name: EventKit Bridge
+    group: Turtle Hub
+    url: "http://pavels-macbook-pro-2021.tailfd498.ts.net:8790/healthz"
+    interval: 5m
+    conditions:
+      - "[STATUS] == 200"
+      - "[BODY].status == ok"
+    alerts:
+      - type: telegram
+
   - name: Nikki App
     group: Turtle Hub
     url: "https://nikki.pkarpovich.space/"
