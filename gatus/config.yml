@@ -266,15 +266,11 @@ endpoints:
 
   - name: Stream Recorder MCP
     group: Turtle Hub
-    url: "https://stream-recorder.pkarpovich.space/mcp"
-    method: POST
-    headers:
-      Content-Type: application/json
-    body: '{"jsonrpc":"2.0","id":1,"method":"tools/list","params":{}}'
+    url: "https://stream-recorder.pkarpovich.space/.well-known/oauth-protected-resource/mcp"
     interval: 5m
     conditions:
       - "[STATUS] == 200"
-      - "len([BODY].result.tools) > 0"
+      - "[BODY].resource == https://stream-recorder.pkarpovich.space/mcp"
     alerts:
       - type: telegram
 
@@ -296,29 +292,21 @@ endpoints:
 
   - name: Plex MCP
     group: Turtle Hub
-    url: "https://plex-mcp.pkarpovich.space/mcp"
-    method: POST
-    headers:
-      Content-Type: application/json
-    body: '{"jsonrpc":"2.0","id":1,"method":"tools/list","params":{}}'
+    url: "https://plex-mcp.pkarpovich.space/.well-known/oauth-protected-resource/mcp"
     interval: 5m
     conditions:
       - "[STATUS] == 200"
-      - "len([BODY].result.tools) > 0"
+      - "[BODY].resource == https://plex-mcp.pkarpovich.space/mcp"
     alerts:
       - type: telegram
 
   - name: Trakt MCP
     group: Turtle Hub
-    url: "https://trakt-mcp.pkarpovich.space/mcp"
-    method: POST
-    headers:
-      Content-Type: application/json
-    body: '{"jsonrpc":"2.0","id":1,"method":"tools/list","params":{}}'
+    url: "https://trakt-mcp.pkarpovich.space/.well-known/oauth-protected-resource/mcp"
     interval: 5m
     conditions:
       - "[STATUS] == 200"
-      - "len([BODY].result.tools) > 0"
+      - "[BODY].resource == https://trakt-mcp.pkarpovich.space/mcp"
     alerts:
       - type: telegram
 
