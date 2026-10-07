@@ -580,15 +580,6 @@ endpoints:
     alerts:
       - type: telegram
 
-  - name: Continuum Client
-    group: Turtle Hub
-    url: "https://continuum.pkarpovich.space/"
-    interval: 5m
-    conditions:
-      - "[STATUS] == 200"
-    alerts:
-      - type: telegram
-
   # Bit Adventure
   - name: BA Landing Page
     group: Bit Adventure
