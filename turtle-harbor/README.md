@@ -6,7 +6,6 @@ Scripts managed by [turtle-harbor](https://github.com/pkarpovich/turtle-harbor) 
 
 | Script | Type | Description |
 |--------|------|-------------|
-| radio-t-monitor | daemon | Monitors Radio-T stream, sends push notification and records when live |
 | twitch-nfo-generator | cron (hourly) | Generates Plex NFO files from Twitch recording metadata |
 
 ## Setup
@@ -65,13 +64,8 @@ Domain = localdomain
 Scripts read secrets from `scripts/.env` (not committed):
 
 ```bash
-# Required for radio-t-monitor
-RELAY_SECRET=<relay-secret>
-
 # Optional overrides
 TWITCH_DIR=/mnt/nas/twitch       # default
-RECORDING_DIR=/mnt/nas/radio-t   # default
-STREAM_URL=https://stream.radio-t.com/  # default
 ```
 
 ## Common commands
@@ -79,10 +73,10 @@ STREAM_URL=https://stream.radio-t.com/  # default
 ```bash
 th ps                              # list scripts and status
 th up                              # start all scripts
-th up radio-t-monitor              # start specific script
+th up twitch-nfo-generator         # start specific script
 th down                            # stop all scripts
-th logs radio-t-monitor -n 50      # show last 50 log lines
-th logs radio-t-monitor -f         # follow logs
+th logs twitch-nfo-generator -n 50 # show last 50 log lines
+th logs twitch-nfo-generator -f    # follow logs
 th reload                          # reload scripts.yml after changes
 ```
 
@@ -90,7 +84,7 @@ th reload                          # reload scripts.yml after changes
 
 ```bash
 curl http://192.168.198.3:9200/health              # all scripts
-curl http://192.168.198.3:9200/health/radio-t-monitor  # specific script
+curl http://192.168.198.3:9200/health/twitch-nfo-generator  # specific script
 ```
 
 Returns 200 when all healthy, 503 if any script failed. Monitored by Gatus.

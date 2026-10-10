@@ -6,16 +6,6 @@ settings:
       host: "raspberry-pi"
 
 scripts:
-  radio-t-monitor:
-    command: "python radio-t-monitor.py"
-    context: "./scripts"
-    venv: ".venv"
-    env_file: ".env"
-    env:
-      PYTHONUNBUFFERED: "1"
-    restart_policy: "always"
-    max_restarts: 5
-
   twitch-nfo-generator:
     command: "python twitch-nfo-generator.py"
     context: "./scripts"
