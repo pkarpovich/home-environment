@@ -6,7 +6,7 @@
 services:
   seaweedfs:
     container_name: seaweedfs
-    image: chrislusf/seaweedfs:4.47
+    image: chrislusf/seaweedfs:4.48
     restart: unless-stopped
     command: server -s3 -dir=/data -volume.max=100 -master.volumePreallocate=false -master.volumeSizeLimitMB=1000
     volumes:
