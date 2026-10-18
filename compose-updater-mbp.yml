@@ -1,0 +1,56 @@
+# Deploy hook for this host, the mac-side twin of compose-updater.yml on bravo.
+#
+# Same shape - a task list in .config/updater-mbp/updater.yml, each task an ssh
+# hop to the host, because the updater image carries the docker CLI but not the
+# compose plugin and every deploy here is a compose file.
+#
+# Two differences from bravo. There is no traefik on this machine, so the port
+# is published on the loopback and nothing outside the mac can reach it. And the
+# key it ssh's with is not a general one: ~/.ssh/authorized_keys pins it to a
+# forced command, so it can redeploy the ralphex runner and do nothing else.
+#
+# The runner is the one service here that must not be recreated on a schedule -
+# it may be halfway through a job - so the tick below only asks, and
+# scripts/update-ralphex-runner.sh decides. It declines when the registry holds
+# the image already running and when the runner reports a job in flight, which
+# is why asking every 15 minutes costs nothing.
+#
+#   docker compose -p updater --env-file .env.mbp -f compose-updater-mbp.yml up -d
+services:
+  updater:
+    container_name: updater
+    image: ghcr.io/umputun/updater:latest
+    command: ["/srv/updater", "--batch", "--timeout=600s"]
+    restart: unless-stopped
+    extra_hosts:
+      - host.docker.internal:host-gateway
+    ports:
+      - "127.0.0.1:${UPDATER_PORT:-8099}:8080"
+    volumes:
+      - ./.config/updater-mbp:/config:ro
+      - ${UPDATER_SSH_KEY}:/home/app/.ssh/id_rsa:ro
+    environment:
+      CONF: /config/updater.yml
+      KEY: ${UPDATER_KEY}
+      LISTEN: 0.0.0.0:8080
+      APP_UID: ${APP_UID:-501}
+      TIME_ZONE: ${TIME_ZONE:-Europe/Warsaw}
+      TZ: ${TZ:-Europe/Warsaw}
+
+  updater-tick:
+    container_name: updater-tick
+    image: curlimages/curl:latest
+    restart: unless-stopped
+    depends_on:
+      - updater
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        while true; do
+          curl -sS -m 600 -X POST -H 'Content-Type: application/json' \
+            -d "$$BODY" http://updater:8080/update || true
+          sleep "$$INTERVAL"
+        done
+    environment:
+      BODY: '{"task":"ralphex-runner","secret":"${UPDATER_KEY}"}'
+      INTERVAL: ${UPDATER_TICK_INTERVAL:-900}

@@ -1,0 +1,25 @@
+# Gitea Actions runner for the home Gitea (git.pkarpovich.space).
+#
+# Runs on the MBP under OrbStack (colima retired 2026-10-08). OrbStack starts at
+# login, so restart: unless-stopped brings the runner back after a reboot.
+#
+# Note: runner 2.0.0 removed the implicit "DOCKER_USERNAME/DOCKER_PASSWORD
+# secrets are docker.io pull credentials" behavior that broke job-image pulls on
+# a fresh engine under 1.x (explicit container.credentials now, if ever needed).
+#
+# The registration lives in ./volumes/gitea-runner/.runner and is NOT in git:
+# it holds the runner token. A fresh machine re-registers once against Gitea.
+services:
+  gitea-runner:
+    image: gitea/runner:2.1.0        # was gitea/act_runner (renamed); bump deliberately
+    container_name: gitea-runner
+    restart: unless-stopped
+    extra_hosts:
+      # LAN service: resolve directly, skip Cloudflare DNS
+      - "git.pkarpovich.space:192.168.198.3"
+    environment:
+      - GITEA_INSTANCE_URL=https://git.pkarpovich.space
+      - GITEA_RUNNER_NAME=${GITEA_RUNNER_NAME:-mbp-2021-runner}
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./volumes/gitea-runner:/data
