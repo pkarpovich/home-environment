@@ -261,11 +261,17 @@ script:
     alias: Special palette
     icon: mdi:palette-swatch-variant
     mode: single
-    description: Dim palettes kept out of the evening lottery, for nights that want a dark
-      room. Switched on by hand or by the agent.
+    description: 'Puts a dim special palette on the living-room lights (TV strips and Hue
+      Plays, desk and sofa-wall Hue Plays, kitchen and sofa strips). These are kept out of
+      the daily sunset lottery and are for evenings that want a dark, cosy room - a film,
+      a game, winding down. Use it when asked for dim, dark or special lighting in the
+      living room; for ordinary colours set the lights directly.'
     fields:
       palette:
         name: Palette
+        description: 'smoldering_embers - TV zone red at 40%, room orange-red at 50%, the
+          darkest. dark_blood - deep red everywhere at 55%. dark_ruby - ruby red with a hint
+          of crimson everywhere at 55%.'
         required: true
         selector:
           select:
