@@ -250,7 +250,7 @@ script:
             {{ (fresh or ns.ids or ['blood']) | random }}
       - action: script.apply_palette
         data:
-          palette: '{{ palettes[pick] }}'
+          palette: '{{ palettes[pick] | to_json }}'
       - action: input_text.set_value
         target:
           entity_id: input_text.evening_palette_last
@@ -296,7 +296,7 @@ script:
     sequence:
       - action: script.apply_palette
         data:
-          palette: '{{ palettes[palette] }}'
+          palette: '{{ palettes[palette] | to_json }}'
 
   apply_palette:
     alias: Apply palette
@@ -315,6 +315,8 @@ script:
         selector:
           object:
     sequence:
+      - variables:
+          palette: '{{ palette if palette is mapping else palette | from_json }}'
       - choose:
           - conditions:
               - condition: template
