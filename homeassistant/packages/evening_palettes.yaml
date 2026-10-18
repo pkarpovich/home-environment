@@ -121,124 +121,124 @@ script:
       any enabled palette when only yesterday''s is on, and to Blood when none is.'
     variables:
       palettes:
-      blood:
-        tv: [0, 100, 100]
-        room: [0, 100, 100]
-        sofa: [0, 100, 100]
-      embers:
-        tv: [0, 100, 100]
-        room: [16, 100, 100]
-        sofa: [10, 100, 100]
-      embers_mirror:
-        tv: [16, 100, 100]
-        room: [0, 100, 100]
-        sofa: [0, 100, 100]
-      sunset:
-        tv: [16, 100, 100]
-        room: [16, 70, 100]
-        sofa: [10, 70, 100]
-      sunset_mirror:
-        tv: [16, 70, 100]
-        room: [16, 100, 100]
-        sofa: [10, 100, 100]
-      amber:
-        tv: [33, 100, 100]
-        room: [43, 85, 100]
-        sofa: [32, 100, 100]
-      amber_mirror:
-        tv: [43, 85, 100]
-        room: [33, 100, 100]
-        sofa: [24, 100, 100]
-      chocolate:
-        tv: [25, 86, 65]
-        room: [28, 61, 95]
-        sofa: [20, 50, 95]
-      chocolate_mirror:
-        tv: [28, 61, 95]
-        room: [25, 86, 65]
-        sofa: [18, 80, 65]
-      pumpkin:
-        tv: [33, 100, 100]
-        room: [16, 100, 100]
-        sofa: [10, 100, 100]
-      pumpkin_mirror:
-        tv: [16, 100, 100]
-        room: [33, 100, 100]
-        sofa: [24, 100, 100]
-      ruby_gold:
-        tv: [0, 100, 100]
-        room: [43, 85, 100]
-        sofa: [32, 100, 100]
-      ruby_gold_mirror:
-        tv: [43, 85, 100]
-        room: [0, 100, 100]
-        sofa: [0, 100, 100]
-      copper:
-        tv: [8, 100, 100]
-        room: [30, 80, 100]
-        sofa: [22, 70, 100]
-      copper_mirror:
-        tv: [30, 80, 100]
-        room: [8, 100, 100]
-        sofa: [6, 100, 100]
-      honey:
-        tv: [38, 100, 100]
-        room: [48, 75, 100]
-        sofa: [34, 70, 100]
-      honey_mirror:
-        tv: [48, 75, 100]
-        room: [38, 100, 100]
-        sofa: [28, 100, 100]
-      mandarin:
-        tv: [22, 100, 100]
-        room: [22, 100, 100]
-        sofa: [15, 100, 100]
-      vermilion:
-        tv: [8, 100, 100]
-        room: [8, 100, 100]
-        sofa: [6, 100, 100]
-      peach:
-        tv: [16, 100, 100]
-        room: [28, 50, 100]
-        sofa: [20, 40, 100]
-      peach_mirror:
-        tv: [28, 50, 100]
-        room: [16, 100, 100]
-        sofa: [10, 100, 100]
-      ruby:
-        tv: [352, 100, 100]
-        room: [352, 100, 100]
-        sofa: [352, 100, 100]
-      raspberry:
-        tv: [340, 100, 100]
-        room: [340, 100, 100]
-        sofa: [340, 100, 100]
-      ruby_raspberry:
-        tv: [352, 100, 100]
-        room: [335, 100, 100]
-        sofa: [335, 100, 100]
-      ruby_raspberry_mirror:
-        tv: [335, 100, 100]
-        room: [352, 100, 100]
-        sofa: [352, 100, 100]
-      sunset_sky:
-        tv: [22, 100, 100]
-        room: [335, 60, 100]
-        sofa: [335, 50, 100]
-      sunset_sky_mirror:
-        tv: [335, 60, 100]
-        room: [22, 100, 100]
-        sofa: [15, 100, 100]
-      fuchsia_ruby:
-        tv: [320, 100, 100]
-        room: [352, 100, 100]
-        sofa: [352, 100, 100]
-      fuchsia_ruby_mirror:
-        tv: [352, 100, 100]
-        room: [320, 100, 100]
-        sofa: [320, 100, 100]
-      candle:
-        kelvin: [2000, 80]
+        blood:
+          tv: [0, 100, 100]
+          room: [0, 100, 100]
+          sofa: [0, 100, 100]
+        embers:
+          tv: [0, 100, 100]
+          room: [16, 100, 100]
+          sofa: [10, 100, 100]
+        embers_mirror:
+          tv: [16, 100, 100]
+          room: [0, 100, 100]
+          sofa: [0, 100, 100]
+        sunset:
+          tv: [16, 100, 100]
+          room: [16, 70, 100]
+          sofa: [10, 70, 100]
+        sunset_mirror:
+          tv: [16, 70, 100]
+          room: [16, 100, 100]
+          sofa: [10, 100, 100]
+        amber:
+          tv: [33, 100, 100]
+          room: [43, 85, 100]
+          sofa: [32, 100, 100]
+        amber_mirror:
+          tv: [43, 85, 100]
+          room: [33, 100, 100]
+          sofa: [24, 100, 100]
+        chocolate:
+          tv: [25, 86, 65]
+          room: [28, 61, 95]
+          sofa: [20, 50, 95]
+        chocolate_mirror:
+          tv: [28, 61, 95]
+          room: [25, 86, 65]
+          sofa: [18, 80, 65]
+        pumpkin:
+          tv: [33, 100, 100]
+          room: [16, 100, 100]
+          sofa: [10, 100, 100]
+        pumpkin_mirror:
+          tv: [16, 100, 100]
+          room: [33, 100, 100]
+          sofa: [24, 100, 100]
+        ruby_gold:
+          tv: [0, 100, 100]
+          room: [43, 85, 100]
+          sofa: [32, 100, 100]
+        ruby_gold_mirror:
+          tv: [43, 85, 100]
+          room: [0, 100, 100]
+          sofa: [0, 100, 100]
+        copper:
+          tv: [8, 100, 100]
+          room: [30, 80, 100]
+          sofa: [22, 70, 100]
+        copper_mirror:
+          tv: [30, 80, 100]
+          room: [8, 100, 100]
+          sofa: [6, 100, 100]
+        honey:
+          tv: [38, 100, 100]
+          room: [48, 75, 100]
+          sofa: [34, 70, 100]
+        honey_mirror:
+          tv: [48, 75, 100]
+          room: [38, 100, 100]
+          sofa: [28, 100, 100]
+        mandarin:
+          tv: [22, 100, 100]
+          room: [22, 100, 100]
+          sofa: [15, 100, 100]
+        vermilion:
+          tv: [8, 100, 100]
+          room: [8, 100, 100]
+          sofa: [6, 100, 100]
+        peach:
+          tv: [16, 100, 100]
+          room: [28, 50, 100]
+          sofa: [20, 40, 100]
+        peach_mirror:
+          tv: [28, 50, 100]
+          room: [16, 100, 100]
+          sofa: [10, 100, 100]
+        ruby:
+          tv: [352, 100, 100]
+          room: [352, 100, 100]
+          sofa: [352, 100, 100]
+        raspberry:
+          tv: [340, 100, 100]
+          room: [340, 100, 100]
+          sofa: [340, 100, 100]
+        ruby_raspberry:
+          tv: [352, 100, 100]
+          room: [335, 100, 100]
+          sofa: [335, 100, 100]
+        ruby_raspberry_mirror:
+          tv: [335, 100, 100]
+          room: [352, 100, 100]
+          sofa: [352, 100, 100]
+        sunset_sky:
+          tv: [22, 100, 100]
+          room: [335, 60, 100]
+          sofa: [335, 50, 100]
+        sunset_sky_mirror:
+          tv: [335, 60, 100]
+          room: [22, 100, 100]
+          sofa: [15, 100, 100]
+        fuchsia_ruby:
+          tv: [320, 100, 100]
+          room: [352, 100, 100]
+          sofa: [352, 100, 100]
+        fuchsia_ruby_mirror:
+          tv: [352, 100, 100]
+          room: [320, 100, 100]
+          sofa: [320, 100, 100]
+        candle:
+          kelvin: [2000, 80]
     sequence:
       - variables:
           pick: >
@@ -281,18 +281,18 @@ script:
               - dark_ruby
     variables:
       palettes:
-      smoldering_embers:
-        tv: [0, 100, 40]
-        room: [16, 100, 50]
-        sofa: [10, 100, 50]
-      dark_blood:
-        tv: [0, 100, 55]
-        room: [0, 100, 55]
-        sofa: [0, 100, 55]
-      dark_ruby:
-        tv: [352, 100, 55]
-        room: [352, 100, 55]
-        sofa: [352, 100, 55]
+        smoldering_embers:
+          tv: [0, 100, 40]
+          room: [16, 100, 50]
+          sofa: [10, 100, 50]
+        dark_blood:
+          tv: [0, 100, 55]
+          room: [0, 100, 55]
+          sofa: [0, 100, 55]
+        dark_ruby:
+          tv: [352, 100, 55]
+          room: [352, 100, 55]
+          sofa: [352, 100, 55]
     sequence:
       - action: script.apply_palette
         data:
