@@ -9,7 +9,8 @@
 # anything above ~9 degrees orange, so each palette carries its own value for it, matched
 # by eye against the kitchen strip; pale colours need a lower saturation on it, since Hue
 # pales a colour with its white LED and the Yeelight has none. Its warmest white is 2700K.
-# A mirror swaps the TV and room colours.
+# A mirror swaps the TV and room colours. Pure red is written as hue 359, not 0:
+# Home Assistant drops a leading 0 from these lists when it renders script variables.
 #
 # Every lottery palette has its own switch, so one that stops pleasing can be dropped
 # without touching this file. A new switch starts off and is turned on by hand once.
@@ -122,17 +123,17 @@ script:
     variables:
       palettes:
         blood:
-          tv: [0, 100, 100]
-          room: [0, 100, 100]
-          sofa: [0, 100, 100]
+          tv: [359, 100, 100]
+          room: [359, 100, 100]
+          sofa: [359, 100, 100]
         embers:
-          tv: [0, 100, 100]
+          tv: [359, 100, 100]
           room: [16, 100, 100]
           sofa: [10, 100, 100]
         embers_mirror:
           tv: [16, 100, 100]
-          room: [0, 100, 100]
-          sofa: [0, 100, 100]
+          room: [359, 100, 100]
+          sofa: [359, 100, 100]
         sunset:
           tv: [16, 100, 100]
           room: [16, 70, 100]
@@ -166,13 +167,13 @@ script:
           room: [33, 100, 100]
           sofa: [24, 100, 100]
         ruby_gold:
-          tv: [0, 100, 100]
+          tv: [359, 100, 100]
           room: [43, 85, 100]
           sofa: [32, 100, 100]
         ruby_gold_mirror:
           tv: [43, 85, 100]
-          room: [0, 100, 100]
-          sofa: [0, 100, 100]
+          room: [359, 100, 100]
+          sofa: [359, 100, 100]
         copper:
           tv: [8, 100, 100]
           room: [30, 80, 100]
@@ -282,13 +283,13 @@ script:
     variables:
       palettes:
         smoldering_embers:
-          tv: [0, 100, 40]
+          tv: [359, 100, 40]
           room: [16, 100, 50]
           sofa: [10, 100, 50]
         dark_blood:
-          tv: [0, 100, 55]
-          room: [0, 100, 55]
-          sofa: [0, 100, 55]
+          tv: [359, 100, 55]
+          room: [359, 100, 55]
+          sofa: [359, 100, 55]
         dark_ruby:
           tv: [352, 100, 55]
           room: [352, 100, 55]
