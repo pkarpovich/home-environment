@@ -52,30 +52,35 @@ automation:
     state: 'on'
 - id: '1763772494801'
   alias: Morning heating max
-  description: Runs every morning at 08:00. The season gate gets applied ONLY to the
-    radiators - it used to sit at the top level, which also blocked the Divoom display
-    and left it dark for a whole day. The display has nothing to do with heating and
-    must come on whatever the weather, but only with someone home, or it lights an
-    empty flat all morning. Welcome home turns it on at arrival, so skipping it here
-    loses nothing.
+  description: Runs every morning at 08:00. While the building is heating it puts
+    every radiator where the schedule says (living room and bathroom on, bedroom only
+    once sleep mode is off, a room with an open balcony door stays off). While it is
+    not heating, the only valve that may move is the bathroom one, and only on a
+    probe day - see Heating probe. The Divoom display has nothing to do with heating
+    and comes on whatever the radiators do, but only with someone home, or it lights
+    an empty flat all morning.
   triggers:
   - trigger: time
     at: 08:00:00
   actions:
-  - if:
-    - condition: template
-      value_template: '{{ is_state(''binary_sensor.heating_season'', ''on'') or now()
-        < as_datetime(''2026-09-28T00:00:00+02:00'') }}'
-    then:
-    - target:
-        entity_id:
-        - climate.eve_thermo_20ebp1701_3
-        - climate.eve_thermo_20ebp1701_4
-        - climate.eve_thermo_20ebp1701
-      data:
-        hvac_mode: heat
-        temperature: 30
-      action: climate.set_temperature
+  - choose:
+    - conditions:
+      - condition: state
+        entity_id: input_boolean.building_heating
+        state: 'on'
+      sequence:
+      - action: script.heating_apply_schedule
+    - conditions:
+      - condition: state
+        entity_id: input_boolean.heating_probe_today
+        state: 'on'
+      sequence:
+      - action: climate.set_temperature
+        target:
+          entity_id: climate.eve_thermo_20ebp1701
+        data:
+          hvac_mode: heat
+          temperature: 30
   - if:
     - condition: state
       entity_id: binary_sensor.pavel_home
@@ -89,43 +94,42 @@ automation:
   conditions: []
 - id: '1763772750831'
   alias: Night heating off
-  description: Turn off thermostats at 10 PM daily
+  description: Every radiator off at 22:00 and through the night. Only valves that
+    are not already off are sent the command, so a flat that is not being heated
+    hears nothing. Also ends the day's probe.
   triggers:
   - trigger: time
     at: '22:00:00'
   actions:
-  - target:
-      entity_id:
-      - climate.eve_thermo_20ebp1701_3
-      - climate.eve_thermo_20ebp1701_4
-      - climate.eve_thermo_20ebp1701
-      - climate.eve_thermo_20ebp1701_2
-    data:
-      hvac_mode: 'off'
-    action: climate.set_hvac_mode
+  - action: input_boolean.turn_off
+    target:
+      entity_id: input_boolean.heating_probe_today
+  - variables:
+      on_now: >
+        {{ ['climate.eve_thermo_20ebp1701_3', 'climate.eve_thermo_20ebp1701_4',
+            'climate.eve_thermo_20ebp1701', 'climate.eve_thermo_20ebp1701_2']
+           | reject('is_state', 'off') | list }}
+  - if:
+    - condition: template
+      value_template: '{{ on_now | count > 0 }}'
+    then:
+    - action: climate.set_hvac_mode
+      target:
+        entity_id: '{{ on_now }}'
+      data:
+        hvac_mode: 'off'
 - id: '1763773178650'
   alias: Wake up heating bedroom
-  description: 'Turn on bedroom thermostat to max when sleep mode ends Gated on binary_sensor.heating_season
-    so it stops commanding valves through the summer: the building''s own plant decides
-    when heat is available and cannot be reached from here, so the gate follows outside
-    temperature rather than a calendar - a September cold snap re-enables it on its
-    own.'
+  description: The bedroom stays cool through the night and warms only once sleep
+    mode ends, which is the wake-up signal. Goes through the schedule script, so it
+    does nothing while the building is not heating, after 22:00, or with the bedroom
+    balcony door open.
   triggers:
   - trigger: state
     entity_id: input_boolean.sleep_mode
     to: 'off'
   actions:
-  - target:
-      entity_id: climate.eve_thermo_20ebp1701_2
-    data:
-      hvac_mode: heat
-      temperature: 30
-    action: climate.set_temperature
-  conditions:
-  - &id005
-    condition: template
-    value_template: '{{ is_state(''binary_sensor.heating_season'', ''on'') or now()
-      < as_datetime(''2026-09-28T00:00:00+02:00'') }}'
+  - action: script.heating_apply_schedule
 - id: '1764178900000'
   alias: Blackout Mode
   description: Turn off all lights and Divoom when blackout button pressed
@@ -342,14 +346,12 @@ automation:
           transition: 3
 - id: '1785650000001'
   alias: Ventilation - living room heating off
-  description: Close the living room radiator valves while the balcony door is open,
-    then put them back exactly as they were. Both branches are gated on binary_sensor.heating_season.
-    The open branch used to test the balcony sensor directly, which sits in direct
-    sun and reads its own casing - on a cold bright winter day that reads well above
-    the threshold and the valves would have been left open with the door open. The
-    close branch had no seasonal test at all, only 'a snapshot exists', so a scene
-    left over from winter could switch heating back on in summer.
-  mode: single
+  description: The living room radiator is off while the balcony door is open. On closing,
+    the room gets whatever the schedule says for this moment, never a remembered
+    state - a snapshot used to bring back a daytime 'heat' after a door closed at
+    night, and the radiator then heated all night. Does nothing while the building
+    is not heating, so in summer an open door does not make the valves move.
+  mode: queued
   triggers:
   - trigger: state
     entity_id: binary_sensor.balcony_door_lr
@@ -360,48 +362,41 @@ automation:
     entity_id: binary_sensor.balcony_door_lr
     to: 'off'
     id: closed
-  conditions: []
+  conditions:
+  - condition: state
+    entity_id: input_boolean.building_heating
+    state: 'on'
   actions:
   - choose:
     - conditions:
       - condition: trigger
         id: opened
-      - *id005
-      - condition: template
-        value_template: '{{ states(''climate.eve_thermo_20ebp1701_3'') != ''off''
-          or states(''climate.eve_thermo_20ebp1701_4'') != ''off'' }}'
       sequence:
-      - action: scene.create
-        data:
-          scene_id: pre_vent_lr
-          snapshot_entities: &id006
-          - climate.eve_thermo_20ebp1701_3
-          - climate.eve_thermo_20ebp1701_4
-      - action: climate.set_hvac_mode
-        target:
-          entity_id: *id006
-        data:
-          hvac_mode: 'off'
+      - variables:
+          on_now: >
+            {{ ['climate.eve_thermo_20ebp1701_3', 'climate.eve_thermo_20ebp1701_4'] | reject('is_state', 'off') | list }}
+      - if:
+        - condition: template
+          value_template: '{{ on_now | count > 0 }}'
+        then:
+        - action: climate.set_hvac_mode
+          target:
+            entity_id: '{{ on_now }}'
+          data:
+            hvac_mode: 'off'
     - conditions:
       - condition: trigger
         id: closed
-      - *id005
-      - condition: template
-        value_template: '{{ states.scene.pre_vent_lr is not none }}'
       sequence:
-      - action: scene.turn_on
-        target:
-          entity_id: scene.pre_vent_lr
+      - action: script.heating_apply_schedule
 - id: '1785650000002'
   alias: Ventilation - bedroom heating off
-  description: Close the bedroom radiator valves while the balcony door is open, then
-    put them back exactly as they were. Both branches are gated on binary_sensor.heating_season.
-    The open branch used to test the balcony sensor directly, which sits in direct
-    sun and reads its own casing - on a cold bright winter day that reads well above
-    the threshold and the valves would have been left open with the door open. The
-    close branch had no seasonal test at all, only 'a snapshot exists', so a scene
-    left over from winter could switch heating back on in summer.
-  mode: single
+  description: The bedroom radiator is off while the balcony door is open. On closing,
+    the room gets whatever the schedule says for this moment, never a remembered
+    state - a snapshot used to bring back a daytime 'heat' after a door closed at
+    night, and the radiator then heated all night. Does nothing while the building
+    is not heating, so in summer an open door does not make the valves move.
+  mode: queued
   triggers:
   - trigger: state
     entity_id: binary_sensor.balcony_door_bedroom
@@ -412,37 +407,33 @@ automation:
     entity_id: binary_sensor.balcony_door_bedroom
     to: 'off'
     id: closed
-  conditions: []
+  conditions:
+  - condition: state
+    entity_id: input_boolean.building_heating
+    state: 'on'
   actions:
   - choose:
     - conditions:
       - condition: trigger
         id: opened
-      - *id005
-      - condition: template
-        value_template: '{{ states(''climate.eve_thermo_20ebp1701_2'') != ''off''
-          }}'
       sequence:
-      - action: scene.create
-        data:
-          scene_id: pre_vent_bedroom
-          snapshot_entities: &id007
-          - climate.eve_thermo_20ebp1701_2
-      - action: climate.set_hvac_mode
-        target:
-          entity_id: *id007
-        data:
-          hvac_mode: 'off'
+      - variables:
+          on_now: >
+            {{ ['climate.eve_thermo_20ebp1701_2'] | reject('is_state', 'off') | list }}
+      - if:
+        - condition: template
+          value_template: '{{ on_now | count > 0 }}'
+        then:
+        - action: climate.set_hvac_mode
+          target:
+            entity_id: '{{ on_now }}'
+          data:
+            hvac_mode: 'off'
     - conditions:
       - condition: trigger
         id: closed
-      - *id005
-      - condition: template
-        value_template: '{{ states.scene.pre_vent_bedroom is not none }}'
       sequence:
-      - action: scene.turn_on
-        target:
-          entity_id: scene.pre_vent_bedroom
+      - action: script.heating_apply_schedule
 - id: '1785700000001'
   alias: Asleep flag
   description: 'Maintains input_boolean.asleep as the one honest "actually asleep"
@@ -542,64 +533,47 @@ automation:
     data:
       timestamp: '{{ now().timestamp() }}'
 - id: '1785700000003'
-  alias: Heating season change
-  description: 'Acts on the moment binary_sensor.heating_season flips, which nothing
-    else does: the radiator automations only consult the flag at their own fixed times,
-    so a season that opens at 14:00 in October would leave the flat unheated until
-    08:00 the next morning, and one that closes at 11:00 in April would leave the
-    valves wide open until 22:00. Opening only acts between 08:00 and 22:00 - outside
-    that window the night-off rule is what should hold, and Morning heating max picks
-    it up at 08:00 anyway. The bedroom is deliberately not warmed on the opening edge;
-    it follows Wake up heating bedroom, which is tied to getting up rather than to
-    the clock. Closing is unconditional and covers all four, mirroring Night heating
-    off - switching radiators off is never the wrong thing to do. The triggers deliberately
-    match on the destination only, with no from: - a template entity passes through
-    unavailable on every template reload and on every Home Assistant restart, so an
-    edge written as from ''on'' to ''off'' is silently missed whenever the season
-    changes across a restart. Firing again on the way back from unavailable is harmless:
-    both branches are idempotent, and the opening one does exactly what Morning heating
-    max does daily anyway.'
-  mode: single
+  alias: Building heating change
+  description: Acts the moment input_boolean.building_heating flips. Heat found
+    during the day switches the radiators on right away instead of waiting for the
+    next 08:00; the schedule script decides which, so at night nothing moves. When
+    the building stops heating, every radiator that is still on is switched off once,
+    and from then on nothing moves until heat is found again.
+  mode: queued
   triggers:
   - trigger: state
-    entity_id: binary_sensor.heating_season
+    entity_id: input_boolean.building_heating
     to: 'on'
-    id: season_on
+    id: heating_on
   - trigger: state
-    entity_id: binary_sensor.heating_season
+    entity_id: input_boolean.building_heating
     to: 'off'
-    id: season_off
+    id: heating_off
   actions:
   - choose:
     - conditions:
       - condition: trigger
-        id: season_on
-      - condition: time
-        after: 08:00:00
-        before: '22:00:00'
+        id: heating_on
       sequence:
-      - action: climate.set_temperature
-        target:
-          entity_id:
-          - climate.eve_thermo_20ebp1701_3
-          - climate.eve_thermo_20ebp1701_4
-          - climate.eve_thermo_20ebp1701
-        data:
-          hvac_mode: heat
-          temperature: 30
+      - action: script.heating_apply_schedule
     - conditions:
       - condition: trigger
-        id: season_off
+        id: heating_off
       sequence:
-      - action: climate.set_hvac_mode
-        target:
-          entity_id:
-          - climate.eve_thermo_20ebp1701_3
-          - climate.eve_thermo_20ebp1701_4
-          - climate.eve_thermo_20ebp1701
-          - climate.eve_thermo_20ebp1701_2
-        data:
-          hvac_mode: 'off'
+      - variables:
+          on_now: >
+            {{ ['climate.eve_thermo_20ebp1701_3', 'climate.eve_thermo_20ebp1701_4',
+                'climate.eve_thermo_20ebp1701', 'climate.eve_thermo_20ebp1701_2']
+               | reject('is_state', 'off') | list }}
+      - if:
+        - condition: template
+          value_template: '{{ on_now | count > 0 }}'
+        then:
+        - action: climate.set_hvac_mode
+          target:
+            entity_id: '{{ on_now }}'
+          data:
+            hvac_mode: 'off'
 - id: '1785700000004'
   alias: Samsung TV - turn on through the Apple TV
   description: 'Replaces the implicit Wake-on-LAN the Samsung integration is dropping
@@ -646,3 +620,119 @@ automation:
   - action: input_boolean.turn_off
     target:
       entity_id: input_boolean.sleep_mode
+- id: '1785800000001'
+  alias: Heating probe
+  description: 'Decides input_boolean.building_heating from the bathroom radiator. The
+    bathroom valve is shut overnight; when it opens at 08:00 and the building is
+    heating, hot water reaches it and its TRV reads 2-5 C more within 1-3 hours. A
+    hot day does not do that: on the hottest days of summer 2026 (daily means of 29
+    and 31 C) the same morning rise was at most 1 C, and showers do not register at
+    all. The bathroom is the probe because it has no window and gets no sun - the
+    living-room TRVs read up to 7 C higher on a sunny summer morning. 07:00 records
+    the baseline and decides whether today is a probe day: always while heating (the
+    bathroom opens at 08:00 anyway), otherwise only when the living room is below
+    20.5 C and the 3-day outdoor mean below 15 C, so the bathroom valve does not move
+    on days nobody needs heat. A rise of 2 C or more turns heating on the same
+    morning. Heating ends only after 7 probe mornings in a row with a rise under 1
+    C: the substation runs on and off in spring and autumn, and switching heating off
+    on a mild spell is what left the flat cold in October 2026, while a wrong "on"
+    costs a few valve moves.'
+  mode: queued
+  triggers:
+  - trigger: time
+    at: 07:00:00
+    id: baseline
+  - trigger: state
+    entity_id: sensor.eve_thermo_20ebp1701_temperature
+    id: reading
+  - trigger: time
+    at: '12:00:00'
+    id: verdict
+  actions:
+  - variables:
+      t: '{{ states(''sensor.eve_thermo_20ebp1701_temperature'') | float(none) }}'
+  - choose:
+    - conditions:
+      - condition: trigger
+        id: baseline
+      - condition: template
+        value_template: '{{ t is not none }}'
+      sequence:
+      - action: input_number.set_value
+        target:
+          entity_id:
+          - input_number.heating_probe_baseline
+          - input_number.heating_probe_peak
+        data:
+          value: '{{ t }}'
+      - action: '{{ ''input_boolean.turn_on'' if is_state(''input_boolean.building_heating'',
+          ''on'') or (states(''sensor.eve_weather_lr_temperature'') | float(99) <
+          20.5 and states(''sensor.outdoor_temp_3d'') | float(0) < 15) else ''input_boolean.turn_off''
+          }}'
+        target:
+          entity_id: input_boolean.heating_probe_today
+    - conditions:
+      - condition: trigger
+        id: reading
+      - condition: state
+        entity_id: input_boolean.heating_probe_today
+        state: 'on'
+      - condition: time
+        after: 08:00:00
+        before: '12:00:00'
+      - condition: template
+        value_template: '{{ t is not none and t > states(''input_number.heating_probe_peak'')
+          | float(0) }}'
+      sequence:
+      - action: input_number.set_value
+        target:
+          entity_id: input_number.heating_probe_peak
+        data:
+          value: '{{ t }}'
+      - if:
+        - condition: state
+          entity_id: input_boolean.building_heating
+          state: 'off'
+        - condition: template
+          value_template: '{{ t - states(''input_number.heating_probe_baseline'') |
+            float(0) >= 2 }}'
+        then:
+        - action: counter.reset
+          target:
+            entity_id: counter.heating_cold_mornings
+        - action: input_boolean.turn_on
+          target:
+            entity_id: input_boolean.building_heating
+    - conditions:
+      - condition: trigger
+        id: verdict
+      - condition: state
+        entity_id: input_boolean.heating_probe_today
+        state: 'on'
+      - condition: state
+        entity_id: input_boolean.building_heating
+        state: 'on'
+      sequence:
+      - if:
+        - condition: template
+          value_template: '{{ states(''input_number.heating_probe_peak'') | float(0)
+            - states(''input_number.heating_probe_baseline'') | float(0) < 1 }}'
+        then:
+        - action: counter.increment
+          target:
+            entity_id: counter.heating_cold_mornings
+        else:
+        - action: counter.reset
+          target:
+            entity_id: counter.heating_cold_mornings
+      - if:
+        - condition: template
+          value_template: '{{ states(''counter.heating_cold_mornings'') | int(0) >=
+            7 }}'
+        then:
+        - action: counter.reset
+          target:
+            entity_id: counter.heating_cold_mornings
+        - action: input_boolean.turn_off
+          target:
+            entity_id: input_boolean.building_heating

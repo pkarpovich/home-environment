@@ -12,7 +12,7 @@
 # these paths to `docker run` as bind sources for task containers and the
 # daemon resolves them against the host, so the two sides only agree when the
 # paths are identical - which is why the values are variables rather than
-# hardcoded: the Mac keeps them under $HOME (colima cannot see /var/ralphex),
+# hardcoded: the Mac keeps them under $HOME (the VM shares $HOME, not /var/ralphex),
 # bravo under /var/ralphex.
 services:
   ralphex-runner:

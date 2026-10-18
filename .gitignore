@@ -92,6 +92,10 @@ fabric.properties
 # End of https://www.toptal.com/developers/gitignore/api/webstorm+all
 
 **/.env
+# host-specific env files; only their .example twins are tracked
+.env.mbp
+# per-machine Claude Code permissions
+.claude/settings.local.json
 **/logs/*
 /iSponsorBlockTV/config.json
 /volumes
