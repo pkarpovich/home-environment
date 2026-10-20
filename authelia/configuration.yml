@@ -54,6 +54,9 @@ identity_providers:
           grants:
             client_credentials:
               access_token: '15m'
+        cli:
+          access_token: '1h'
+          refresh_token: '30d'
     claims_policies:
       grafana:
         id_token:
@@ -285,6 +288,28 @@ identity_providers:
             key: {{ secret "/config/secrets/tuclaw.pub" | mindent 14 "|" | msquote }}
         access_token_signed_response_alg: 'RS256'
         lifespan: 'machine'
+      - client_id: 'claude-code'
+        client_name: 'Claude Code'
+        public: true
+        authorization_policy: 'one_factor'
+        require_pkce: true
+        pkce_challenge_method: 'S256'
+        redirect_uris:
+          - 'http://localhost:33418/callback'
+        scopes:
+          - 'mcp:yotei'
+          - 'offline_access'
+        audience:
+          - 'https://yotei.pkarpovich.space/mcp'
+        requested_audience_mode: 'explicit'
+        response_types:
+          - 'code'
+        grant_types:
+          - 'authorization_code'
+          - 'refresh_token'
+        token_endpoint_auth_method: 'none'
+        access_token_signed_response_alg: 'RS256'
+        lifespan: 'cli'
 
 storage:
   local:
