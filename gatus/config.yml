@@ -540,6 +540,25 @@ endpoints:
     alerts:
       - type: telegram
 
+  - name: Yotei
+    group: Turtle Hub
+    url: "https://yotei.pkarpovich.space/healthz"
+    interval: 5m
+    conditions:
+      - "[STATUS] == 200"
+      - "[BODY].status == ok"
+    alerts:
+      - type: telegram
+
+  - name: Yotei App
+    group: Turtle Hub
+    url: "https://yotei.pkarpovich.space/"
+    interval: 5m
+    conditions:
+      - "[STATUS] == 200"
+    alerts:
+      - type: telegram
+
   - name: Continuum Client
     group: Turtle Hub
     url: "https://continuum.pkarpovich.space/"
