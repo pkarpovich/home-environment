@@ -249,6 +249,7 @@ identity_providers:
           - 'mcp:boosty'
           - 'mcp:overcast'
           - 'mcp:media-metadata'
+          - 'mcp:yotei'
         audience:
           - 'https://calendar.pkarpovich.space/mcp'
           - 'https://reminders.pkarpovich.space/mcp'
@@ -267,6 +268,7 @@ identity_providers:
           - 'https://boosty.pkarpovich.space/mcp'
           - 'https://overcast.pkarpovich.space/mcp'
           - 'https://media-metadata-mcp.pkarpovich.space/mcp'
+          - 'https://yotei.pkarpovich.space/mcp'
         requested_audience_mode: 'explicit'
         token_endpoint_auth_method: 'private_key_jwt'
         token_endpoint_auth_signing_alg: 'RS256'
