@@ -1,0 +1,11 @@
+# host  path prefix                  compose service
+alpha   authelia/                    authelia
+alpha   homeassistant/packages/      homeassistant
+alpha   traefik/static/              traefik
+alpha   grafana/provisioning/        grafana
+alpha   .config/prometheus/          prometheus
+alpha   .config/loki/                loki
+alpha   .config/tempo/               tempo
+alpha   .config/otel-collector/      otel-collector
+alpha   .config/victoriametrics/     victoriametrics
+bravo   traefik/static/              traefik

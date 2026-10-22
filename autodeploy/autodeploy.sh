@@ -38,16 +38,41 @@ if ! out="$(git merge --ff-only -q origin/main 2>&1)"; then
 fi
 
 case "$host" in
-    alpha) set -- up -d --remove-orphans ;;
-    bravo) set -- -f compose-traefik.yml -f compose-updater.yml up -d ;;
+    alpha) set -- ;;
+    bravo) set -- -f compose-traefik.yml -f compose-updater.yml ;;
     *) echo "unknown host: $host" >&2; exit 1 ;;
 esac
 
-if ! out="$(docker compose "$@" 2>&1)"; then
+case "$host" in
+    alpha) up_flags="--remove-orphans" ;;
+    *) up_flags="" ;;
+esac
+
+if ! out="$(docker compose "$@" up -d $up_flags 2>&1)"; then
     fail "$target" "compose up failed" "$(printf '%s\n' "$out" | tail -n 15)"
 fi
 
+changed="$(git diff --name-only "$deployed" "$target" 2>/dev/null || true)"
+restart=""
+while read -r rule_host prefix service; do
+    case "$rule_host" in ''|'#'*) continue ;; esac
+    [ "$rule_host" = "$host" ] || continue
+    for file in $changed; do
+        case "$file" in
+            "$prefix"*)
+                case " $restart " in *" $service "*) ;; *) restart="${restart:+$restart }$service" ;; esac
+                break
+                ;;
+        esac
+    done
+done < "$repo/autodeploy/restart-on-change"
+
+if [ -n "$restart" ] && ! out="$(docker compose "$@" restart $restart 2>&1)"; then
+    fail "$target" "restart of $restart failed" "$(printf '%s\n' "$out" | tail -n 15)"
+fi
+
 changes="$(git log --no-merges --format='- %s' "$deployed..$target" 2>/dev/null | head -n 10)"
+[ -z "$restart" ] || changes="$(printf '%s\n\nrestarted: %s' "$changes" "$restart")"
 printf '%s\n' "$target" > "$deployed_file"
 rm -f "$failed_file"
 notify "$(printf '🚀 autodeploy %s: deployed %.7s\n\n%s' "$host" "$target" "$changes")"
