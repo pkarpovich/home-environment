@@ -371,6 +371,10 @@
         id: simple_icon
         icon: https://content-oracle.pkarpovich.space/favicon.ico
         href: https://content-oracle.pkarpovich.space
+    - Heap:
+        id: simple_icon
+        icon: https://heap.pkarpovich.space/favicon.svg
+        href: https://heap.pkarpovich.space
     - Stash:
         id: simple_icon
         icon: si-dotenv

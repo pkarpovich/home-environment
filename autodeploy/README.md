@@ -9,6 +9,8 @@ A systemd timer runs every 5 minutes as the user that owns the checkout (`pi` on
 - alpha: `docker compose up -d --remove-orphans` (the full stack through `compose.yml`)
 - bravo: `docker compose -f compose-traefik.yml -f compose-updater.yml up -d`
 
+A container that reads its config from a directory mounted out of the repo does not notice a changed file: `compose up` only recreates a container when its compose definition changes. So after `up` the deploy runs `docker compose restart` for every service in `restart-on-change` whose path prefix the deployed commits touched, and the Telegram message names them. Home Assistant is restarted in full, since a package reload misses part of the config. Gatus and the Grafana dashboards reload on their own and are not listed. A new service with a config directory in the repo gets a line in that file.
+
 Each run reports to Telegram through the relay, the same channel the backup audit uses: one message per deployed commit, listing its changes, or one message per failed commit with the tail of the git or compose output. The deployed commit is recorded in `/var/lib/autodeploy/deployed`. A failed commit is retried every 5 minutes but reported only once.
 
 Images are not pulled. A version bump in a compose file is pulled by `up` because the image is missing; floating tags (`latest`, `stable`) only move with a manual `docker compose pull`.

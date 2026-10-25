@@ -16,7 +16,7 @@ if docker ps --format '{{.Names}}' | grep -qx victoriametrics; then
     docker exec victoriametrics wget -qO- http://127.0.0.1:8428/snapshot/create >/dev/null
 fi
 
-for db in /home/pi/turtle-hub/.db/*.db /home/pi/magnet-feed-sync/.db/*.db /home/pi/home-environment/volumes/linkding/*.sqlite3 /srv/gitea/gitea/gitea.db; do
+for db in /home/pi/turtle-hub/.db/*.db /home/pi/magnet-feed-sync/.db/*.db /home/pi/home-environment/volumes/linkding/*.sqlite3 /srv/gitea/gitea/gitea.db /var/lib/docker/volumes/turtle-hub_yotei_data/_data/yotei.db; do
     [ -f "$db" ] || continue
     out="$dump_dir/sqlite$(printf %s "$db" | tr / _)"
     sqlite3 "$db" ".backup '$out.tmp'"

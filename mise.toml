@@ -1,0 +1,73 @@
+# Local (MBP) stack: the two workers that need real CPU - the Gitea Actions
+# runner and the ralphex-farm execution runner. alpha and bravo are deployed
+# with spot because they are remote; this machine is the one you are sitting at,
+# so `docker compose` is the whole deployment and needs no orchestrator in front
+# of it.
+#
+# Fill .env.mbp from .env.mbp.example first; it drives both the ${...}
+# interpolation below and the ralphex runner's own container env.
+
+[env]
+_.file = { path = ".env.mbp", redact = true }
+
+[tasks."runners:up"]
+description = "start the gitea and ralphex runners on this machine"
+depends = ["runners:pull"]
+run = "docker compose -p runners --env-file .env.mbp -f compose-gitea-runner.yml -f compose-ralphex-runner.yml up -d"
+
+[tasks."runners:down"]
+description = "stop both runners (ralphex drains in-flight jobs first, up to 3m)"
+run = "docker compose -p runners --env-file .env.mbp -f compose-gitea-runner.yml -f compose-ralphex-runner.yml down"
+
+[tasks."runners:pull"]
+description = "pull newer runner images, and the task image the ralphex runner spawns"
+# RALPHEX_IMAGE is pulled explicitly: the runner creates task containers without
+# pulling, so on a machine that has never run a job `docker run` fails with
+# "No such image" and the job dies as docker_run in about four seconds
+run = """
+docker compose -p runners --env-file .env.mbp -f compose-gitea-runner.yml -f compose-ralphex-runner.yml pull
+docker pull "${RALPHEX_IMAGE}"
+"""
+
+[tasks."runners:skills"]
+description = "refresh the claude plugin seed the ralphex runner mounts"
+# The seed is an isolated CLAUDE_CONFIG_DIR: the ralphex container copies settings.json
+# and plugins/ out of it, so whatever is cached here is what the agent gets - with no
+# network of its own. It went stale for two months before anyone looked.
+#
+# Reinstall rather than `claude plugin update`: update is a no-op when the marketplace
+# still advertises the same version, and skills@pkarpovich pins 0.1.0 forever, so five
+# skills added to the environment repo since June never arrived.
+run = """
+set -e
+export CLAUDE_CONFIG_DIR="${FARM_CLAUDE_CONFIG_DIR}"
+claude plugin marketplace update
+plugins=$(python3 -c 'import json,os;print(" ".join(json.load(open(os.environ["CLAUDE_CONFIG_DIR"]+"/settings.json"))["enabledPlugins"]))')
+stale="${FARM_CLAUDE_CONFIG_DIR}/plugins/cache"
+if [ -d "$stale" ]; then mv "$stale" "$stale.replacing.$$"; fi
+mkdir -p "$stale"
+for p in $plugins; do claude plugin install "$p"; done
+# the per-install output is not a reliable signal ("already installed" is a success too),
+# so the gate is whether every enabled plugin actually resolves its paths afterwards
+if claude plugin list | grep -q "failed to load"; then
+    echo "a plugin failed to load - previous cache kept at $stale.replacing.$$"
+    exit 1
+fi
+rm -rf "$stale.replacing.$$"
+# The seed's absolute host paths are rewritten by the runner itself when it copies
+# the seed into the task container (ralphex-farm#37); doing it here too would put
+# the same knowledge in two places, and only one of them knows the destination.
+rsync -a --delete "${FARM_CLAUDE_CONFIG_DIR}/" pi-bravo:/var/ralphex/claude/
+"""
+
+[tasks."runners:logs"]
+description = "follow both runners' logs"
+run = "docker compose -p runners --env-file .env.mbp -f compose-gitea-runner.yml -f compose-ralphex-runner.yml logs -f --tail 50"
+
+[tasks."runners:status"]
+description = "what runs here, plus what the farm sees of this runner"
+run = """
+docker compose -p runners --env-file .env.mbp -f compose-gitea-runner.yml -f compose-ralphex-runner.yml ps
+echo '--- farm view ---'
+curl -s "${FARM_URL}/health" | python3 -m json.tool
+"""

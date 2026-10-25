@@ -67,44 +67,94 @@ template:
         state: >
           {{ state_attr('weather.forecast_home', 'temperature') | float }}
 
-  # Whether the building is plausibly heating. The plant in the basement starts on
-  # its own and cannot be reached from here, so this mirrors the rule Polish
-  # managers actually use: the season opens once the DAILY AVERAGE outside stays
-  # near 10-12 C for two or three days in a row, not on a single cold reading. An
-  # instantaneous test was wrong - one cold August night, with 22 C by day, would
-  # have flipped it on while the plant stayed off all summer.
-  # Hysteresis on purpose: on below 12, off only above 15. Between the two it holds
-  # whatever it already was, so a wobbling autumn cannot switch the radiators on and
-  # off every day.
-  # The average is only trusted once its window is at least 90% full. That check is
-  # what stops a half-filled buffer being read as a three-day mean: refilling during
-  # a cold night would otherwise average a few cold hours and open the season on the
-  # strength of one night, the exact failure this design exists to avoid. Until then
-  # it falls back to the current reading against the same 12 C threshold, which is
-  # the historical form of the rule - a 19:00 reading below 12 C three days running.
-  - binary_sensor:
-      - name: "Heating season"
-        unique_id: heating_season
-        icon: mdi:radiator
-        state: >
-          {% set avg = states('sensor.outdoor_temp_3d') | float(-999) %}
-          {% set cov = state_attr('sensor.outdoor_temp_3d', 'age_coverage_ratio') | float(0) %}
-          {% set ready = avg > -900 and cov >= 0.9 %}
-          {% set live = state_attr('weather.forecast_home', 'temperature') | float(0) %}
-          {% set t = avg if ready else live %}
-          {% if t < 12 %}true
-          {% elif t > 15 %}false
-          {% else %}{{ this.state == 'on' }}{% endif %}
-        attributes:
-          basis: >
-            {% set avg = states('sensor.outdoor_temp_3d') | float(-999) %}
-            {% set cov = state_attr('sensor.outdoor_temp_3d', 'age_coverage_ratio') | float(0) %}
-            {{ '3-day average' if (avg > -900 and cov >= 0.9)
-               else 'current reading, window only %d%% full' | format((cov * 100) | round(0)) }}
-          window_full: >
-            {{ (state_attr('sensor.outdoor_temp_3d', 'age_coverage_ratio') | float(0) * 100)
-               | round(0) }}
-          outdoor_3d_average: >
-            {{ states('sensor.outdoor_temp_3d') }}
-          outdoor_now: >
-            {{ state_attr('weather.forecast_home', 'temperature') }}
+# Whether the building is delivering heat. The district-heating substation starts
+# and stops on its own and cannot be read from here, and outside temperature is a
+# poor stand-in for it: in 2026 a warm week switched a weather-based season off on
+# 28 Sep and kept every valve shut until 11 Oct, while the flat went cold. So the
+# radiator itself is the witness - see the Heating probe automation. The flag keeps
+# its state across restarts (no initial: on purpose).
+input_boolean:
+  building_heating:
+    name: Building heating
+    icon: mdi:radiator
+  heating_probe_today:
+    name: Heating probe today
+    icon: mdi:thermometer-check
+
+# The bathroom TRV reading at 07:00, before its valve opens at 08:00, and the
+# highest reading since. Their difference is the probe's answer.
+input_number:
+  heating_probe_baseline:
+    name: Heating probe baseline
+    min: -10
+    max: 60
+    step: 0.1
+    unit_of_measurement: "°C"
+    mode: box
+  heating_probe_peak:
+    name: Heating probe peak
+    min: -10
+    max: 60
+    step: 0.1
+    unit_of_measurement: "°C"
+    mode: box
+
+counter:
+  heating_cold_mornings:
+    name: Heating cold mornings
+    icon: mdi:radiator-off
+
+script:
+  # Puts every radiator where the schedule says it should be right now, and moves a
+  # valve only when it is not already there - an Eve Thermo motor is audible, and
+  # re-sending the same state still makes it run. Living room and bathroom heat
+  # 08:00-22:00; the bedroom from getting up (sleep_mode off) until 22:00, with 05:00
+  # as the earliest so the 00:00-00:20 gap before sleep_mode switches on cannot warm
+  # it; an open balcony door keeps that room's radiator off. Without the
+  # building_heating flag it touches nothing at all.
+  heating_apply_schedule:
+    alias: Heating - apply schedule
+    mode: queued
+    sequence:
+      - condition: state
+        entity_id: input_boolean.building_heating
+        state: "on"
+      - variables:
+          day: "{{ today_at('08:00') <= now() < today_at('22:00') }}"
+          bedroom_day: >
+            {{ is_state('input_boolean.sleep_mode', 'off')
+               and today_at('05:00') <= now() < today_at('22:00') }}
+          want:
+            climate.eve_thermo_20ebp1701_3: "{{ day and is_state('binary_sensor.balcony_door_lr', 'off') }}"
+            climate.eve_thermo_20ebp1701_4: "{{ day and is_state('binary_sensor.balcony_door_lr', 'off') }}"
+            climate.eve_thermo_20ebp1701: "{{ day }}"
+            climate.eve_thermo_20ebp1701_2: "{{ bedroom_day and is_state('binary_sensor.balcony_door_bedroom', 'off') }}"
+      - repeat:
+          for_each: "{{ want | list }}"
+          sequence:
+            - if:
+                - condition: template
+                  value_template: "{{ want[repeat.item] | bool }}"
+              then:
+                - if:
+                    - condition: template
+                      value_template: >
+                        {{ not is_state(repeat.item, 'heat')
+                           or state_attr(repeat.item, 'temperature') | float(0) != 30 }}
+                  then:
+                    - action: climate.set_temperature
+                      target:
+                        entity_id: "{{ repeat.item }}"
+                      data:
+                        hvac_mode: heat
+                        temperature: 30
+              else:
+                - if:
+                    - condition: template
+                      value_template: "{{ not is_state(repeat.item, 'off') }}"
+                  then:
+                    - action: climate.set_hvac_mode
+                      target:
+                        entity_id: "{{ repeat.item }}"
+                      data:
+                        hvac_mode: "off"

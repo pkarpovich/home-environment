@@ -1,0 +1,6 @@
+tasks:
+  - name: ralphex-runner
+    command: |
+      echo "update ralphex-runner"
+      ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o BatchMode=yes \
+        pavel.karpovich@host.docker.internal update-ralphex-runner

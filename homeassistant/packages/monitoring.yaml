@@ -47,3 +47,5 @@ prometheus:
       - sensor.zhimi_*_humidity
       - sensor.zhimi_*_pm2_5
       - climate.eve_thermo_*
+    include_entities:
+      - input_boolean.building_heating

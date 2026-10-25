@@ -1,0 +1,406 @@
+# Evening lighting for the living room: a lottery of warm palettes picked every evening, and
+# a few special ones that are only ever switched on by hand.
+#
+# Each palette was looked at in the room (Oct 2026) and names three colours as
+# [hue, saturation, brightness %]. tv: the two TV strips and the two Hue Plays under the
+# TV. room: the Hue Plays under the desk and on the sofa wall, and the kitchen strip at
+# 60% of that brightness - it is far brighter than the rest. sofa: the Yeelight strip
+# under the sofa, which does not render hue like Hue does. Its strong green LED turns
+# anything above ~9 degrees orange, so each palette carries its own value for it, matched
+# by eye against the kitchen strip; pale colours need a lower saturation on it, since Hue
+# pales a colour with its white LED and the Yeelight has none. Its warmest white is 2700K.
+# A mirror swaps the TV and room colours. Pure red is written as hue 359, not 0:
+# Home Assistant drops a leading 0 from these lists when it renders script variables.
+#
+# Every lottery palette has its own switch, so one that stops pleasing can be dropped
+# without touching this file. A new switch starts off and is turned on by hand once.
+
+input_boolean:
+  palette_blood:
+    name: Palette Blood
+    icon: mdi:palette
+  palette_embers:
+    name: Palette Embers
+    icon: mdi:palette
+  palette_embers_mirror:
+    name: Palette Embers (mirror)
+    icon: mdi:palette
+  palette_sunset:
+    name: Palette Sunset
+    icon: mdi:palette
+  palette_sunset_mirror:
+    name: Palette Sunset (mirror)
+    icon: mdi:palette
+  palette_amber:
+    name: Palette Amber
+    icon: mdi:palette
+  palette_amber_mirror:
+    name: Palette Amber (mirror)
+    icon: mdi:palette
+  palette_chocolate:
+    name: Palette Chocolate
+    icon: mdi:palette
+  palette_chocolate_mirror:
+    name: Palette Chocolate (mirror)
+    icon: mdi:palette
+  palette_pumpkin:
+    name: Palette Pumpkin
+    icon: mdi:palette
+  palette_pumpkin_mirror:
+    name: Palette Pumpkin (mirror)
+    icon: mdi:palette
+  palette_ruby_gold:
+    name: Palette Ruby & Gold
+    icon: mdi:palette
+  palette_ruby_gold_mirror:
+    name: Palette Ruby & Gold (mirror)
+    icon: mdi:palette
+  palette_copper:
+    name: Palette Copper
+    icon: mdi:palette
+  palette_copper_mirror:
+    name: Palette Copper (mirror)
+    icon: mdi:palette
+  palette_honey:
+    name: Palette Honey
+    icon: mdi:palette
+  palette_honey_mirror:
+    name: Palette Honey (mirror)
+    icon: mdi:palette
+  palette_mandarin:
+    name: Palette Mandarin
+    icon: mdi:palette
+  palette_vermilion:
+    name: Palette Vermilion
+    icon: mdi:palette
+  palette_peach:
+    name: Palette Peach
+    icon: mdi:palette
+  palette_peach_mirror:
+    name: Palette Peach (mirror)
+    icon: mdi:palette
+  palette_ruby:
+    name: Palette Ruby
+    icon: mdi:palette
+  palette_raspberry:
+    name: Palette Raspberry
+    icon: mdi:palette
+  palette_ruby_raspberry:
+    name: Palette Ruby & Raspberry
+    icon: mdi:palette
+  palette_ruby_raspberry_mirror:
+    name: Palette Ruby & Raspberry (mirror)
+    icon: mdi:palette
+  palette_sunset_sky:
+    name: Palette Sunset Sky
+    icon: mdi:palette
+  palette_sunset_sky_mirror:
+    name: Palette Sunset Sky (mirror)
+    icon: mdi:palette
+  palette_fuchsia_ruby:
+    name: Palette Fuchsia & Ruby
+    icon: mdi:palette
+  palette_fuchsia_ruby_mirror:
+    name: Palette Fuchsia & Ruby (mirror)
+    icon: mdi:palette
+  palette_candle:
+    name: Palette Candle
+    icon: mdi:palette
+
+input_text:
+  evening_palette_last:
+    name: Evening palette last
+    max: 64
+
+script:
+  evening_colours:
+    alias: Evening colours
+    icon: mdi:palette
+    mode: single
+    description: 'Paints the living room in a palette drawn from the enabled ones, never
+      the same as the previous evening, then records it through Apply palette. Falls back to
+      any enabled palette when only yesterday''s is on, and to Blood when none is.'
+    variables:
+      palettes:
+        blood:
+          tv: [359, 100, 100]
+          room: [359, 100, 100]
+          sofa: [359, 100, 100]
+        embers:
+          tv: [359, 100, 100]
+          room: [16, 100, 100]
+          sofa: [10, 100, 100]
+        embers_mirror:
+          tv: [16, 100, 100]
+          room: [359, 100, 100]
+          sofa: [359, 100, 100]
+        sunset:
+          tv: [16, 100, 100]
+          room: [16, 70, 100]
+          sofa: [10, 70, 100]
+        sunset_mirror:
+          tv: [16, 70, 100]
+          room: [16, 100, 100]
+          sofa: [10, 100, 100]
+        amber:
+          tv: [33, 100, 100]
+          room: [43, 85, 100]
+          sofa: [32, 100, 100]
+        amber_mirror:
+          tv: [43, 85, 100]
+          room: [33, 100, 100]
+          sofa: [24, 100, 100]
+        chocolate:
+          tv: [25, 86, 65]
+          room: [28, 61, 95]
+          sofa: [20, 50, 95]
+        chocolate_mirror:
+          tv: [28, 61, 95]
+          room: [25, 86, 65]
+          sofa: [18, 80, 65]
+        pumpkin:
+          tv: [33, 100, 100]
+          room: [16, 100, 100]
+          sofa: [10, 100, 100]
+        pumpkin_mirror:
+          tv: [16, 100, 100]
+          room: [33, 100, 100]
+          sofa: [24, 100, 100]
+        ruby_gold:
+          tv: [359, 100, 100]
+          room: [43, 85, 100]
+          sofa: [32, 100, 100]
+        ruby_gold_mirror:
+          tv: [43, 85, 100]
+          room: [359, 100, 100]
+          sofa: [359, 100, 100]
+        copper:
+          tv: [8, 100, 100]
+          room: [30, 80, 100]
+          sofa: [22, 70, 100]
+        copper_mirror:
+          tv: [30, 80, 100]
+          room: [8, 100, 100]
+          sofa: [6, 100, 100]
+        honey:
+          tv: [38, 100, 100]
+          room: [48, 75, 100]
+          sofa: [34, 70, 100]
+        honey_mirror:
+          tv: [48, 75, 100]
+          room: [38, 100, 100]
+          sofa: [28, 100, 100]
+        mandarin:
+          tv: [22, 100, 100]
+          room: [22, 100, 100]
+          sofa: [15, 100, 100]
+        vermilion:
+          tv: [8, 100, 100]
+          room: [8, 100, 100]
+          sofa: [6, 100, 100]
+        peach:
+          tv: [16, 100, 100]
+          room: [28, 50, 100]
+          sofa: [20, 40, 100]
+        peach_mirror:
+          tv: [28, 50, 100]
+          room: [16, 100, 100]
+          sofa: [10, 100, 100]
+        ruby:
+          tv: [352, 100, 100]
+          room: [352, 100, 100]
+          sofa: [352, 100, 100]
+        raspberry:
+          tv: [340, 100, 100]
+          room: [340, 100, 100]
+          sofa: [340, 100, 100]
+        ruby_raspberry:
+          tv: [352, 100, 100]
+          room: [335, 100, 100]
+          sofa: [335, 100, 100]
+        ruby_raspberry_mirror:
+          tv: [335, 100, 100]
+          room: [352, 100, 100]
+          sofa: [352, 100, 100]
+        sunset_sky:
+          tv: [22, 100, 100]
+          room: [335, 60, 100]
+          sofa: [335, 50, 100]
+        sunset_sky_mirror:
+          tv: [335, 60, 100]
+          room: [22, 100, 100]
+          sofa: [15, 100, 100]
+        fuchsia_ruby:
+          tv: [320, 100, 100]
+          room: [352, 100, 100]
+          sofa: [352, 100, 100]
+        fuchsia_ruby_mirror:
+          tv: [352, 100, 100]
+          room: [320, 100, 100]
+          sofa: [320, 100, 100]
+        candle:
+          kelvin: [2000, 80]
+    sequence:
+      - variables:
+          pick: >
+            {% set ns = namespace(ids=[]) %}
+            {% for k in palettes %}
+              {% if is_state('input_boolean.palette_' ~ k, 'on') %}{% set ns.ids = ns.ids + [k] %}{% endif %}
+            {% endfor %}
+            {% set fresh = ns.ids | reject('eq', states('input_text.evening_palette_last')) | list %}
+            {{ (fresh or ns.ids or ['blood']) | random }}
+      - action: script.apply_palette
+        data:
+          palette: '{{ palettes[pick] | to_json }}'
+      - action: input_text.set_value
+        target:
+          entity_id: input_text.evening_palette_last
+        data:
+          value: '{{ pick }}'
+
+  special_palette:
+    alias: Special palette
+    icon: mdi:palette-swatch-variant
+    mode: single
+    description: 'Puts a dim special palette on the living-room lights (TV strips and Hue
+      Plays, desk and sofa-wall Hue Plays, kitchen and sofa strips). These are kept out of
+      the daily sunset lottery and are for evenings that want a dark, cosy room - a film,
+      a game, winding down. Use it when asked for dim, dark or special lighting in the
+      living room; for ordinary colours set the lights directly.'
+    fields:
+      palette:
+        name: Palette
+        description: 'smoldering_embers - TV zone red at 40%, room orange-red at 50%, the
+          darkest. dark_blood - deep red everywhere at 55%. dark_ruby - ruby red with a hint
+          of crimson everywhere at 55%.'
+        required: true
+        selector:
+          select:
+            options:
+              - smoldering_embers
+              - dark_blood
+              - dark_ruby
+    variables:
+      palettes:
+        smoldering_embers:
+          tv: [359, 100, 40]
+          room: [16, 100, 50]
+          sofa: [10, 100, 50]
+        dark_blood:
+          tv: [359, 100, 55]
+          room: [359, 100, 55]
+          sofa: [359, 100, 55]
+        dark_ruby:
+          tv: [352, 100, 55]
+          room: [352, 100, 55]
+          sofa: [352, 100, 55]
+    sequence:
+      - action: script.apply_palette
+        data:
+          palette: '{{ palettes[palette] | to_json }}'
+
+  apply_palette:
+    alias: Apply palette
+    icon: mdi:palette-outline
+    mode: queued
+    description: 'Puts one palette on the living-room lamps, then records what it painted.
+      The recording has to happen here, not only in the Remember automation: that one refuses
+      to run while Hue Sync is on, and sunset fires 15 min before dusk, so on any evening the
+      TV was already playing the palette was applied and never written down. With the TV
+      already on, sunset painted with nothing recorded, and hours later the zone was repainted
+      at random.'
+    fields:
+      palette:
+        name: Palette
+        required: true
+        selector:
+          object:
+    sequence:
+      - variables:
+          palette: '{{ palette if palette is mapping else palette | from_json }}'
+      - choose:
+          - conditions:
+              - condition: template
+                value_template: '{{ palette.kelvin is defined }}'
+            sequence:
+              - action: light.turn_on
+                target:
+                  entity_id:
+                    - light.tv_strip_main
+                    - light.tv_strip_bottom
+                    - light.tv_downlight_left
+                    - light.tv_downlight_right
+                    - light.desk_downlight
+                    - light.sofa_wall_uplight
+                data:
+                  color_temp_kelvin: '{{ palette.kelvin[0] }}'
+                  brightness_pct: '{{ palette.kelvin[1] }}'
+                  transition: 3
+              - action: light.turn_on
+                target:
+                  entity_id: light.kitchen_strip
+                data:
+                  color_temp_kelvin: '{{ palette.kelvin[0] }}'
+                  brightness_pct: '{{ (palette.kelvin[1] * 0.6) | round(0) }}'
+                  transition: 3
+              - action: light.turn_on
+                target:
+                  entity_id: light.sofa_strip
+                data:
+                  color_temp_kelvin: 2700
+                  brightness_pct: '{{ palette.kelvin[1] }}'
+                  transition: 3
+        default:
+          - action: light.turn_on
+            target:
+              entity_id:
+                - light.tv_strip_main
+                - light.tv_strip_bottom
+                - light.tv_downlight_left
+                - light.tv_downlight_right
+            data:
+              hs_color: '{{ palette.tv[:2] }}'
+              brightness_pct: '{{ palette.tv[2] }}'
+              transition: 3
+          - action: light.turn_on
+            target:
+              entity_id:
+                - light.desk_downlight
+                - light.sofa_wall_uplight
+            data:
+              hs_color: '{{ palette.room[:2] }}'
+              brightness_pct: '{{ palette.room[2] }}'
+              transition: 3
+          - action: light.turn_on
+            target:
+              entity_id: light.kitchen_strip
+            data:
+              hs_color: '{{ palette.room[:2] }}'
+              brightness_pct: '{{ (palette.room[2] * 0.6) | round(0) }}'
+              transition: 3
+          - action: light.turn_on
+            target:
+              entity_id: light.sofa_strip
+            data:
+              hs_color: '{{ palette.sofa[:2] }}'
+              brightness_pct: '{{ palette.sofa[2] }}'
+              transition: 3
+      - delay:
+          seconds: 5
+      - action: scene.create
+        data:
+          scene_id: evening_lights
+          snapshot_entities:
+            - light.tv_strip_main
+            - light.tv_strip_bottom
+            - light.tv_downlight_left
+            - light.tv_downlight_right
+            - light.desk_downlight
+            - light.sofa_wall_uplight
+            - light.sofa_strip
+            - light.kitchen_strip
+      - action: input_datetime.set_datetime
+        target:
+          entity_id: input_datetime.tv_zone_snapshot_at
+        data:
+          timestamp: '{{ now().timestamp() }}'
