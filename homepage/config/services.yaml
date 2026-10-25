@@ -375,6 +375,10 @@
         id: simple_icon
         icon: https://heap.pkarpovich.space/favicon.svg
         href: https://heap.pkarpovich.space
+    - Yotei:
+        id: simple_icon
+        icon: https://yotei.pkarpovich.space/favicon.svg
+        href: https://yotei.pkarpovich.space
     - Stash:
         id: simple_icon
         icon: si-dotenv
