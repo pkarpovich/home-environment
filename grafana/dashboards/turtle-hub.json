@@ -344,7 +344,7 @@
         "label": "Service",
         "multi": true,
         "name": "service",
-        "query": "continuum,telegram-user-mcp,media-metadata-mcp,jackett-mcp,streamcast,twitch",
+        "query": "telegram-user-mcp,media-metadata-mcp,jackett-mcp,streamcast,twitch",
         "type": "custom"
       },
       {
