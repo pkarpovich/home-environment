@@ -298,9 +298,11 @@ identity_providers:
           - 'http://localhost:33418/callback'
         scopes:
           - 'mcp:yotei'
+          - 'mcp:mail'
           - 'offline_access'
         audience:
           - 'https://yotei.pkarpovich.space/mcp'
+          - 'https://mail.pkarpovich.space/mcp'
         requested_audience_mode: 'explicit'
         response_types:
           - 'code'
