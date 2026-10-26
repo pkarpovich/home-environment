@@ -211,6 +211,8 @@ identity_providers:
         scopes:
           - 'bridge:mail.read'
           - 'bridge:mail.junk'
+          - 'bridge:mail.flag'
+          - 'bridge:mail.move'
         audience:
           - 'https://eventkit-bridge'
         requested_audience_mode: 'explicit'
