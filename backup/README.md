@@ -85,3 +85,33 @@ Nightly DSM Task Scheduler job `restic-offsite` (root, 05:30) runs `/volume2/res
 4. Success/failure push to the Gatus external endpoint `Backups/restic-offsite` (26h heartbeat).
 
 Static `rclone` + `restic` binaries live in `/volume2/restic_backups/bin/` (no docker dependency). All credentials in `/volume2/restic_backups/.secrets/` (0600): `spaces.env` (DO keys), `rclone.conf`, `crypt.pass`/`crypt.salt`, `nas.pass`, `offsite.env` (gatus token). DO Spaces scoped keys deny HeadBucket, hence `no_check_bucket = true` in rclone.conf.
+
+## Adding coverage for new state
+
+Any change that creates persistent state on a host updates coverage in the same change:
+
+- A new compose project or bind-mounted data dir: add the path to `hosts/<host>/includes.txt`.
+- A new named docker volume with state: add `/var/lib/docker/volumes/<name>` to the same file.
+- A new postgres or mysql container: add it to `hosts/<host>/pre-backup.sh` (pg_dumpall, `POSTGRES_USER` read via `docker exec printenv`) and do not include the raw data volume.
+- A sqlite file under active writes: add a `sqlite3 .backup` line to `pre-backup.sh`.
+- Deliberately not backed up (caches, rebuildable data, metrics): add it to `hosts/<host>/audit-ignore.txt` with the reason as a comment, or the weekly audit reports it every Sunday.
+- Deploy with `git pull` on the host and `sudo ./backup/install.sh <host>`. A new service on the NAS extends `offsite.sh` instead.
+- A decommissioned service moves from includes to audit-ignore. Its data stays in old snapshots for the retention window.
+
+## Gotchas
+
+- DO scoped Spaces keys deny HeadBucket, so `no_check_bucket = true` stays in `rclone.conf`.
+- The seaweedfs volume shows preallocation in `du` (about 21G) while the data is about 1G, so small snapshots of it are correct.
+- Recreating Gatus wipes external-endpoint history. Re-push a success from each host afterwards.
+- rest-server is append-only. Forget and prune run only from the NAS task, never from a client.
+- The Gatus push host is `ping.pkarpovich.space`, not `gatus.*`.
+- The DO bucket size in the dashboard includes in-flight multipart parts. Killing an uploading rclone aborts its session and the number drops, committed objects stay. Stale sessions: `rclone backend list-multipart-uploads`, then `rclone backend cleanup`.
+- Single files over 50 GB: default rclone settings spiral on session breaks (restart plus backoff down to about 0.4 MB/s on a 30 MB/s link). Use `--s3-chunk-size 64M --s3-upload-concurrency 8` and a `--log-file`.
+- busybox `pgrep` on the NAS, and killing root-owned processes as the ssh user, fail silently. Use `ps aux | grep`, and run root operations through `sudo -S` with the DSM admin password from the password manager. Docker is `/usr/local/bin/docker`, the ACL tool is `/usr/syno/bin/synoacltool`.
+- DSM Task Scheduler "skipped: task is already running" means the previous run's process tree is still alive. `offsite.sh` has a flock guard, the tree may still need a root kill.
+
+## Containers on the NAS
+
+- DSM docker does not create bind-mount directories. Create them first.
+- Images with a fixed uid: a compose `user:` override skips the entrypoint's root phase (ownership repair of `/data` and the image's own dirs) and breaks it. Read the entrypoint first (`docker inspect --format '{{.Config.Entrypoint}}'`, then `docker run --rm --entrypoint cat IMAGE <entrypoint path>`) and prefer `PUID`/`PGID` when the image supports them. tofa runs as PUID 1026, PGID 100, and rejects PUID 0 because of its embedded postgres.
+- The media share ACL (`synoacltool -get /volume2/media`) allows only `group:administrators` (gid 101) and `user:PlexMediaServer`. POSIX bits are cosmetic while the ACL is active, even for the owner. A container that needs media gets `group_add: ["101"]`, and an entrypoint that drops privileges with setpriv must carry supplementary groups through (tofa does). Hardware transcode needs `/dev/dri`, render group gid 937, so `group_add: ["937"]`.
