@@ -235,7 +235,10 @@ automation:
     for 150 s. The door guard is what makes the short 2 min grace safe - walking back
     in changes the door, so a run that is about to fire is cancelled even if the phone
     has not rejoined the WiFi yet. Total reaction is ~7 min from the door closing
-    (UniFi needs ~5 min to call the phone away, then 2 min grace).'
+    (UniFi needs ~5 min to call the phone away, then 2 min grace). The door
+    check is a top-level condition on purpose: inside a choose sequence a failed
+    condition only ends that branch, and the lights still went off when the phone
+    alone left the WiFi.'
   mode: restart
   triggers:
   - trigger: state
@@ -248,23 +251,19 @@ automation:
     from: 'on'
     to: 'off'
     id: door_closed
+  conditions:
+  - condition: or
+    conditions:
+    - condition: trigger
+      id: door_closed
+    - condition: template
+      value_template: '{{ is_state(''binary_sensor.front_door'', ''off'') and (now()
+        - states.binary_sensor.front_door.last_changed).total_seconds() < 900 }}'
   actions:
-  - choose:
-    - conditions:
-      - condition: trigger
-        id: door_closed
-      sequence:
-      - wait_template: '{{ is_state(''device_tracker.pavel_iphone_wifi'', ''not_home'')
-          }}'
-        timeout: 00:12:00
-        continue_on_timeout: false
-    - conditions:
-      - condition: trigger
-        id: phone_left
-      sequence:
-      - condition: template
-        value_template: '{{ is_state(''binary_sensor.front_door'', ''off'') and (now()
-          - states.binary_sensor.front_door.last_changed).total_seconds() < 900 }}'
+  - wait_template: '{{ is_state(''device_tracker.pavel_iphone_wifi'', ''not_home'')
+      }}'
+    timeout: 00:12:00
+    continue_on_timeout: false
   - delay: 00:02:00
   - condition: state
     entity_id: device_tracker.pavel_iphone_wifi
