@@ -57,6 +57,13 @@ identity_providers:
         cli:
           access_token: '1h'
           refresh_token: '30d'
+    cors:
+      endpoints:
+        - 'token'
+        - 'revocation'
+      allowed_origins:
+        - 'https://heap.{{ mustEnv "ROOT_DOMAIN" }}'
+        - 'https://heap.localhost'
     claims_policies:
       grafana:
         id_token:
@@ -305,6 +312,31 @@ identity_providers:
         audience:
           - 'https://yotei.pkarpovich.space/mcp'
           - 'https://mail.pkarpovich.space/mcp'
+        requested_audience_mode: 'explicit'
+        response_types:
+          - 'code'
+        grant_types:
+          - 'authorization_code'
+          - 'refresh_token'
+        token_endpoint_auth_method: 'none'
+        access_token_signed_response_alg: 'RS256'
+        lifespan: 'cli'
+      - client_id: 'heap-app'
+        client_name: 'Heap'
+        public: true
+        authorization_policy: 'one_factor'
+        consent_mode: 'implicit'
+        require_pkce: true
+        pkce_challenge_method: 'S256'
+        redirect_uris:
+          - 'https://heap.{{ mustEnv "ROOT_DOMAIN" }}/callback'
+          - 'https://heap.localhost/callback'
+          - 'https://heap.{{ mustEnv "ROOT_DOMAIN" }}/auth-probe.html'
+        scopes:
+          - 'mcp:heap'
+          - 'offline_access'
+        audience:
+          - 'https://heap.{{ mustEnv "ROOT_DOMAIN" }}/mcp'
         requested_audience_mode: 'explicit'
         response_types:
           - 'code'
