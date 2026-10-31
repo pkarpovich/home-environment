@@ -2,6 +2,7 @@ theme: 'auto'
 
 server:
   address: 'tcp://:9091/'
+  asset_path: '/config/assets/'
   endpoints:
     authz:
       forward-auth:

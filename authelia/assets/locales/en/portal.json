@@ -1,0 +1,8 @@
+{
+  "Sign in": "Halt! Who goes there?",
+  "Sign in with a passkey": "Show your passkey",
+  "Incorrect username or password": "The guard doesn't recognize you",
+  "Hi": "Welcome back,",
+  "Authenticated": "The gate is open",
+  "You're being signed out and redirected": "The gate closes behind you"
+}
