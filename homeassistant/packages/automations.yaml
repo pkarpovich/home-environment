@@ -601,7 +601,9 @@ automation:
     home during the day with sleep_mode still on ends it, which also clears the asleep
     flag and opens the bedroom radiator the way a normal wake-up does. The window
     ends at 20:00, before the earliest evening switch-on at 22:20, so a late return
-    never cancels a night that has already started.
+    never cancels a night that has already started. An arrival must come through the
+    front door within the last 15 minutes - presence also flips on when the phone
+    rejoins the WiFi after a router reboot, with nobody arriving.
   mode: single
   triggers:
   - trigger: state
@@ -615,6 +617,9 @@ automation:
   - condition: time
     after: 05:00:00
     before: '20:00:00'
+  - condition: template
+    value_template: '{{ (now() - states.binary_sensor.front_door.last_changed).total_seconds()
+      < 900 }}'
   actions:
   - action: input_boolean.turn_off
     target:
