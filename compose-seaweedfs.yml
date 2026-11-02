@@ -4,13 +4,12 @@
 # for STS role sessions, and seaweedfs/s3.json keeps an `anonymous` identity
 # for the clients that still talk to it without credentials. Loading either
 # file enforces auth for every request, so they ship together. The STS
-# signing key comes from SEAWEEDFS_FILER_SIGNING_KEY in .env: 4.48 generates
-# none and iam.json is public. Pinned: STS is young code and 4.50 broke token
-# reuse.
+# signing key comes from SEAWEEDFS_FILER_SIGNING_KEY in .env: SeaweedFS
+# generates none and iam.json is public.
 services:
   seaweedfs:
     container_name: seaweedfs
-    image: chrislusf/seaweedfs:4.48
+    image: chrislusf/seaweedfs:4.52
     restart: unless-stopped
     command: server -s3 -s3.config=/etc/seaweedfs/s3.json -s3.iam.config=/etc/seaweedfs/iam.json -dir=/data -volume.max=100 -master.volumePreallocate=false -master.volumeSizeLimitMB=1000
     environment:
