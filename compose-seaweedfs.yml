@@ -1,22 +1,29 @@
 # SeaweedFS in single-binary mode with the S3 gateway - voice messages from
 # tuclaw, generated images and turtle-hub artifacts. Lived in turtle-hub until
-# 2026-09-14. No S3 credentials are configured: every client, tuclaw included,
-# talks to it anonymously, so it must never be exposed beyond `s3-hub.*` and
-# the host's :8333.
+# 2026-09-14. Authentication is on: seaweedfs/iam.json trusts Authelia tokens
+# for STS role sessions, and seaweedfs/s3.json keeps an `anonymous` identity
+# for the clients that still talk to it without credentials. Loading either
+# file enforces auth for every request, so they ship together. The STS
+# signing key comes from SEAWEEDFS_FILER_SIGNING_KEY in .env: 4.48 generates
+# none and iam.json is public. Pinned: STS is young code and 4.50 broke token
+# reuse.
 services:
   seaweedfs:
     container_name: seaweedfs
     image: chrislusf/seaweedfs:4.48
     restart: unless-stopped
-    command: server -s3 -dir=/data -volume.max=100 -master.volumePreallocate=false -master.volumeSizeLimitMB=1000
+    command: server -s3 -s3.config=/etc/seaweedfs/s3.json -s3.iam.config=/etc/seaweedfs/iam.json -dir=/data -volume.max=100 -master.volumePreallocate=false -master.volumeSizeLimitMB=1000
+    environment:
+      - WEED_JWT_FILER_SIGNING_KEY=${SEAWEEDFS_FILER_SIGNING_KEY}
     volumes:
       - seaweedfs_data:/data
+      - ./seaweedfs:/etc/seaweedfs:ro
     ports:
       - "8333:8333"
     networks:
       - proxy
     healthcheck:
-      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:8333/"]
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:8333/healthz"]
       interval: 5m
       timeout: 10s
       start_period: 60s
