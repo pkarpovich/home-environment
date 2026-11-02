@@ -146,7 +146,7 @@ endpoints:
 
   - name: SeaweedFS S3
     group: Infrastructure
-    url: "http://seaweedfs:8333/"
+    url: "http://seaweedfs:8333/healthz"
     interval: 5m
     conditions:
       - "[STATUS] == 200"

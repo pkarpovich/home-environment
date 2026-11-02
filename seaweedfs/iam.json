@@ -1,0 +1,57 @@
+{
+  "sts": {
+    "tokenDuration": "1h",
+    "maxSessionLength": "12h",
+    "issuer": "seaweedfs-sts"
+  },
+  "providers": [
+    {
+      "name": "authelia",
+      "type": "oidc",
+      "enabled": true,
+      "config": {
+        "issuer": "https://auth.pkarpovich.space",
+        "clientIds": ["https://seaweedfs-s3"],
+        "jwksUri": "https://auth.pkarpovich.space/jwks.json"
+      }
+    }
+  ],
+  "policies": [
+    {
+      "name": "heap",
+      "document": {
+        "Version": "2012-10-17",
+        "Statement": [
+          {
+            "Effect": "Allow",
+            "Action": ["s3:*"],
+            "Resource": ["arn:aws:s3:::heap", "arn:aws:s3:::heap/*"]
+          }
+        ]
+      }
+    }
+  ],
+  "roles": [
+    {
+      "roleName": "heap",
+      "roleArn": "arn:aws:iam::role/heap",
+      "attachedPolicies": ["heap"],
+      "trustPolicy": {
+        "Version": "2012-10-17",
+        "Statement": [
+          {
+            "Effect": "Allow",
+            "Principal": { "Federated": "*" },
+            "Action": ["sts:AssumeRoleWithWebIdentity"],
+            "Condition": {
+              "StringEquals": {
+                "oidc:iss": "https://auth.pkarpovich.space",
+                "oidc:sub": "hub-heap"
+              }
+            }
+          }
+        ]
+      }
+    }
+  ]
+}
