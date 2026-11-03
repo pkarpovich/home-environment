@@ -264,6 +264,31 @@ identity_providers:
             key: {{ secret "/config/secrets/hub-heap.pub" | mindent 14 "|" | msquote }}
         access_token_signed_response_alg: 'RS256'
         lifespan: 'machine'
+      - client_id: 'ferry'
+        client_name: 'ferry'
+        public: false
+        grant_types:
+          - 'client_credentials'
+        scopes:
+          - 'mcp:yotei'
+        audience:
+          - 'https://yotei.pkarpovich.space/mcp'
+        requested_audience_mode: 'explicit'
+        token_endpoint_auth_method: 'private_key_jwt'
+        token_endpoint_auth_signing_alg: 'RS256'
+        introspection_endpoint_auth_method: 'private_key_jwt'
+        introspection_endpoint_auth_signing_alg: 'RS256'
+        revocation_endpoint_auth_method: 'private_key_jwt'
+        revocation_endpoint_auth_signing_alg: 'RS256'
+        pushed_authorization_request_endpoint_auth_method: 'private_key_jwt'
+        pushed_authorization_request_endpoint_auth_signing_alg: 'RS256'
+        jwks:
+          - key_id: 'ferry-2026-11-03'
+            algorithm: 'RS256'
+            use: 'sig'
+            key: {{ secret "/config/secrets/ferry.pub" | mindent 14 "|" | msquote }}
+        access_token_signed_response_alg: 'RS256'
+        lifespan: 'machine'
       - client_id: 'tuclaw'
         client_name: 'tuclaw agents'
         public: false
