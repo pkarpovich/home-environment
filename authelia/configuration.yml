@@ -369,6 +369,31 @@ identity_providers:
             key: {{ secret "/config/secrets/nikki-dev.pub" | mindent 14 "|" | msquote }}
         access_token_signed_response_alg: 'RS256'
         lifespan: 'machine'
+      - client_id: 'yotei-dev'
+        client_name: 'yotei dev proxy'
+        public: false
+        grant_types:
+          - 'client_credentials'
+        scopes:
+          - 'yotei:read'
+        audience:
+          - 'https://yotei.{{ mustEnv "ROOT_DOMAIN" }}/mcp'
+        requested_audience_mode: 'explicit'
+        token_endpoint_auth_method: 'private_key_jwt'
+        token_endpoint_auth_signing_alg: 'RS256'
+        introspection_endpoint_auth_method: 'private_key_jwt'
+        introspection_endpoint_auth_signing_alg: 'RS256'
+        revocation_endpoint_auth_method: 'private_key_jwt'
+        revocation_endpoint_auth_signing_alg: 'RS256'
+        pushed_authorization_request_endpoint_auth_method: 'private_key_jwt'
+        pushed_authorization_request_endpoint_auth_signing_alg: 'RS256'
+        jwks:
+          - key_id: 'yotei-dev-2026-11'
+            algorithm: 'RS256'
+            use: 'sig'
+            key: {{ secret "/config/secrets/yotei-dev.pub" | mindent 14 "|" | msquote }}
+        access_token_signed_response_alg: 'RS256'
+        lifespan: 'machine'
       - client_id: 'tuclaw'
         client_name: 'tuclaw agents'
         public: false
@@ -491,6 +516,7 @@ identity_providers:
           - 'https://yotei.localhost/callback'
         scopes:
           - 'mcp:yotei'
+          - 'yotei:read'
           - 'offline_access'
         audience:
           - 'https://yotei.{{ mustEnv "ROOT_DOMAIN" }}/mcp'
