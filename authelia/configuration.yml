@@ -291,6 +291,56 @@ identity_providers:
             key: {{ secret "/config/secrets/ferry.pub" | mindent 14 "|" | msquote }}
         access_token_signed_response_alg: 'RS256'
         lifespan: 'machine'
+      - client_id: 'nikki-mbp-21'
+        client_name: 'nikki daemon mbp-21'
+        public: false
+        grant_types:
+          - 'client_credentials'
+        scopes:
+          - 'nikki:ingest'
+        audience:
+          - 'https://nikki.{{ mustEnv "ROOT_DOMAIN" }}/api'
+        requested_audience_mode: 'explicit'
+        token_endpoint_auth_method: 'private_key_jwt'
+        token_endpoint_auth_signing_alg: 'RS256'
+        introspection_endpoint_auth_method: 'private_key_jwt'
+        introspection_endpoint_auth_signing_alg: 'RS256'
+        revocation_endpoint_auth_method: 'private_key_jwt'
+        revocation_endpoint_auth_signing_alg: 'RS256'
+        pushed_authorization_request_endpoint_auth_method: 'private_key_jwt'
+        pushed_authorization_request_endpoint_auth_signing_alg: 'RS256'
+        jwks:
+          - key_id: 'nikki-mbp-21-2026-11-07'
+            algorithm: 'RS256'
+            use: 'sig'
+            key: {{ secret "/config/secrets/nikki-mbp-21.pub" | mindent 14 "|" | msquote }}
+        access_token_signed_response_alg: 'RS256'
+        lifespan: 'machine'
+      - client_id: 'nikki-mba-22'
+        client_name: 'nikki daemon mba-22'
+        public: false
+        grant_types:
+          - 'client_credentials'
+        scopes:
+          - 'nikki:ingest'
+        audience:
+          - 'https://nikki.{{ mustEnv "ROOT_DOMAIN" }}/api'
+        requested_audience_mode: 'explicit'
+        token_endpoint_auth_method: 'private_key_jwt'
+        token_endpoint_auth_signing_alg: 'RS256'
+        introspection_endpoint_auth_method: 'private_key_jwt'
+        introspection_endpoint_auth_signing_alg: 'RS256'
+        revocation_endpoint_auth_method: 'private_key_jwt'
+        revocation_endpoint_auth_signing_alg: 'RS256'
+        pushed_authorization_request_endpoint_auth_method: 'private_key_jwt'
+        pushed_authorization_request_endpoint_auth_signing_alg: 'RS256'
+        jwks:
+          - key_id: 'nikki-mba-22-2026-11-07'
+            algorithm: 'RS256'
+            use: 'sig'
+            key: {{ secret "/config/secrets/nikki-mba-22.pub" | mindent 14 "|" | msquote }}
+        access_token_signed_response_alg: 'RS256'
+        lifespan: 'machine'
       - client_id: 'tuclaw'
         client_name: 'tuclaw agents'
         public: false
