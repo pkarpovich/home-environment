@@ -29,6 +29,19 @@
           }
         ]
       }
+    },
+    {
+      "name": "obsidian-put",
+      "document": {
+        "Version": "2012-10-17",
+        "Statement": [
+          {
+            "Effect": "Allow",
+            "Action": ["s3:PutObject"],
+            "Resource": ["arn:aws:s3:::obsidian/*"]
+          }
+        ]
+      }
     }
   ],
   "roles": [
@@ -47,6 +60,27 @@
               "StringEquals": {
                 "oidc:iss": "https://auth.pkarpovich.space",
                 "oidc:sub": "hub-heap"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "roleName": "obsidian-writer",
+      "roleArn": "arn:aws:iam::role/obsidian-writer",
+      "attachedPolicies": ["obsidian-put"],
+      "trustPolicy": {
+        "Version": "2012-10-17",
+        "Statement": [
+          {
+            "Effect": "Allow",
+            "Principal": { "Federated": "*" },
+            "Action": ["sts:AssumeRoleWithWebIdentity"],
+            "Condition": {
+              "StringEquals": {
+                "oidc:iss": "https://auth.pkarpovich.space",
+                "oidc:sub": "tuclaw"
               }
             }
           }

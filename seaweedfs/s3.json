@@ -49,6 +49,36 @@
         "List:voice-messages",
         "Tagging:voice-messages"
       ]
+    },
+    {
+      "name": "obsidian-plugin",
+      "credentials": [
+        {
+          "accessKey": "${OBSIDIAN_PLUGIN_ACCESS_KEY}",
+          "secretKey": "${OBSIDIAN_PLUGIN_SECRET_KEY}"
+        }
+      ],
+      "policyNames": [
+        "obsidian-put"
+      ]
+    },
+    {
+      "name": "obsidian-sessions",
+      "credentials": [
+        {
+          "accessKey": "${OBSIDIAN_SESSIONS_ACCESS_KEY}",
+          "secretKey": "${OBSIDIAN_SESSIONS_SECRET_KEY}"
+        }
+      ],
+      "policyNames": [
+        "obsidian-put"
+      ]
+    }
+  ],
+  "policies": [
+    {
+      "name": "obsidian-put",
+      "content": "{\"Version\":\"2012-10-17\",\"Statement\":[{\"Effect\":\"Allow\",\"Action\":[\"s3:PutObject\"],\"Resource\":[\"arn:aws:s3:::obsidian/*\"]}]}"
     }
   ]
 }
