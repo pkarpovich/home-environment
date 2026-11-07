@@ -343,6 +343,32 @@ identity_providers:
             key: {{ secret "/config/secrets/nikki-mba-22.pub" | mindent 14 "|" | msquote }}
         access_token_signed_response_alg: 'RS256'
         lifespan: 'machine'
+      - client_id: 'nikki-dev'
+        client_name: 'nikki dev proxy'
+        public: false
+        grant_types:
+          - 'client_credentials'
+        scopes:
+          - 'nikki:read'
+          - 'nikki:write'
+        audience:
+          - 'https://nikki.{{ mustEnv "ROOT_DOMAIN" }}/api'
+        requested_audience_mode: 'explicit'
+        token_endpoint_auth_method: 'private_key_jwt'
+        token_endpoint_auth_signing_alg: 'RS256'
+        introspection_endpoint_auth_method: 'private_key_jwt'
+        introspection_endpoint_auth_signing_alg: 'RS256'
+        revocation_endpoint_auth_method: 'private_key_jwt'
+        revocation_endpoint_auth_signing_alg: 'RS256'
+        pushed_authorization_request_endpoint_auth_method: 'private_key_jwt'
+        pushed_authorization_request_endpoint_auth_signing_alg: 'RS256'
+        jwks:
+          - key_id: 'nikki-dev-2026-11'
+            algorithm: 'RS256'
+            use: 'sig'
+            key: {{ secret "/config/secrets/nikki-dev.pub" | mindent 14 "|" | msquote }}
+        access_token_signed_response_alg: 'RS256'
+        lifespan: 'machine'
       - client_id: 'tuclaw'
         client_name: 'tuclaw agents'
         public: false
