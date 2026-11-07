@@ -14,6 +14,10 @@ services:
     command: server -s3 -s3.config=/etc/seaweedfs/s3.json -s3.iam.config=/etc/seaweedfs/iam.json -dir=/data -volume.max=100 -master.volumePreallocate=false -master.volumeSizeLimitMB=1000
     environment:
       - WEED_JWT_FILER_SIGNING_KEY=${SEAWEEDFS_FILER_SIGNING_KEY}
+      - OBSIDIAN_PLUGIN_ACCESS_KEY=${OBSIDIAN_PLUGIN_ACCESS_KEY}
+      - OBSIDIAN_PLUGIN_SECRET_KEY=${OBSIDIAN_PLUGIN_SECRET_KEY}
+      - OBSIDIAN_SESSIONS_ACCESS_KEY=${OBSIDIAN_SESSIONS_ACCESS_KEY}
+      - OBSIDIAN_SESSIONS_SECRET_KEY=${OBSIDIAN_SESSIONS_SECRET_KEY}
     volumes:
       - seaweedfs_data:/data
       - ./seaweedfs:/etc/seaweedfs:ro
