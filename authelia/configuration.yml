@@ -515,7 +515,6 @@ identity_providers:
           - 'https://yotei.{{ mustEnv "ROOT_DOMAIN" }}/callback'
           - 'https://yotei.localhost/callback'
         scopes:
-          - 'mcp:yotei'
           - 'yotei:read'
           - 'offline_access'
         audience:
