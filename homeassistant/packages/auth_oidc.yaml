@@ -1,0 +1,12 @@
+# Sign-in through Authelia, by hass-oidc-auth (custom_components/auth_oidc,
+# installed by hand like the other custom components). The local
+# username/password login stays as the fallback at /?skip_oidc_redirect=true.
+# force_https: Traefik talks to HA over http, and the plugin would otherwise
+# build an http redirect URI that Authelia does not know.
+auth_oidc:
+  client_id: home-assistant
+  discovery_url: https://auth.pkarpovich.space/.well-known/openid-configuration
+  display_name: Authelia
+  features:
+    force_https: true
+    automatic_user_linking: true
