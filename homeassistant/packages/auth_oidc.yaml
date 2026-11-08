@@ -9,4 +9,3 @@ auth_oidc:
   display_name: Authelia
   features:
     force_https: true
-    automatic_user_linking: true
