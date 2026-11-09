@@ -369,8 +369,10 @@ identity_providers:
         scopes:
           - 'nikki:read'
           - 'nikki:write'
+          - 'mcp:oura'
         audience:
           - 'https://nikki.{{ mustEnv "ROOT_DOMAIN" }}/api'
+          - 'https://oura.{{ mustEnv "ROOT_DOMAIN" }}/mcp'
         requested_audience_mode: 'explicit'
         token_endpoint_auth_method: 'private_key_jwt'
         token_endpoint_auth_signing_alg: 'RS256'
@@ -438,6 +440,7 @@ identity_providers:
           - 'mcp:yotei'
           - 's3:obsidian'
           - 'nikki:read'
+          - 'mcp:oura'
         audience:
           - 'https://calendar.pkarpovich.space/mcp'
           - 'https://reminders.pkarpovich.space/mcp'
@@ -459,6 +462,7 @@ identity_providers:
           - 'https://yotei.pkarpovich.space/mcp'
           - 'https://seaweedfs-s3'
           - 'https://nikki.pkarpovich.space/api'
+          - 'https://oura.pkarpovich.space/mcp'
         requested_audience_mode: 'explicit'
         token_endpoint_auth_method: 'private_key_jwt'
         token_endpoint_auth_signing_alg: 'RS256'
