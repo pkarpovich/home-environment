@@ -440,6 +440,7 @@ identity_providers:
           - 'mcp:yotei'
           - 's3:obsidian'
           - 'nikki:read'
+          - 'nikki:write'
           - 'mcp:oura'
         audience:
           - 'https://calendar.pkarpovich.space/mcp'
