@@ -286,6 +286,41 @@ identity_providers:
             key: {{ secret "/config/secrets/hub-heap.pub" | mindent 14 "|" | msquote }}
         access_token_signed_response_alg: 'RS256'
         lifespan: 'machine'
+      - client_id: 'hub-yotei'
+        client_name: 'Yotei'
+        public: false
+        authorization_policy: 'one_factor'
+        consent_mode: 'implicit'
+        require_pkce: true
+        pkce_challenge_method: 'S256'
+        redirect_uris:
+          - 'https://yotei.{{ mustEnv "ROOT_DOMAIN" }}/api/auth/callback'
+        scopes:
+          - 'yotei:read'
+          - 'offline_access'
+        audience:
+          - 'https://yotei.{{ mustEnv "ROOT_DOMAIN" }}/mcp'
+        requested_audience_mode: 'explicit'
+        response_types:
+          - 'code'
+        grant_types:
+          - 'authorization_code'
+          - 'refresh_token'
+        token_endpoint_auth_method: 'private_key_jwt'
+        token_endpoint_auth_signing_alg: 'RS256'
+        introspection_endpoint_auth_method: 'private_key_jwt'
+        introspection_endpoint_auth_signing_alg: 'RS256'
+        revocation_endpoint_auth_method: 'private_key_jwt'
+        revocation_endpoint_auth_signing_alg: 'RS256'
+        pushed_authorization_request_endpoint_auth_method: 'private_key_jwt'
+        pushed_authorization_request_endpoint_auth_signing_alg: 'RS256'
+        jwks:
+          - key_id: 'hub-yotei-2026-11-12'
+            algorithm: 'RS256'
+            use: 'sig'
+            key: {{ secret "/config/secrets/hub-yotei.pub" | mindent 14 "|" | msquote }}
+        access_token_signed_response_alg: 'RS256'
+        lifespan: 'cli'
       - client_id: 'ferry'
         client_name: 'ferry'
         public: false
@@ -293,6 +328,8 @@ identity_providers:
           - 'client_credentials'
         scopes:
           - 'mcp:yotei'
+          - 'yotei:read'
+          - 'yotei:write'
         audience:
           - 'https://yotei.pkarpovich.space/mcp'
         requested_audience_mode: 'explicit'
@@ -438,6 +475,8 @@ identity_providers:
           - 'mcp:overcast'
           - 'mcp:media-metadata'
           - 'mcp:yotei'
+          - 'yotei:read'
+          - 'yotei:write'
           - 's3:obsidian'
           - 'nikki:read'
           - 'mcp:oura'
@@ -489,6 +528,8 @@ identity_providers:
           - 'http://localhost:33418/callback'
         scopes:
           - 'mcp:yotei'
+          - 'yotei:read'
+          - 'yotei:write'
           - 'mcp:mail'
           - 'offline_access'
         audience:
