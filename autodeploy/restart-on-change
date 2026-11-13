@@ -9,4 +9,5 @@ alpha   .config/tempo/               tempo
 alpha   .config/otel-collector/      otel-collector
 alpha   .config/victoriametrics/     victoriametrics
 alpha   seaweedfs/                   seaweedfs
+alpha   .config/updater/             updater
 bravo   traefik/static/              traefik
