@@ -428,6 +428,9 @@ identity_providers:
         scopes:
           - 'nikki:read'
           - 'nikki:write'
+          - 'nikki:create'
+          - 'nikki:edit'
+          - 'nikki:health'
         audience:
           - 'https://nikki.{{ mustEnv "ROOT_DOMAIN" }}/api'
         requested_audience_mode: 'explicit'
@@ -473,7 +476,7 @@ identity_providers:
           - 'yotei:write'
           - 's3:obsidian'
           - 'nikki:read'
-          - 'nikki:write'
+          - 'nikki:create'
         audience:
           - 'https://calendar.pkarpovich.space/mcp'
           - 'https://reminders.pkarpovich.space/mcp'
@@ -574,6 +577,9 @@ identity_providers:
         scopes:
           - 'nikki:read'
           - 'nikki:write'
+          - 'nikki:create'
+          - 'nikki:edit'
+          - 'nikki:health'
           - 'offline_access'
         audience:
           - 'https://nikki.{{ mustEnv "ROOT_DOMAIN" }}/api'
