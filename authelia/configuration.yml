@@ -344,6 +344,44 @@ identity_providers:
             key: {{ secret "/config/secrets/hub-yotei.pub" | mindent 14 "|" | msquote }}
         access_token_signed_response_alg: 'RS256'
         lifespan: 'cli'
+      - client_id: 'hub-nikki-web'
+        client_name: 'nikki'
+        public: false
+        authorization_policy: 'one_factor'
+        consent_mode: 'implicit'
+        require_pkce: true
+        pkce_challenge_method: 'S256'
+        redirect_uris:
+          - 'https://nikki.{{ mustEnv "ROOT_DOMAIN" }}/api/auth/callback'
+        scopes:
+          - 'nikki:read'
+          - 'nikki:create'
+          - 'nikki:edit'
+          - 'nikki:health'
+          - 'offline_access'
+        audience:
+          - 'https://nikki.{{ mustEnv "ROOT_DOMAIN" }}/api'
+        requested_audience_mode: 'explicit'
+        response_types:
+          - 'code'
+        grant_types:
+          - 'authorization_code'
+          - 'refresh_token'
+        token_endpoint_auth_method: 'private_key_jwt'
+        token_endpoint_auth_signing_alg: 'RS256'
+        introspection_endpoint_auth_method: 'private_key_jwt'
+        introspection_endpoint_auth_signing_alg: 'RS256'
+        revocation_endpoint_auth_method: 'private_key_jwt'
+        revocation_endpoint_auth_signing_alg: 'RS256'
+        pushed_authorization_request_endpoint_auth_method: 'private_key_jwt'
+        pushed_authorization_request_endpoint_auth_signing_alg: 'RS256'
+        jwks:
+          - key_id: 'hub-nikki-bff-2026-11-13'
+            algorithm: 'RS256'
+            use: 'sig'
+            key: {{ secret "/config/secrets/hub-nikki-bff.pub" | mindent 14 "|" | msquote }}
+        access_token_signed_response_alg: 'RS256'
+        lifespan: 'cli'
       - client_id: 'ferry'
         client_name: 'ferry'
         public: false
@@ -428,9 +466,6 @@ identity_providers:
         scopes:
           - 'nikki:read'
           - 'nikki:write'
-          - 'nikki:create'
-          - 'nikki:edit'
-          - 'nikki:health'
         audience:
           - 'https://nikki.{{ mustEnv "ROOT_DOMAIN" }}/api'
         requested_audience_mode: 'explicit'
@@ -577,9 +612,6 @@ identity_providers:
         scopes:
           - 'nikki:read'
           - 'nikki:write'
-          - 'nikki:create'
-          - 'nikki:edit'
-          - 'nikki:health'
           - 'offline_access'
         audience:
           - 'https://nikki.{{ mustEnv "ROOT_DOMAIN" }}/api'
