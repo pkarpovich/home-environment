@@ -178,6 +178,9 @@ identity_providers:
         scopes:
           - 'bridge:reminders.read'
           - 'bridge:reminders.write'
+          - 'bridge:reminders.create'
+          - 'bridge:reminders.edit'
+          - 'bridge:reminders.delete'
         audience:
           - 'https://eventkit-bridge'
         requested_audience_mode: 'explicit'
@@ -204,6 +207,9 @@ identity_providers:
         scopes:
           - 'bridge:calendar.read'
           - 'bridge:calendar.write'
+          - 'bridge:calendar.create'
+          - 'bridge:calendar.edit'
+          - 'bridge:calendar.delete'
         audience:
           - 'https://eventkit-bridge'
         requested_audience_mode: 'explicit'
@@ -492,9 +498,6 @@ identity_providers:
         grant_types:
           - 'client_credentials'
         scopes:
-          - 'mcp:calendar'
-          - 'mcp:reminders'
-          - 'mcp:mail'
           - 'calendar:read'
           - 'calendar:create'
           - 'calendar:edit'
@@ -576,11 +579,9 @@ identity_providers:
         scopes:
           - 'yotei:read'
           - 'yotei:write'
-          - 'mcp:mail'
           - 'offline_access'
         audience:
           - 'https://yotei.pkarpovich.space/mcp'
-          - 'https://mail.pkarpovich.space/mcp'
         requested_audience_mode: 'explicit'
         response_types:
           - 'code'
