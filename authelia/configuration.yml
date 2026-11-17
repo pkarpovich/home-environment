@@ -177,7 +177,6 @@ identity_providers:
           - 'client_credentials'
         scopes:
           - 'bridge:reminders.read'
-          - 'bridge:reminders.write'
           - 'bridge:reminders.create'
           - 'bridge:reminders.edit'
           - 'bridge:reminders.delete'
@@ -206,7 +205,6 @@ identity_providers:
           - 'client_credentials'
         scopes:
           - 'bridge:calendar.read'
-          - 'bridge:calendar.write'
           - 'bridge:calendar.create'
           - 'bridge:calendar.edit'
           - 'bridge:calendar.delete'
