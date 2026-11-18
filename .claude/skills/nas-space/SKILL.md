@@ -48,13 +48,13 @@ Each episode has sidecars with the same basename (`.nfo`, `-thumb.jpg`, `.info.j
 
 ## 4. Movies and shows: use Plex's watched state
 
-Tautulli only knows play history; the Plex UI's watched state is what the owner means by "watched". plex-mcp is read-only, needs no token, LAN/tailnet only:
+Tautulli only knows play history; the Plex UI's watched state is what the owner means by "watched". Read it through the MCP server `plex` registered in Claude Code: plex-mcp, read-only, LAN/tailnet only. The server requires a token, and Claude Code gets it by itself for a registered server. Call the tool `browse`:
 
-```sh
-curl -s https://plex-mcp.pkarpovich.space/mcp -H 'Content-Type: application/json' -H 'Accept: application/json, text/event-stream' \
-  -H 'Mcp-Method: tools/call' -H 'Mcp-Name: browse' -H 'MCP-Protocol-Version: 2026-07-28' \
-  -d '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"browse","arguments":{"library":"1","sort":"title","limit":200},"_meta":{"io.modelcontextprotocol/protocolVersion":"2026-07-28","io.modelcontextprotocol/clientCapabilities":{}}}}'
 ```
+mcp__plex__browse(library="1", sort="title", limit=200)
+```
+
+If the `plex` server is not connected, say so and stop: a bare `curl` to it gets `401`.
 
 Libraries: Movies 1, TV Shows 2, Anime 10. Each item has `watch_state` (watched / in_progress / unwatched) and, for shows, `watched_episodes/total_episodes`. It returns no sizes or paths: get those from the Plex API (`https://plex.pkarpovich.space`, token = `HOMEPAGE_VAR_PLEX_KEY` in the homepage container on alpha, sent as the `X-Plex-Token` header, GET only): `/library/metadata/<rating_key>` for a movie, `/library/metadata/<rating_key>/allLeaves` for a show, sizes and files in `Media[].Part[]`. Plex reports anime paths under `/volume2/@appdata/ContainerManager/all_shares/media/`: that is `/volume2/media/`. Watched state is the admin account's; other household accounts have their own.
 
