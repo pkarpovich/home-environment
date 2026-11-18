@@ -517,6 +517,12 @@ identity_providers:
           - 'whatsapp:read'
           - 'whatsapp:auth'
           - 'obsidian:read'
+          - 'plex:read'
+          - 'trakt:read'
+          - 'jackett:read'
+          - 'stream-recorder:read'
+          - 'stream-recorder:monitor'
+          - 'stream-recorder:record'
           - 'mcp:plex'
           - 'mcp:trakt'
           - 'mcp:jackett'
@@ -606,9 +612,11 @@ identity_providers:
         scopes:
           - 'yotei:read'
           - 'yotei:write'
+          - 'plex:read'
           - 'offline_access'
         audience:
           - 'https://yotei.pkarpovich.space/mcp'
+          - 'https://plex-mcp.{{ mustEnv "ROOT_DOMAIN" }}/mcp'
         requested_audience_mode: 'explicit'
         response_types:
           - 'code'
