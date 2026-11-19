@@ -418,7 +418,7 @@ endpoints:
 
   - name: Content Oracle
     group: Turtle Hub
-    url: "https://content-oracle.pkarpovich.space/api/health"
+    url: "https://content-oracle.pkarpovich.space/healthz"
     interval: 5m
     conditions:
       - "[STATUS] == 200"
