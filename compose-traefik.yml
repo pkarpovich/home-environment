@@ -16,7 +16,9 @@ services:
       - CF_API_EMAIL=${CF_API_EMAIL}
       - CF_API_KEY=${CF_API_KEY}
     networks:
-      - proxy
+      proxy:
+        aliases:
+          - auth.${ROOT_DOMAIN}
     ports:
       - 25:25
       - 80:80
