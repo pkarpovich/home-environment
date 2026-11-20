@@ -414,6 +414,242 @@ identity_providers:
             key: {{ secret "/config/secrets/hub-nikki-bff.pub" | mindent 14 "|" | msquote }}
         access_token_signed_response_alg: 'RS256'
         lifespan: 'cli'
+      - client_id: 'hub-content-oracle'
+        client_name: 'turtle-hub content-oracle'
+        public: false
+        grant_types:
+          - 'client_credentials'
+        scopes:
+          - 'youtube:read'
+          - 'content-collector:read'
+          - 'content-collector:play'
+          - 'content-collector:triage'
+          - 'overcast:read'
+          - 'twitch:read'
+          - 'boosty:read'
+          - 'streamcast:watch'
+        audience:
+          - 'https://youtube.{{ mustEnv "ROOT_DOMAIN" }}/mcp'
+          - 'https://apple-tv.{{ mustEnv "ROOT_DOMAIN" }}/mcp'
+          - 'https://overcast.{{ mustEnv "ROOT_DOMAIN" }}/mcp'
+          - 'https://turtle-hub.{{ mustEnv "ROOT_DOMAIN" }}/twitch/mcp'
+          - 'https://boosty.{{ mustEnv "ROOT_DOMAIN" }}/mcp'
+          - 'https://streamcast.{{ mustEnv "ROOT_DOMAIN" }}'
+        requested_audience_mode: 'explicit'
+        token_endpoint_auth_method: 'private_key_jwt'
+        token_endpoint_auth_signing_alg: 'RS256'
+        introspection_endpoint_auth_method: 'private_key_jwt'
+        introspection_endpoint_auth_signing_alg: 'RS256'
+        revocation_endpoint_auth_method: 'private_key_jwt'
+        revocation_endpoint_auth_signing_alg: 'RS256'
+        pushed_authorization_request_endpoint_auth_method: 'private_key_jwt'
+        pushed_authorization_request_endpoint_auth_signing_alg: 'RS256'
+        jwks:
+          - key_id: 'hub-content-oracle-2026-11-19'
+            algorithm: 'RS256'
+            use: 'sig'
+            key: {{ secret "/config/secrets/hub-content-oracle.pub" | mindent 14 "|" | msquote }}
+        access_token_signed_response_alg: 'RS256'
+        lifespan: 'machine'
+      - client_id: 'hub-content-oracle-web'
+        client_name: 'Content Oracle'
+        public: false
+        authorization_policy: 'one_factor'
+        consent_mode: 'implicit'
+        require_pkce: true
+        pkce_challenge_method: 'S256'
+        redirect_uris:
+          - 'https://content-oracle.{{ mustEnv "ROOT_DOMAIN" }}/api/auth/callback'
+        scopes:
+          - 'content-oracle:read'
+          - 'content-oracle:triage'
+          - 'content-oracle:play'
+          - 'offline_access'
+        audience:
+          - 'https://content-oracle.{{ mustEnv "ROOT_DOMAIN" }}/api'
+        requested_audience_mode: 'explicit'
+        response_types:
+          - 'code'
+        grant_types:
+          - 'authorization_code'
+          - 'refresh_token'
+        token_endpoint_auth_method: 'private_key_jwt'
+        token_endpoint_auth_signing_alg: 'RS256'
+        introspection_endpoint_auth_method: 'private_key_jwt'
+        introspection_endpoint_auth_signing_alg: 'RS256'
+        revocation_endpoint_auth_method: 'private_key_jwt'
+        revocation_endpoint_auth_signing_alg: 'RS256'
+        pushed_authorization_request_endpoint_auth_method: 'private_key_jwt'
+        pushed_authorization_request_endpoint_auth_signing_alg: 'RS256'
+        jwks:
+          - key_id: 'hub-content-oracle-2026-11-19'
+            algorithm: 'RS256'
+            use: 'sig'
+            key: {{ secret "/config/secrets/hub-content-oracle.pub" | mindent 14 "|" | msquote }}
+        access_token_signed_response_alg: 'RS256'
+        lifespan: 'cli'
+      - client_id: 'hub-content-oracle-tv'
+        client_name: 'Content Oracle on Apple TV'
+        public: false
+        authorization_policy: 'one_factor'
+        consent_mode: 'implicit'
+        scopes:
+          - 'content-oracle:read'
+          - 'content-oracle:triage'
+          - 'offline_access'
+        audience:
+          - 'https://content-oracle.{{ mustEnv "ROOT_DOMAIN" }}/api'
+        requested_audience_mode: 'explicit'
+        grant_types:
+          - 'urn:ietf:params:oauth:grant-type:device_code'
+          - 'refresh_token'
+        token_endpoint_auth_method: 'private_key_jwt'
+        token_endpoint_auth_signing_alg: 'RS256'
+        introspection_endpoint_auth_method: 'private_key_jwt'
+        introspection_endpoint_auth_signing_alg: 'RS256'
+        revocation_endpoint_auth_method: 'private_key_jwt'
+        revocation_endpoint_auth_signing_alg: 'RS256'
+        pushed_authorization_request_endpoint_auth_method: 'private_key_jwt'
+        pushed_authorization_request_endpoint_auth_signing_alg: 'RS256'
+        jwks:
+          - key_id: 'hub-content-oracle-2026-11-19'
+            algorithm: 'RS256'
+            use: 'sig'
+            key: {{ secret "/config/secrets/hub-content-oracle.pub" | mindent 14 "|" | msquote }}
+        access_token_signed_response_alg: 'RS256'
+        lifespan: 'cli'
+      - client_id: 'hub-stream-recorder'
+        client_name: 'turtle-hub stream-recorder'
+        public: false
+        grant_types:
+          - 'client_credentials'
+        scopes:
+          - 'twitch:read'
+          - 'boosty:read'
+          - 'streamcast:watch'
+          - 'streamcast:fetch'
+        audience:
+          - 'https://turtle-hub.{{ mustEnv "ROOT_DOMAIN" }}/twitch/mcp'
+          - 'https://boosty.{{ mustEnv "ROOT_DOMAIN" }}/mcp'
+          - 'https://streamcast.{{ mustEnv "ROOT_DOMAIN" }}'
+        requested_audience_mode: 'explicit'
+        token_endpoint_auth_method: 'private_key_jwt'
+        token_endpoint_auth_signing_alg: 'RS256'
+        introspection_endpoint_auth_method: 'private_key_jwt'
+        introspection_endpoint_auth_signing_alg: 'RS256'
+        revocation_endpoint_auth_method: 'private_key_jwt'
+        revocation_endpoint_auth_signing_alg: 'RS256'
+        pushed_authorization_request_endpoint_auth_method: 'private_key_jwt'
+        pushed_authorization_request_endpoint_auth_signing_alg: 'RS256'
+        jwks:
+          - key_id: 'hub-stream-recorder-2026-11-19'
+            algorithm: 'RS256'
+            use: 'sig'
+            key: {{ secret "/config/secrets/hub-stream-recorder.pub" | mindent 14 "|" | msquote }}
+        access_token_signed_response_alg: 'RS256'
+        lifespan: 'machine'
+      - client_id: 'streamcast-watch'
+        client_name: 'streamcast watch tool on the Mac'
+        public: false
+        grant_types:
+          - 'client_credentials'
+        scopes:
+          - 'streamcast:watch'
+        audience:
+          - 'https://streamcast.{{ mustEnv "ROOT_DOMAIN" }}'
+        requested_audience_mode: 'explicit'
+        token_endpoint_auth_method: 'private_key_jwt'
+        token_endpoint_auth_signing_alg: 'RS256'
+        introspection_endpoint_auth_method: 'private_key_jwt'
+        introspection_endpoint_auth_signing_alg: 'RS256'
+        revocation_endpoint_auth_method: 'private_key_jwt'
+        revocation_endpoint_auth_signing_alg: 'RS256'
+        pushed_authorization_request_endpoint_auth_method: 'private_key_jwt'
+        pushed_authorization_request_endpoint_auth_signing_alg: 'RS256'
+        jwks:
+          - key_id: 'streamcast-watch-2026-11-20'
+            algorithm: 'RS256'
+            use: 'sig'
+            key: {{ secret "/config/secrets/streamcast-watch.pub" | mindent 14 "|" | msquote }}
+        access_token_signed_response_alg: 'RS256'
+        lifespan: 'machine'
+      - client_id: 'hub-streamcast'
+        client_name: 'turtle-hub streamcast'
+        public: false
+        grant_types:
+          - 'client_credentials'
+        scopes:
+          - 'boosty:read'
+          - 'boosty:stream'
+        audience:
+          - 'https://boosty.{{ mustEnv "ROOT_DOMAIN" }}/mcp'
+        requested_audience_mode: 'explicit'
+        token_endpoint_auth_method: 'private_key_jwt'
+        token_endpoint_auth_signing_alg: 'RS256'
+        introspection_endpoint_auth_method: 'private_key_jwt'
+        introspection_endpoint_auth_signing_alg: 'RS256'
+        revocation_endpoint_auth_method: 'private_key_jwt'
+        revocation_endpoint_auth_signing_alg: 'RS256'
+        pushed_authorization_request_endpoint_auth_method: 'private_key_jwt'
+        pushed_authorization_request_endpoint_auth_signing_alg: 'RS256'
+        jwks:
+          - key_id: 'hub-streamcast-2026-11-19'
+            algorithm: 'RS256'
+            use: 'sig'
+            key: {{ secret "/config/secrets/hub-streamcast.pub" | mindent 14 "|" | msquote }}
+        access_token_signed_response_alg: 'RS256'
+        lifespan: 'machine'
+      - client_id: 'hub-youtube'
+        client_name: 'turtle-hub youtube'
+        public: false
+        grant_types:
+          - 'client_credentials'
+        scopes:
+          - 'content-collector:read'
+        audience:
+          - 'https://apple-tv.{{ mustEnv "ROOT_DOMAIN" }}/mcp'
+        requested_audience_mode: 'explicit'
+        token_endpoint_auth_method: 'private_key_jwt'
+        token_endpoint_auth_signing_alg: 'RS256'
+        introspection_endpoint_auth_method: 'private_key_jwt'
+        introspection_endpoint_auth_signing_alg: 'RS256'
+        revocation_endpoint_auth_method: 'private_key_jwt'
+        revocation_endpoint_auth_signing_alg: 'RS256'
+        pushed_authorization_request_endpoint_auth_method: 'private_key_jwt'
+        pushed_authorization_request_endpoint_auth_signing_alg: 'RS256'
+        jwks:
+          - key_id: 'hub-youtube-2026-11-19'
+            algorithm: 'RS256'
+            use: 'sig'
+            key: {{ secret "/config/secrets/hub-youtube.pub" | mindent 14 "|" | msquote }}
+        access_token_signed_response_alg: 'RS256'
+        lifespan: 'machine'
+      - client_id: 'hub-content-collector'
+        client_name: 'turtle-hub content-collector'
+        public: false
+        grant_types:
+          - 'client_credentials'
+        scopes:
+          - 'youtube:read'
+          - 'youtube:fetch'
+        audience:
+          - 'https://youtube.{{ mustEnv "ROOT_DOMAIN" }}/mcp'
+        requested_audience_mode: 'explicit'
+        token_endpoint_auth_method: 'private_key_jwt'
+        token_endpoint_auth_signing_alg: 'RS256'
+        introspection_endpoint_auth_method: 'private_key_jwt'
+        introspection_endpoint_auth_signing_alg: 'RS256'
+        revocation_endpoint_auth_method: 'private_key_jwt'
+        revocation_endpoint_auth_signing_alg: 'RS256'
+        pushed_authorization_request_endpoint_auth_method: 'private_key_jwt'
+        pushed_authorization_request_endpoint_auth_signing_alg: 'RS256'
+        jwks:
+          - key_id: 'hub-content-collector-2026-11-19'
+            algorithm: 'RS256'
+            use: 'sig'
+            key: {{ secret "/config/secrets/hub-content-collector.pub" | mindent 14 "|" | msquote }}
+        access_token_signed_response_alg: 'RS256'
+        lifespan: 'machine'
       - client_id: 'ferry'
         client_name: 'ferry'
         public: false
@@ -523,6 +759,18 @@ identity_providers:
           - 'stream-recorder:read'
           - 'stream-recorder:monitor'
           - 'stream-recorder:record'
+          - 'content-oracle:read'
+          - 'content-collector:read'
+          - 'content-collector:play'
+          - 'content-collector:remote'
+          - 'twitch:read'
+          - 'youtube:read'
+          - 'youtube:fetch'
+          - 'youtube:sync'
+          - 'boosty:read'
+          - 'overcast:read'
+          - 'esports:read'
+          - 'media-metadata:read'
           - 'mcp:esports'
           - 'mcp:youtube'
           - 'mcp:twitch'
@@ -555,6 +803,8 @@ identity_providers:
           - 'https://yotei.pkarpovich.space/mcp'
           - 'https://seaweedfs-s3'
           - 'https://nikki.pkarpovich.space/api'
+          - 'https://content-oracle.{{ mustEnv "ROOT_DOMAIN" }}/api'
+          - 'https://apple-tv.{{ mustEnv "ROOT_DOMAIN" }}/mcp'
         requested_audience_mode: 'explicit'
         token_endpoint_auth_method: 'private_key_jwt'
         token_endpoint_auth_signing_alg: 'RS256'
