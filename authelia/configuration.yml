@@ -427,12 +427,14 @@ identity_providers:
           - 'overcast:read'
           - 'twitch:read'
           - 'boosty:read'
+          - 'streamcast:watch'
         audience:
           - 'https://youtube.{{ mustEnv "ROOT_DOMAIN" }}/mcp'
           - 'https://apple-tv.{{ mustEnv "ROOT_DOMAIN" }}/mcp'
           - 'https://overcast.{{ mustEnv "ROOT_DOMAIN" }}/mcp'
           - 'https://turtle-hub.{{ mustEnv "ROOT_DOMAIN" }}/twitch/mcp'
           - 'https://boosty.{{ mustEnv "ROOT_DOMAIN" }}/mcp'
+          - 'https://streamcast.{{ mustEnv "ROOT_DOMAIN" }}'
         requested_audience_mode: 'explicit'
         token_endpoint_auth_method: 'private_key_jwt'
         token_endpoint_auth_signing_alg: 'RS256'
@@ -524,9 +526,12 @@ identity_providers:
         scopes:
           - 'twitch:read'
           - 'boosty:read'
+          - 'streamcast:watch'
+          - 'streamcast:fetch'
         audience:
           - 'https://turtle-hub.{{ mustEnv "ROOT_DOMAIN" }}/twitch/mcp'
           - 'https://boosty.{{ mustEnv "ROOT_DOMAIN" }}/mcp'
+          - 'https://streamcast.{{ mustEnv "ROOT_DOMAIN" }}'
         requested_audience_mode: 'explicit'
         token_endpoint_auth_method: 'private_key_jwt'
         token_endpoint_auth_signing_alg: 'RS256'
@@ -541,6 +546,31 @@ identity_providers:
             algorithm: 'RS256'
             use: 'sig'
             key: {{ secret "/config/secrets/hub-stream-recorder.pub" | mindent 14 "|" | msquote }}
+        access_token_signed_response_alg: 'RS256'
+        lifespan: 'machine'
+      - client_id: 'streamcast-watch'
+        client_name: 'streamcast watch tool on the Mac'
+        public: false
+        grant_types:
+          - 'client_credentials'
+        scopes:
+          - 'streamcast:watch'
+        audience:
+          - 'https://streamcast.{{ mustEnv "ROOT_DOMAIN" }}'
+        requested_audience_mode: 'explicit'
+        token_endpoint_auth_method: 'private_key_jwt'
+        token_endpoint_auth_signing_alg: 'RS256'
+        introspection_endpoint_auth_method: 'private_key_jwt'
+        introspection_endpoint_auth_signing_alg: 'RS256'
+        revocation_endpoint_auth_method: 'private_key_jwt'
+        revocation_endpoint_auth_signing_alg: 'RS256'
+        pushed_authorization_request_endpoint_auth_method: 'private_key_jwt'
+        pushed_authorization_request_endpoint_auth_signing_alg: 'RS256'
+        jwks:
+          - key_id: 'streamcast-watch-2026-11-20'
+            algorithm: 'RS256'
+            use: 'sig'
+            key: {{ secret "/config/secrets/streamcast-watch.pub" | mindent 14 "|" | msquote }}
         access_token_signed_response_alg: 'RS256'
         lifespan: 'machine'
       - client_id: 'hub-streamcast'
