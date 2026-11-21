@@ -5,8 +5,10 @@ script:
     mode: single
     description: 'Sends the Roborock vacuum to clean the chosen rooms, each in 1 to 3
       passes. Use it when asked to clean a room more than once or more thoroughly
-      ("clean the hallway twice"); for a single ordinary pass the area cleaning of the
-      vacuum is enough. Corridor is the hallway.'
+      ("clean the hallway twice"), or with or without mopping; for a single ordinary
+      pass the area cleaning of the vacuum is enough. Corridor is the hallway. Give
+      cleaning_mode only when asked to vacuum without mopping, to mop as well, or to
+      mop only; the vacuum returns to its own mode once it is back on the dock.'
     fields:
       rooms:
         name: Rooms
@@ -24,12 +26,23 @@ script:
       passes:
         name: Passes
         description: How many times the vacuum goes over each room, 1 to 3.
-        default: 2
+        default: 1
         selector:
           number:
             min: 1
             max: 3
             mode: box
+      cleaning_mode:
+        name: Cleaning mode
+        description: 'vacuum - no mopping, vac_and_mop - vacuum and mop, mop - mop only.
+          Leave it out to keep the mode the vacuum is set to.'
+        required: false
+        selector:
+          select:
+            options:
+              - vacuum
+              - vac_and_mop
+              - mop
     variables:
       # Room ids of map 0, from roborock.get_maps.
       segment_ids:
@@ -45,6 +58,23 @@ script:
         {% endfor %}
         {{ ns.ids }}
     sequence:
+      - if: '{{ cleaning_mode is defined and cleaning_mode in [''vacuum'', ''vac_and_mop'', ''mop''] }}'
+        then:
+          # A restore already waiting holds the mode from before the first run;
+          # starting another one would save the temporary mode as the one to restore.
+          - if: "{{ is_state('script.vacuum_restore_cleaning_mode', 'off') }}"
+            then:
+              - action: script.turn_on
+                target:
+                  entity_id: script.vacuum_restore_cleaning_mode
+                data:
+                  variables:
+                    previous: "{{ states('select.living_room_roborock_qrevo_curv_cleaning_mode') }}"
+          - action: select.select_option
+            target:
+              entity_id: select.living_room_roborock_qrevo_curv_cleaning_mode
+            data:
+              option: '{{ cleaning_mode }}'
       - action: vacuum.send_command
         target:
           entity_id: vacuum.roborock_qrevo_curv
@@ -52,4 +82,38 @@ script:
           command: app_segment_clean
           params:
             - segments: '{{ segments }}'
-              repeat: '{{ passes | default(2) | int }}'
+              repeat: '{{ passes | default(1) | int }}'
+
+  # Started with script.turn_on so it does not block vacuum_clean_rooms: the MCP
+  # server calls a script blocking and would wait for the whole cleaning.
+  vacuum_restore_cleaning_mode:
+    alias: Vacuum restore cleaning mode
+    icon: mdi:robot-vacuum-alert
+    mode: single
+    description: Puts the vacuum's cleaning mode back once it is docked again.
+    fields:
+      previous:
+        name: Previous mode
+        required: true
+        selector:
+          text:
+    sequence:
+      - wait_for_trigger:
+          - trigger: state
+            entity_id: vacuum.roborock_qrevo_curv
+            to: cleaning
+        timeout: '00:05:00'
+        continue_on_timeout: true
+      - if: '{{ wait.trigger is not none }}'
+        then:
+          - wait_for_trigger:
+              - trigger: state
+                entity_id: vacuum.roborock_qrevo_curv
+                to: docked
+            timeout: '06:00:00'
+            continue_on_timeout: true
+      - action: select.select_option
+        target:
+          entity_id: select.living_room_roborock_qrevo_curv_cleaning_mode
+        data:
+          option: '{{ previous }}'
