@@ -892,6 +892,29 @@ identity_providers:
         token_endpoint_auth_method: 'none'
         access_token_signed_response_alg: 'RS256'
         lifespan: 'cli'
+      - client_id: 'hub-cli'
+        client_name: 'Command line tools'
+        public: true
+        authorization_policy: 'one_factor'
+        require_pkce: true
+        pkce_challenge_method: 'S256'
+        redirect_uris:
+          - 'http://127.0.0.1:38917/callback'
+        scopes:
+          - 'streamcast:watch'
+          - 'offline_access'
+        audience:
+          - 'https://streamcast.{{ mustEnv "ROOT_DOMAIN" }}'
+        requested_audience_mode: 'explicit'
+        response_types:
+          - 'code'
+        grant_types:
+          - 'authorization_code'
+          - 'urn:ietf:params:oauth:grant-type:device_code'
+          - 'refresh_token'
+        token_endpoint_auth_method: 'none'
+        access_token_signed_response_alg: 'RS256'
+        lifespan: 'cli'
 
 storage:
   local:
