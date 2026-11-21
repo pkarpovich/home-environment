@@ -1,0 +1,55 @@
+script:
+  vacuum_clean_rooms:
+    alias: Vacuum rooms
+    icon: mdi:robot-vacuum
+    mode: single
+    description: 'Sends the Roborock vacuum to clean the chosen rooms, each in 1 to 3
+      passes. Use it when asked to clean a room more than once or more thoroughly
+      ("clean the hallway twice"); for a single ordinary pass the area cleaning of the
+      vacuum is enough. Corridor is the hallway.'
+    fields:
+      rooms:
+        name: Rooms
+        description: Rooms to clean, by the vacuum's own names.
+        required: true
+        selector:
+          select:
+            multiple: true
+            options:
+              - Corridor
+              - Bedroom
+              - Kitchen
+              - Living room
+              - Bathroom
+      passes:
+        name: Passes
+        description: How many times the vacuum goes over each room, 1 to 3.
+        default: 2
+        selector:
+          number:
+            min: 1
+            max: 3
+            mode: box
+    variables:
+      # Room ids of map 0, from roborock.get_maps.
+      segment_ids:
+        Corridor: 1
+        Bedroom: 2
+        Kitchen: 3
+        Living room: 4
+        Bathroom: 5
+      segments: >
+        {% set ns = namespace(ids=[]) %}
+        {% for room in (rooms if rooms is list else [rooms]) %}
+          {% set ns.ids = ns.ids + [segment_ids[room]] %}
+        {% endfor %}
+        {{ ns.ids }}
+    sequence:
+      - action: vacuum.send_command
+        target:
+          entity_id: vacuum.roborock_qrevo_curv
+        data:
+          command: app_segment_clean
+          params:
+            - segments: '{{ segments }}'
+              repeat: '{{ passes | default(2) | int }}'
