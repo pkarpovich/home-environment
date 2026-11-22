@@ -877,9 +877,13 @@ identity_providers:
           - 'http://127.0.0.1:38917/callback'
         scopes:
           - 'streamcast:watch'
+          - 'farm:read'
+          - 'farm:sync'
+          - 'farm:cancel'
           - 'offline_access'
         audience:
           - 'https://streamcast.{{ mustEnv "ROOT_DOMAIN" }}'
+          - 'https://ralphex-farm.{{ mustEnv "ROOT_DOMAIN" }}/api'
         requested_audience_mode: 'explicit'
         response_types:
           - 'code'
@@ -890,6 +894,93 @@ identity_providers:
         token_endpoint_auth_method: 'none'
         access_token_signed_response_alg: 'RS256'
         lifespan: 'cli'
+      - client_id: 'ralphex-farm'
+        client_name: 'ralphex-farm dashboard'
+        public: false
+        authorization_policy: 'one_factor'
+        consent_mode: 'implicit'
+        require_pkce: true
+        pkce_challenge_method: 'S256'
+        redirect_uris:
+          - 'https://ralphex-farm.{{ mustEnv "ROOT_DOMAIN" }}/api/auth/callback'
+        scopes:
+          - 'farm:read'
+          - 'farm:sync'
+          - 'farm:cancel'
+          - 'offline_access'
+        audience:
+          - 'https://ralphex-farm.{{ mustEnv "ROOT_DOMAIN" }}/api'
+        requested_audience_mode: 'explicit'
+        response_types:
+          - 'code'
+        grant_types:
+          - 'authorization_code'
+          - 'refresh_token'
+        token_endpoint_auth_method: 'private_key_jwt'
+        token_endpoint_auth_signing_alg: 'RS256'
+        introspection_endpoint_auth_method: 'private_key_jwt'
+        introspection_endpoint_auth_signing_alg: 'RS256'
+        revocation_endpoint_auth_method: 'private_key_jwt'
+        revocation_endpoint_auth_signing_alg: 'RS256'
+        pushed_authorization_request_endpoint_auth_method: 'private_key_jwt'
+        pushed_authorization_request_endpoint_auth_signing_alg: 'RS256'
+        jwks:
+          - key_id: 'ralphex-farm-2026-11-22'
+            algorithm: 'RS256'
+            use: 'sig'
+            key: {{ secret "/config/secrets/ralphex-farm.pub" | mindent 14 "|" | msquote }}
+        access_token_signed_response_alg: 'RS256'
+        lifespan: 'cli'
+      - client_id: 'farm-runner-mbp'
+        client_name: 'ralphex-farm container runner on the Mac'
+        public: false
+        grant_types:
+          - 'client_credentials'
+        scopes:
+          - 'farm:run'
+        audience:
+          - 'https://ralphex-farm.{{ mustEnv "ROOT_DOMAIN" }}/api'
+        requested_audience_mode: 'explicit'
+        token_endpoint_auth_method: 'private_key_jwt'
+        token_endpoint_auth_signing_alg: 'RS256'
+        introspection_endpoint_auth_method: 'private_key_jwt'
+        introspection_endpoint_auth_signing_alg: 'RS256'
+        revocation_endpoint_auth_method: 'private_key_jwt'
+        revocation_endpoint_auth_signing_alg: 'RS256'
+        pushed_authorization_request_endpoint_auth_method: 'private_key_jwt'
+        pushed_authorization_request_endpoint_auth_signing_alg: 'RS256'
+        jwks:
+          - key_id: 'farm-runner-mbp-2026-11-22'
+            algorithm: 'RS256'
+            use: 'sig'
+            key: {{ secret "/config/secrets/farm-runner-mbp.pub" | mindent 14 "|" | msquote }}
+        access_token_signed_response_alg: 'RS256'
+        lifespan: 'machine'
+      - client_id: 'farm-runner-mbp-native'
+        client_name: 'ralphex-farm native runner on the Mac'
+        public: false
+        grant_types:
+          - 'client_credentials'
+        scopes:
+          - 'farm:run'
+        audience:
+          - 'https://ralphex-farm.{{ mustEnv "ROOT_DOMAIN" }}/api'
+        requested_audience_mode: 'explicit'
+        token_endpoint_auth_method: 'private_key_jwt'
+        token_endpoint_auth_signing_alg: 'RS256'
+        introspection_endpoint_auth_method: 'private_key_jwt'
+        introspection_endpoint_auth_signing_alg: 'RS256'
+        revocation_endpoint_auth_method: 'private_key_jwt'
+        revocation_endpoint_auth_signing_alg: 'RS256'
+        pushed_authorization_request_endpoint_auth_method: 'private_key_jwt'
+        pushed_authorization_request_endpoint_auth_signing_alg: 'RS256'
+        jwks:
+          - key_id: 'farm-runner-mbp-native-2026-11-22'
+            algorithm: 'RS256'
+            use: 'sig'
+            key: {{ secret "/config/secrets/farm-runner-mbp-native.pub" | mindent 14 "|" | msquote }}
+        access_token_signed_response_alg: 'RS256'
+        lifespan: 'machine'
 
 storage:
   local:

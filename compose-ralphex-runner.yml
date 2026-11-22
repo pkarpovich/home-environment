@@ -30,6 +30,7 @@ services:
       FARM_CLAUDE_CONFIG_DIR: ${FARM_CLAUDE_CONFIG_DIR}
       MISE_DATA_DIR: ${RALPHEX_MISE_DATA_DIR}
       FARM_GO_CACHE_DIR: ${FARM_GO_CACHE_DIR}
+      RUNNER_AUTH_KEY_FILE: /run/runner-auth/key.pem
     extra_hosts:
       - host.docker.internal:host-gateway
     volumes:
@@ -45,3 +46,6 @@ services:
       - ${RALPHEX_MISE_DATA_DIR}:${RALPHEX_MISE_DATA_DIR}
       - ${FARM_GO_CACHE_DIR}:${FARM_GO_CACHE_DIR}
       - ${RUNNER_SSH_DIR}:/home/app/.ssh:ro
+      # the runner's own OAuth client key: it asks the authorization server for
+      # the farm:run token with it. Only the runner reads it, no task container.
+      - ${RUNNER_AUTH_DIR}:/run/runner-auth:ro
