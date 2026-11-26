@@ -428,6 +428,8 @@ identity_providers:
           - 'twitch:read'
           - 'boosty:read'
           - 'streamcast:watch'
+          - 'patreon:read'
+          - 'patreon:stream'
         audience:
           - 'https://youtube.{{ mustEnv "ROOT_DOMAIN" }}/mcp'
           - 'https://apple-tv.{{ mustEnv "ROOT_DOMAIN" }}/mcp'
@@ -435,6 +437,7 @@ identity_providers:
           - 'https://turtle-hub.{{ mustEnv "ROOT_DOMAIN" }}/twitch/mcp'
           - 'https://boosty.{{ mustEnv "ROOT_DOMAIN" }}/mcp'
           - 'https://streamcast.{{ mustEnv "ROOT_DOMAIN" }}'
+          - 'https://patreon.{{ mustEnv "ROOT_DOMAIN" }}/mcp'
         requested_audience_mode: 'explicit'
         token_endpoint_auth_method: 'private_key_jwt'
         token_endpoint_auth_signing_alg: 'RS256'
