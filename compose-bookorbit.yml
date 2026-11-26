@@ -48,6 +48,8 @@ services:
       - PUID=1000
       - PGID=1000
       - LIBRARY_BROWSE_ROOT=/books
+      # auth.<domain> resolves to alpha's LAN address, which the OIDC client refuses by default
+      - OIDC_ALLOW_LOCAL_ISSUERS=true
       - READ_ALOUD_WORKER_URL=${BOOKORBIT_READ_ALOUD_WORKER_URL:-}
       - READ_ALOUD_WORKER_TOKEN=${BOOKORBIT_READ_ALOUD_WORKER_TOKEN:-}
     volumes:
