@@ -490,6 +490,7 @@ identity_providers:
           - 'content-oracle:read'
           - 'content-oracle:triage'
           - 'content-oracle:play'
+          - 'content-oracle:patreon'
           - 'offline_access'
         audience:
           - 'https://content-oracle.{{ mustEnv "ROOT_DOMAIN" }}/api'
@@ -522,6 +523,7 @@ identity_providers:
         scopes:
           - 'content-oracle:read'
           - 'content-oracle:triage'
+          - 'content-oracle:patreon'
           - 'offline_access'
         audience:
           - 'https://content-oracle.{{ mustEnv "ROOT_DOMAIN" }}/api'
