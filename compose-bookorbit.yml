@@ -1,0 +1,92 @@
+# BookOrbit (github.com/bookorbit/bookorbit): ebook and audiobook library with
+# KOReader and iPhone sync. Its library is a NAS folder of its own, separate from
+# the Calibre library and the Plex audiobooks: a read-along needs the EPUB and the
+# audio of one book in one folder, and publishing writes <book>.readaloud.epub
+# next to them.
+#
+# read-aloud lives on the NAS too because the alignment worker runs natively on
+# a Mac (MLX on Apple Silicon), not here: it reads the library and writes into the
+# job folder through the SMB share, mapped back to /books and /data/read-aloud
+# with READ_ALOUD_PATH_MAP. BOOKORBIT_READ_ALOUD_WORKER_URL stays empty until it runs.
+services:
+  bookorbit-db:
+    image: pgvector/pgvector:pg18
+    container_name: bookorbit-db
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=bookorbit
+      - POSTGRES_PASSWORD=${BOOKORBIT_DB_PASSWORD}
+      - POSTGRES_DB=bookorbit
+      - PGDATA=/var/lib/postgresql/data/pgdata
+    volumes:
+      - bookorbit_postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", 'pg_isready -U "$${POSTGRES_USER}" -d "$${POSTGRES_DB}"']
+      interval: 5m
+      start_period: 60s
+      start_interval: 2s
+    networks:
+      - proxy
+
+  bookorbit:
+    image: ghcr.io/bookorbit/bookorbit:3.10.0
+    container_name: bookorbit
+    restart: unless-stopped
+    init: true
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - POSTGRES_HOST=bookorbit-db
+      - POSTGRES_PORT=5432
+      - POSTGRES_USER=bookorbit
+      - POSTGRES_PASSWORD=${BOOKORBIT_DB_PASSWORD}
+      - POSTGRES_DB=bookorbit
+      - JWT_SECRET=${BOOKORBIT_JWT_SECRET}
+      - SETUP_BOOTSTRAP_TOKEN=${BOOKORBIT_SETUP_TOKEN}
+      - APP_URL=https://bookorbit.${ROOT_DOMAIN}
+      - TZ=Europe/Warsaw
+      - PUID=1000
+      - PGID=1000
+      - LIBRARY_BROWSE_ROOT=/books
+      - READ_ALOUD_WORKER_URL=${BOOKORBIT_READ_ALOUD_WORKER_URL:-}
+      - READ_ALOUD_WORKER_TOKEN=${BOOKORBIT_READ_ALOUD_WORKER_TOKEN:-}
+    volumes:
+      - /mnt/nas/bookorbit/library:/books
+      - ./volumes/bookorbit:/data
+      - /mnt/nas/bookorbit/read-aloud:/data/read-aloud
+    read_only: true
+    tmpfs:
+      - /tmp
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+      - DAC_OVERRIDE
+      - FOWNER
+      - SETGID
+      - SETUID
+    security_opt:
+      - no-new-privileges:true
+    stop_grace_period: 30s
+    expose:
+      - 3000
+    networks:
+      - proxy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.bookorbit.rule=Host(`bookorbit.${ROOT_DOMAIN}`)"
+      - "traefik.http.routers.bookorbit.entrypoints=https"
+      - "traefik.http.routers.bookorbit.tls.certresolver=le"
+      - "traefik.http.services.bookorbit.loadbalancer.server.port=3000"
+    depends_on:
+      bookorbit-db:
+        condition: service_healthy
+      traefik:
+        condition: service_started
+
+networks:
+  proxy:
+    external: true
+
+volumes:
+  bookorbit_postgres:

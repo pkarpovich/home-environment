@@ -17,6 +17,7 @@ cc-bench-pg
 /var/lib/docker/volumes/turtle-hub_pgvector_postgres
 /var/lib/docker/volumes/turtle-hub_heap_postgres
 /var/lib/docker/volumes/home-environment_ryot_postgres
+/var/lib/docker/volumes/home-environment_bookorbit_postgres
 # dead projects (confirmed dead 2026-07-16)
 /var/lib/docker/volumes/little-turtle_langfuse-db-data
 /var/lib/docker/volumes/little-turtle_story-images

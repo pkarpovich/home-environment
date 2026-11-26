@@ -363,6 +363,10 @@
         id: simple_icon
         icon: mdi-rss
         href: https://slowreader.pkarpovich.space
+    - BookOrbit:
+        id: simple_icon
+        icon: mdi-book-open-page-variant
+        href: https://bookorbit.pkarpovich.space
     - Local Docker Logs:
         id: simple_icon
         icon: dozzle
