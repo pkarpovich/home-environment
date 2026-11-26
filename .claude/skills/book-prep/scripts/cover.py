@@ -25,12 +25,45 @@ def fetch(url):
         return resp.read()
 
 
+def fetch_api(url, tries=3):
+    """Open Library drops some TLS handshakes from urllib; a retry with a plain agent gets through."""
+    for attempt in range(tries):
+        try:
+            req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+            with urllib.request.urlopen(req, timeout=60) as resp:
+                return json.load(resp)
+        except Exception:
+            if attempt == tries - 1:
+                raise
+
+
 def size(path):
     out = subprocess.run(["magick", "identify", "-format", "%w %h", f"{path}[0]"], capture_output=True, text=True)
     if out.returncode != 0:
         return None
     w, h = out.stdout.split()
     return int(w), int(h)
+
+
+def edition_ids(page_url, html, isbn13, asin):
+    """Identifiers of the chosen edition, for the plan's metadata; a lookup that fails is left out."""
+    ids = {"goodreads": next(iter(re.findall(r"/book/show/(\d+)", page_url)), None), "amazon": asin}
+    if isbn13:
+        try:
+            ids["openlibrary"] = fetch_api(f"https://openlibrary.org/isbn/{isbn13}.json")["key"].rsplit("/", 1)[-1]
+        except Exception:
+            pass
+        try:
+            items = fetch_api(f"https://www.googleapis.com/books/v1/volumes?q=isbn:{isbn13}", tries=1).get("items") or []
+            if items:
+                ids["google"] = items[0]["id"]
+        except Exception:
+            pass
+    return {
+        "isbn": isbn13,
+        "isbn10": asin if asin and re.fullmatch(r"\d{9}[\dX]", asin) else None,
+        "identifiers": {k: v for k, v in ids.items() if v},
+    }
 
 
 def main():
@@ -40,6 +73,7 @@ def main():
     isbn13 = next(iter(re.findall(r'"isbn13":"(\d{13})"', html)), None)
     asin = next(iter(re.findall(r'"asin":"([0-9A-Z]{10})"', html)), None) or next(iter(re.findall(r'"isbn":"([0-9X]{10})"', html)), None)
     og = next(iter(re.findall(r'property="og:image" content="([^"]+)"', html)), None)
+    edition = edition_ids(page_url, html, isbn13, asin)
     candidates = []
     if og:
         candidates.append(("goodreads", og))
@@ -67,7 +101,7 @@ def main():
     _, name, path, dims = max(found)
     tw, th = (int(x) for x in target.split("x"))
     subprocess.run(["magick", f"{path}[0]", "-colorspace", "sRGB", "-resize", f"{tw}x{th}!", "-quality", "90", str(out)], check=True)
-    print(json.dumps({"source": name, "source_size": dims, "isbn13": isbn13, "asin": asin, "upscaled": dims[0] < tw, "out": str(out)}))
+    print(json.dumps({"source": name, "source_size": dims, "upscaled": dims[0] < tw, "out": str(out), "edition": edition}))
 
 
 if __name__ == "__main__":

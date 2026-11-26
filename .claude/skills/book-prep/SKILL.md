@@ -46,6 +46,8 @@ scripts/cover.py "<goodreads edition url>" <work>/cover.jpg
 
 It tries Goodreads, the publisher (Penguin Random House serves print TIFFs) and Amazon for that edition and keeps the biggest image, then stretches it to 1236x1648, the Paperwhite 5 screen. Stretch, never crop (it cuts the title) and never pad (on a picture the padding is the same bars the stretch removes).
 
+It also prints the edition's identifiers (`edition`): ISBN-13, ISBN-10, Goodreads, Amazon and Open Library ids. They go into the plan's metadata as they are - the English edition is the one to link to; BookOrbit counts them toward its metadata score. Google Books answers without a key only until its shared daily quota runs out, so its id is often missing; leave it out rather than retrying.
+
 Open the result for the user (`open -a Preview <file>`) - he does not see images you read yourself. Two things to raise with him before going on: `"upscaled": true` (the best source is narrower than the screen), and publisher text that looks like an ad sticker ("now a Netflix series", award badges). Text set as part of the design, like a "New York Times bestseller" line in the cover's own type, is fine.
 
 ## 4. Write the plan
@@ -55,7 +57,7 @@ A JSON file in the session scratchpad; the schema is in the docstring of `script
 - `toc`: nested `{title, target, children}`. Parts hold their chapters. Drop the repeated book title, the annotation, copyright, "Сноски"/"Примечания" and other service entries. Targets are `file#id` of the heading; take ids from the store ToC or the documents.
 - `scene_break_xpath`: XPath (namespace prefix `h`) matching the break elements; each becomes `<hr class="scene-break"/>`. With `scene_toc: true` every chapter with breaks gets children "N.1", "N.2", ..., so KOReader shows pages left in the scene. Omit both when the book has no scenes.
 - `notes.files`: the documents holding notes. Every link into them becomes an EPUB 3 noteref (`[N]`, tappable), the note moves to the end of the chapter that first cites it as `<aside epub:type="footnote">`, and the notes document leaves the spine. KOReader then shows notes at the foot of the page ("In-page EPUB footnotes" style tweak, on on the Kindle).
-- `metadata`: Russian names from FantLab, `file_as` as "Фамилия, Имя", `source` = the FantLab work URL. `source` also seeds the book's identifier, so a rebuilt book keeps the same id and its reading progress.
+- `metadata`: Russian names from FantLab, `file_as` as "Фамилия, Имя", `source` = the FantLab work URL, plus `isbn`, `isbn10` and `identifiers` from the cover step. `source` also seeds the book's identifier, so a rebuilt book keeps the same id and its reading progress. The page count BookOrbit shows is the page-list the build makes.
 - `drop_xpath`: only for real junk the ToC fix does not cover (a store promo page, a duplicate title block).
 
 ## 5. Build and validate
@@ -76,8 +78,27 @@ The build prints what it did: notes moved, scene breaks, pages (one per 1800 cha
 
 English names from FantLab, two-digit position in the series. One folder is one book: an audiobook of the same book goes into the same folder later, which is what lets BookOrbit build a read-along. BookOrbit's own file naming pattern stays empty, or it would rename everything back to the Russian metadata title.
 
-Leave the source file where it was. Report the folder, the build counts and the epubcheck result in a few lines.
+## 7. Let BookOrbit read it, then lock it
+
+BookOrbit watches the folder over NFS on alpha, and NFS does not report files written from another machine, so a book placed from the Mac is not noticed. Start a scan through the API from the user's signed-in Gidora tab (`gidoractl`, its skill has the tab rules; the library id is 1):
+
+```js
+await fetch('/api/v1/scanner/libraries/1/scan', { method: 'POST', credentials: 'include', headers: { 'content-type': 'application/json' }, body: '{}' })
+```
+
+A scan only looks into folders whose modification time changed. A new book folder qualifies; a rebuilt file overwritten in place does not, so first create and delete a file in its folder (on alpha, `touch <dir>/.bump && rm <dir>/.bump`).
+
+Then find the book (`POST /api/v1/libraries/1/books` with `{}` lists them) and lock the fields this skill owns, so a metadata refresh from Goodreads or another provider cannot replace the Russian names:
+
+```js
+await fetch(`/api/v1/books/${id}/metadata-locks`, { method: 'PATCH', credentials: 'include', headers: { 'content-type': 'application/json' },
+  body: JSON.stringify({ lockedFields: ['title', 'authors', 'description', 'publisher', 'publishedYear', 'language', 'pageCount', 'seriesName', 'seriesIndex', 'isbn13', 'isbn10', 'genres', 'goodreadsId', 'amazonId', 'openLibraryId'] }) })
+```
+
+A locked field also ignores the file on later scans: after a rebuild that changes one of them, unlock it first. `communityRating` stays unlocked - BookOrbit takes community ratings only from providers, never from the file.
+
+Leave the source file where it was. Report the folder, the build counts, the epubcheck result and the BookOrbit metadata score in a few lines.
 
 ## Example
 
-Dungeon Crawler Carl from LitRes: the store ToC put "Глава 2"-"Глава 26" next to "Часть 1" instead of inside it; scene breaks were `<h5>* * *</h5>`; 165 translator notes sat in `contentnotes0.html` with LitRes's own "Вернуться" link in each (dropped by the build). The Goodreads edition 9780593820247 gave a 2450x3700 print TIFF at Penguin Random House. Result: `Matt Dinniman/Dungeon Crawler Carl/01 - Dungeon Crawler Carl/Dungeon Crawler Carl.epub`, 58 ToC entries, 392 pages, epubcheck clean.
+Dungeon Crawler Carl from LitRes: the store ToC put "Глава 2"-"Глава 26" next to "Часть 1" instead of inside it; scene breaks were `<h5>* * *</h5>`; 165 translator notes sat in `contentnotes0.html` with LitRes's own "Вернуться" link in each (dropped by the build). The Goodreads edition 9780593820247 gave a 2450x3700 print TIFF at Penguin Random House. Result: `Matt Dinniman/Dungeon Crawler Carl/01 - Dungeon Crawler Carl/Dungeon Crawler Carl.epub`, 58 ToC entries, 392 pages, epubcheck clean, BookOrbit metadata score 91%.

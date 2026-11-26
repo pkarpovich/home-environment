@@ -14,7 +14,8 @@ The plan is JSON:
     "authors": [{"name": "Мэтт Динниман", "file_as": "Динниман, Мэтт"}],
     "series": {"name": "Карл — обходчик подземелий", "index": 1},
     "source": "https://fantlab.ru/work1807247",
-    "isbn": "9780593820247"                      (optional, the edition the cover came from)
+    "isbn": "9780593820247", "isbn10": "059382024X",   (optional, the edition the cover came from)
+    "identifiers": {"goodreads": "...", "amazon": "...", "openlibrary": "..."}
   },
   "toc": [{"title": "Часть 1", "target": "content1.html#id", "children": [...]}],
   "bodymatter": "content0.html#id",
@@ -354,7 +355,7 @@ def cover_doc(alt):
     return html
 
 
-def package(book, plan, keep, spine, uid):
+def package(book, plan, keep, spine, uid, page_count):
     meta = plan["metadata"]
     pkg = etree.Element("{%s}package" % OPF, nsmap={None: OPF, "dc": DC}, version="3.0")
     pkg.set("unique-identifier", "pub-id")
@@ -373,6 +374,8 @@ def package(book, plan, keep, spine, uid):
     dc("identifier", uid, id="pub-id")
     if meta.get("isbn"):
         dc("identifier", f"urn:isbn:{meta['isbn']}", id="isbn")
+    for provider, value in sorted(meta.get("identifiers", {}).items()):
+        dc("identifier", f"{provider}:{value}")
     dc("title", meta["title"])
     for n, author in enumerate(meta["authors"], 1):
         dc("creator", author["name"], id=f"aut{n}")
@@ -391,6 +394,10 @@ def package(book, plan, keep, spine, uid):
         etree.SubElement(md, "{%s}meta" % OPF, name="calibre:series", content=meta["series"]["name"])
         etree.SubElement(md, "{%s}meta" % OPF, name="calibre:series_index", content=str(meta["series"]["index"]))
     etree.SubElement(md, "{%s}meta" % OPF, name="cover", content="cover-image")
+    bookorbit = {"isbn10": meta.get("isbn10"), "page_count": page_count}
+    for key, value in bookorbit.items():
+        if value:
+            etree.SubElement(md, "{%s}meta" % OPF, name=f"bookorbit:{key}", content=str(value))
     prop("dcterms:modified", datetime.datetime.now(datetime.UTC).strftime("%Y-%m-%dT%H:%M:%SZ"))
 
     manifest = etree.SubElement(pkg, "{%s}manifest" % OPF)
@@ -463,7 +470,7 @@ def main():
         keep.append((item_id, href, mtype, None))
         written[href] = book.zip.read(book.path(href))
 
-    pkg = package(book, plan, keep, spine_ids, uid)
+    pkg = package(book, plan, keep, spine_ids, uid, len(pages))
     with zipfile.ZipFile(out, "w") as z:
         z.writestr(zipfile.ZipInfo("mimetype"), "application/epub+zip", compress_type=zipfile.ZIP_STORED)
         z.writestr("META-INF/container.xml",
