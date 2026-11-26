@@ -543,6 +543,16 @@ endpoints:
     alerts:
       - type: telegram
 
+  - name: Patreon
+    group: Turtle Hub
+    url: "https://patreon.pkarpovich.space/healthz"
+    interval: 5m
+    conditions:
+      - "[STATUS] == 200"
+      - "[BODY].status == ok"
+    alerts:
+      - type: telegram
+
   # Bit Adventure
   - name: BA Landing Page
     group: Bit Adventure
