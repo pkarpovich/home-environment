@@ -170,6 +170,29 @@ identity_providers:
         access_token_signed_response_alg: 'none'
         userinfo_signed_response_alg: 'none'
         token_endpoint_auth_method: 'client_secret_basic'
+      - client_id: 'bookorbit'
+        client_name: 'BookOrbit'
+        client_secret: '{{ secret "/config/secrets/bookorbit.client_secret" }}'
+        public: false
+        authorization_policy: 'one_factor'
+        consent_mode: 'implicit'
+        require_pkce: true
+        pkce_challenge_method: 'S256'
+        redirect_uris:
+          - 'https://bookorbit.{{ mustEnv "ROOT_DOMAIN" }}/oauth2-callback'
+          - 'bookorbit://oauth2-callback'
+        scopes:
+          - 'openid'
+          - 'profile'
+          - 'email'
+          - 'groups'
+        response_types:
+          - 'code'
+        grant_types:
+          - 'authorization_code'
+        access_token_signed_response_alg: 'none'
+        userinfo_signed_response_alg: 'none'
+        token_endpoint_auth_method: 'client_secret_post'
       - client_id: 'hub-reminders'
         client_name: 'turtle-hub reminders'
         public: false

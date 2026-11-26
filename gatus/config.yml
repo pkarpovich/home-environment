@@ -219,6 +219,16 @@ endpoints:
     alerts:
       - type: telegram
 
+  - name: BookOrbit
+    group: Local
+    url: "http://bookorbit:3000/api/v1/health"
+    interval: 5m
+    conditions:
+      - "[STATUS] == 200"
+      - "[BODY].status == ok"
+    alerts:
+      - type: telegram
+
   # Fails both when VictoriaMetrics is down and when its scrape of Home Assistant
   # breaks (HA down, or the HA_PROMETHEUS_TOKEN revoked), since up{} is 0 then.
   - name: Home sensors (VictoriaMetrics)
