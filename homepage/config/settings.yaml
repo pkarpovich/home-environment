@@ -16,6 +16,10 @@ layout:
       header: false
       style: row
       columns: 2
+    Books:
+      header: false
+      style: row
+      columns: 2
   Home & Network:
     icon: pi-alert
     style: columns
