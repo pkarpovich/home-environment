@@ -21,13 +21,21 @@ scripts/fantlab.py search "<title> <author>"
 scripts/fantlab.py work <work_id>
 ```
 
-FantLab is the source of truth for names, so one author is spelled one way across the library (three spellings of George R. R. Martin is the failure this prevents). From the `work` output take:
+FantLab is the source of truth for authors, so one author is spelled one way across the library (three spellings of George R. R. Martin is the failure this prevents). From the `work` output take:
 
-- Russian title and author names -> book metadata (what BookOrbit and KOReader show).
+- Russian author names -> book metadata (what BookOrbit and KOReader show). A pen name wins over the people behind it: FantLab lists Leviathan Wakes under Daniel Abraham and Ty Franck, the book says James S. A. Corey.
+- The Russian title: FantLab's, unless this edition is a different translation with its own title - then the edition's ("Этаж смерти", not FantLab's "Поле смерти"). The reader recognises the title on his cover.
 - Original names -> folder and file names.
-- Cycle and position -> series; the cycle's original name comes from `work <cycle_id>` or from the Goodreads series line.
 
-If the book is not on FantLab, stop and ask. Never invent a spelling. For a non-English original use the English edition's names (Liu Cixin, "The Three-Body Problem"); with no English edition, transliterate.
+If the book is not on FantLab, stop and ask. Never invent a spelling. For a non-English original use the English edition's names (`english_editions` in the output: Liu Cixin, "The Three-Body Problem"); with no English edition, transliterate.
+
+Series names and numbers come from Goodreads, not FantLab - FantLab numbers a book inside its widest cycle (Dune comes out 17th in "Dune Universe", Ender's Game 6th):
+
+```sh
+scripts/goodreads.py search "<english title> <author>"
+```
+
+Goodreads answers scripts with a bot check (HTTP 202) after a few requests. Then search from the user's signed-in Gidora tab (`gidoractl`): `fetch('/book/auto_complete?format=json&q=<title>')`, keep results whose `author.name` matches, take the most rated; the series and number sit in its `title` as "(Series, #N)". A Russian edition split into volumes (A Dance with Dragons, Fire & Blood) keeps the English book's number with a part suffix: 5.1 and 5.2.
 
 ## 2. Read the book
 
@@ -52,12 +60,20 @@ Open the result for the user (`open -a Preview <file>`) - he does not see images
 
 ## 4. Write the plan
 
-A JSON file in the session scratchpad; the schema is in the docstring of `scripts/build_epub.py`. The parts that need judgment:
+Start from the draft, then review it against what step 2 found:
+
+```sh
+scripts/auto_plan.py <book.epub> <fantlab_work_id> <plan.json>
+```
+
+It nests chapters under parts, drops the title, service and `* * *` entries, points ToC links whose anchor does not exist at the file instead, finds the notes documents and the scene breaks, and fills the metadata from FantLab. It prints what it decided; read `toc_top`, `dropped` and `retargeted` before building. Then set the title, series and language rules from step 1 by hand - the draft takes FantLab's and `ru`.
+
+The schema is in the docstring of `scripts/build_epub.py`. The parts that need judgment:
 
 - `toc`: nested `{title, target, children}`. Parts hold their chapters. Drop the repeated book title, the annotation, copyright, "Сноски"/"Примечания" and other service entries. Targets are `file#id` of the heading; take ids from the store ToC or the documents.
 - `scene_break_xpath`: XPath (namespace prefix `h`) matching the break elements; each becomes `<hr class="scene-break"/>`. With `scene_toc: true` every chapter with breaks gets children "N.1", "N.2", ..., so KOReader shows pages left in the scene. Omit both when the book has no scenes.
 - `notes.files`: the documents holding notes. Every link into them becomes an EPUB 3 noteref (`[N]`, tappable), the note moves to the end of the chapter that first cites it as `<aside epub:type="footnote">`, and the notes document leaves the spine. KOReader then shows notes at the foot of the page ("In-page EPUB footnotes" style tweak, on on the Kindle).
-- `metadata`: Russian names from FantLab, `file_as` as "Фамилия, Имя", `source` = the FantLab work URL, plus `isbn`, `isbn10` and `identifiers` from the cover step. `source` also seeds the book's identifier, so a rebuilt book keeps the same id and its reading progress. The page count BookOrbit shows is the page-list the build makes.
+- `metadata`: names per step 1, `language` from the book (a Belarusian text is `be`), `file_as` as "Фамилия, Имя" (Chinese names keep their order: "Лю, Цысинь"), `source` = the FantLab work URL, plus `isbn`, `isbn10` and `identifiers` from the cover step. `source` also seeds the book's identifier, so a rebuilt book keeps the same id and its reading progress. The page count BookOrbit shows is the page-list the build makes.
 - `drop_xpath`: only for real junk the ToC fix does not cover (a store promo page, a duplicate title block).
 
 ## 5. Build and validate

@@ -4,18 +4,27 @@
 usage: fantlab.py search "<title> <author>"
        fantlab.py work <work_id>
 """
+import http.client
 import json
 import sys
+import time
 import urllib.parse
 import urllib.request
 
 API = "https://api.fantlab.ru"
 
 
-def get(path):
-    req = urllib.request.Request(API + path, headers={"User-Agent": "book-prep/1"})
-    with urllib.request.urlopen(req, timeout=30) as resp:
-        return json.load(resp)
+def get(path, tries=4):
+    """FantLab drops connections when asked often; a pause and a retry get through."""
+    for attempt in range(tries):
+        try:
+            req = urllib.request.Request(API + path, headers={"User-Agent": "book-prep/1"})
+            with urllib.request.urlopen(req, timeout=30) as resp:
+                return json.load(resp)
+        except (OSError, http.client.HTTPException):
+            if attempt == tries - 1:
+                raise
+            time.sleep(3 * (attempt + 1))
 
 
 def search(query):
@@ -24,8 +33,14 @@ def search(query):
         print(f"{w.get('work_id'):>8}  {w.get('name_eng') or '':8} {w.get('year') or '':>5}  {w.get('rusname') or ''} / {w.get('name') or ''}  — {w.get('autor_rusname') or ''}")
 
 
-def work(work_id):
+def fetch_work(work_id):
     w = get(f"/work/{work_id}/extended")
+    english = []
+    blocks = w.get("editions_blocks") or {}
+    for block in (blocks.values() if isinstance(blocks, dict) else blocks):
+        for e in block.get("list") or []:
+            if e.get("lang_code") == "en" and e.get("name") and e["name"] not in english:
+                english.append(e["name"])
     out = {
         "work_id": w["work_id"],
         "url": f"https://fantlab.ru/work{w['work_id']}",
@@ -35,6 +50,7 @@ def work(work_id):
         "type": w.get("work_type"),
         "authors": [{"id": a.get("id"), "ru": a.get("name"), "orig": a.get("name_orig")} for a in w.get("authors", [])],
         "cycles": [],
+        "english_editions": english,
     }
     for chain in (w.get("parents") or {}).get("cycles", []):
         for cycle in chain:
@@ -49,7 +65,11 @@ def work(work_id):
                 "position": position,
                 "members": [f"{ch.get('work_name') or ''} / {ch.get('work_name_orig') or ''} ({ch.get('work_year')})" for ch in members],
             })
-    print(json.dumps(out, ensure_ascii=False, indent=1))
+    return out
+
+
+def work(work_id):
+    print(json.dumps(fetch_work(work_id), ensure_ascii=False, indent=1))
 
 
 if __name__ == "__main__":

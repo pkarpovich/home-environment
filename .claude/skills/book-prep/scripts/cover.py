@@ -1,7 +1,10 @@
 #!/usr/bin/env python3
 """Fetch the largest available image of the cover of one edition and stretch it to the Kindle screen.
 
-usage: cover.py <goodreads book url> <out.jpg> [--size 1236x1648]
+usage: cover.py <goodreads book url | image file> <out.jpg> [--size 1236x1648]
+
+Given an image file instead of a URL (a cover the user already picked, e.g. from the old Calibre
+library), it only stretches that image.
 
 The Goodreads page names the edition (ISBN-13, ASIN) and carries its own cover; the same edition
 is then tried at the publisher (Penguin Random House serves print TIFFs) and at Amazon. The
@@ -66,9 +69,18 @@ def edition_ids(page_url, html, isbn13, asin):
     }
 
 
+def stretch(src, out, target):
+    tw, th = (int(x) for x in target.split("x"))
+    subprocess.run(["magick", f"{src}[0]", "-colorspace", "sRGB", "-resize", f"{tw}x{th}!", "-quality", "90", str(out)], check=True)
+
+
 def main():
     page_url, out = sys.argv[1], Path(sys.argv[2])
     target = sys.argv[sys.argv.index("--size") + 1] if "--size" in sys.argv else "1236x1648"
+    if Path(page_url).is_file():
+        stretch(page_url, out, target)
+        print(json.dumps({"source": "file", "source_size": size(page_url), "upscaled": size(page_url)[0] < int(target.split("x")[0]), "out": str(out)}))
+        return
     html = fetch(page_url).decode("utf-8", "replace")
     isbn13 = next(iter(re.findall(r'"isbn13":"(\d{13})"', html)), None)
     asin = next(iter(re.findall(r'"asin":"([0-9A-Z]{10})"', html)), None) or next(iter(re.findall(r'"isbn":"([0-9X]{10})"', html)), None)
@@ -99,8 +111,8 @@ def main():
     if not found:
         sys.exit("no cover found")
     _, name, path, dims = max(found)
-    tw, th = (int(x) for x in target.split("x"))
-    subprocess.run(["magick", f"{path}[0]", "-colorspace", "sRGB", "-resize", f"{tw}x{th}!", "-quality", "90", str(out)], check=True)
+    tw = int(target.split("x")[0])
+    stretch(path, out, target)
     print(json.dumps({"source": name, "source_size": dims, "upscaled": dims[0] < tw, "out": str(out), "edition": edition}))
 
 

@@ -90,6 +90,12 @@ def to_xhtml5(root):
     for el in html.iter():
         if isinstance(el.tag, str) and not el.tag.startswith("{"):
             el.tag = H + el.tag
+    # innermost first: an outer <span> only holds a block once its inner <span> has become a <div>
+    for el in reversed(list(html.iter(H + "span", H + "font", H + "a", H + "p"))):
+        if any(isinstance(c.tag, str) and local(c) in BLOCKS | {"section", "table", "ul", "ol", "hr"} for c in el):
+            el.tag = H + "div"
+            for attr in ("href", "face", "size", "color"):
+                el.attrib.pop(attr, None)
     head = html.find(H + "head")
     if head is not None:
         for meta in head.findall(H + "meta"):
@@ -228,6 +234,13 @@ def resolve(book, target):
     return href, el
 
 
+def sort_toc(book, items):
+    """EPUB requires the toc in reading order; some store ToCs list an entry after a later one."""
+    items.sort(key=lambda item: order_key(book, *resolve(book, item["target"])))
+    for item in items:
+        sort_toc(book, item.get("children", []))
+
+
 def add_scene_entries(book, toc, breaks):
     leaves = []
 
@@ -239,14 +252,24 @@ def add_scene_entries(book, toc, breaks):
                 leaves.append(item)
 
     walk(toc)
-    keyed = sorted(((order_key(book, *resolve(book, leaf["target"])), leaf) for leaf in leaves), key=lambda x: x[0])
+    nodes = []
+
+    def every(items):
+        for item in items:
+            nodes.append(item)
+            every(item.get("children", []))
+
+    every(toc)
+    leaf_ids = {id(leaf) for leaf in leaves}
+    keyed = sorted(((order_key(book, *resolve(book, n["target"])), n) for n in nodes), key=lambda x: x[0])
     for href, hr in breaks:
         key = order_key(book, href, hr)
         owner = None
-        for leaf_key, leaf in keyed:
-            if leaf_key <= key:
-                owner = leaf
-        if owner is None:
+        for node_key, node in keyed:
+            if node_key <= key:
+                owner = node
+        # a break that follows a part heading, not a chapter, has no chapter to hang under
+        if owner is None or id(owner) not in leaf_ids:
             continue
         number = re.findall(r"\d+", owner["title"])
         prefix = f"{number[0]}." if number else "· "
@@ -283,6 +306,55 @@ def page_breaks(book, plan, skip, report):
             count += text_len(el)
     report["pages"] = len(pages)
     return pages
+
+
+def name_images(book, report):
+    """Readers and epubcheck tell an image's type by its extension; some store books have none."""
+    ext = {"image/jpeg": ".jpg", "image/png": ".png", "image/gif": ".gif", "image/svg+xml": ".svg", "image/webp": ".webp"}
+    renamed = {}
+    for item in book.manifest.values():
+        href, mtype = item.get("href"), item.get("media-type", "")
+        if mtype in ext and not re.search(r"\.[A-Za-z0-9]{2,4}$", href):
+            renamed[href] = href + ext[mtype]
+    if not renamed:
+        return renamed
+    for href, doc in book.docs.items():
+        base = dirname(href)
+        for el in doc.iter():
+            if not isinstance(el.tag, str):
+                continue
+            for attr in ("src", "href", "{http://www.w3.org/1999/xlink}href"):
+                value = el.get(attr)
+                if value and normpath(join(base, value)) in renamed:
+                    el.set(attr, value + ext_of(renamed[normpath(join(base, value))]))
+    report["images_renamed"] = len(renamed)
+    return renamed
+
+
+def ext_of(name):
+    return re.search(r"\.[a-z]+$", name).group(0)
+
+
+def repair_links(book, kept, report):
+    """Store books often carry links to anchors an earlier edit removed; point them at the file or drop them."""
+    ids = {h: {e.get("id") for e in book.docs[h].iter() if isinstance(e.tag, str) and e.get("id")} for h in kept}
+    for h in kept:
+        for a in book.docs[h].xpath("//h:a[@href]", namespaces=NS):
+            href = a.get("href")
+            if re.match(r"[a-z]+:", href):
+                continue
+            target, _, frag = href.partition("#")
+            target = target or h
+            if target not in ids:
+                a.tag = H + "span"
+                a.attrib.pop("href", None)
+                report["links_unwrapped"] = report.get("links_unwrapped", 0) + 1
+            elif frag and frag not in ids[target]:
+                a.set("href", target if target != h else "#")
+                if a.get("href") == "#":
+                    a.tag = H + "span"
+                    a.attrib.pop("href", None)
+                report["links_retargeted"] = report.get("links_retargeted", 0) + 1
 
 
 def nav_doc(toc, pages, bodymatter, title):
@@ -423,15 +495,29 @@ def main():
     book = Book(src)
     report = {"missing_notes": [], "dropped": 0}
     note_files = set(plan.get("notes", {}).get("files", []))
-    old_cover_pages = {h for h in book.spine if re.search(r"cover|titlepage", h, re.I) and len(book.docs[h].xpath("//h:img", namespaces=NS)) >= 1 and text_len(body(book.docs[h])) < 50}
+    old_cover_pages = {h for h in book.spine if (h == "cover.xhtml" or re.search(r"cover|titlepage", h, re.I))
+                       and book.docs[h].xpath("//h:img | //*[local-name()='svg']", namespaces=NS) and text_len(body(book.docs[h])) < 50}
 
     apply_drops(book, plan, report)
     move_notes(book, plan, report)
     breaks = scene_breaks(book, plan, report)
     toc = plan["toc"]
+    sort_toc(book, toc)
     if plan.get("scene_toc") and breaks:
         add_scene_entries(book, toc, breaks)
+    renamed = name_images(book, report)
     pages = page_breaks(book, plan, note_files | old_cover_pages, report)
+    repair_links(book, [h for h in book.spine if h not in note_files and h not in old_cover_pages], report)
+    for doc in book.docs.values():
+        head = doc.find(H + "head")
+        if head is None:
+            head = etree.Element(H + "head")
+            doc.insert(0, head)
+        title_el = head.find(H + "title")
+        if title_el is None:
+            title_el = etree.SubElement(head, H + "title")
+        if not (title_el.text or "").strip():
+            title_el.text = plan["metadata"]["title"]
 
     uid = f"urn:uuid:{uuid.uuid5(uuid.NAMESPACE_URL, plan['metadata']['source'])}"
     title = plan["metadata"]["title"]
@@ -453,7 +539,8 @@ def main():
             continue
         item_id = f"doc{n}"
         href_to_id[href] = item_id
-        keep.append((item_id, href, "application/xhtml+xml", None))
+        has_svg = bool(book.docs[href].xpath("//*[local-name()='svg']"))
+        keep.append((item_id, href, "application/xhtml+xml", "svg" if has_svg else None))
         spine_ids.append(item_id)
         written[href] = serialize_xhtml(book.docs[href])
         used_ids.add(item_id)
@@ -463,12 +550,14 @@ def main():
         href, mtype = item.get("href"), item.get("media-type")
         if href in book.spine or mtype in ("application/x-dtbncx+xml",) or href in written:
             continue
-        if mtype.startswith("image/") and href.split("/")[-1] not in referenced:
+        if mtype.startswith("image/") and renamed.get(href, href).split("/")[-1] not in referenced:
             continue
         item_id = item.get("id") if item.get("id") not in used_ids else f"res-{len(keep)}"
         used_ids.add(item_id)
+        data = book.zip.read(book.path(href))
+        href = renamed.get(href, href)
         keep.append((item_id, href, mtype, None))
-        written[href] = book.zip.read(book.path(href))
+        written[href] = data
 
     pkg = package(book, plan, keep, spine_ids, uid, len(pages))
     with zipfile.ZipFile(out, "w") as z:
