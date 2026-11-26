@@ -58,6 +58,17 @@
             type: jackett
             url: http://jackett:9117
             key: {{HOMEPAGE_VAR_JACKETT_KEY}}
+    - Books:
+      - BookOrbit:
+          icon: mdi-book-open-page-variant
+          href: https://bookorbit.pkarpovich.space
+          server: alpha
+          container: bookorbit
+          widget:
+            type: bookorbit
+            url: http://bookorbit:3000
+            key: {{HOMEPAGE_VAR_BOOKORBIT_KEY}}
+            fields: ["books", "authors", "reading", "finished"]
 - Home & Network:
     - Network:
       - Unifi Controller:
@@ -363,10 +374,6 @@
         id: simple_icon
         icon: mdi-rss
         href: https://slowreader.pkarpovich.space
-    - BookOrbit:
-        id: simple_icon
-        icon: mdi-book-open-page-variant
-        href: https://bookorbit.pkarpovich.space
     - Local Docker Logs:
         id: simple_icon
         icon: dozzle
