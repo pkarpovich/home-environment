@@ -1,0 +1,8 @@
+[Unit]
+Description=remount the NAS and start containers that failed without it
+Wants=network-online.target
+After=network-online.target docker.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/nas-recover
