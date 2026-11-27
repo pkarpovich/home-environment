@@ -101,3 +101,6 @@ fabric.properties
 /volumes
 /authelia/users_database.yml
 /authelia/secrets/
+
+# python bytecode from skill scripts
+__pycache__/
