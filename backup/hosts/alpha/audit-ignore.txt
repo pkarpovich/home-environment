@@ -3,6 +3,8 @@
 /var/lib/docker/volumes/home-environment_prometheus_data
 /var/lib/docker/volumes/home-environment_loki
 /var/lib/docker/volumes/home-environment_tempo
+# DNS cache - the resolver refills it
+/var/lib/docker/volumes/home-environment_knot_resolver_cache
 # authelia sessions only - a re-login rebuilds it
 /var/lib/docker/volumes/home-environment_authelia_redis
 # read-path bench database - an empty Postgres the harness restores a

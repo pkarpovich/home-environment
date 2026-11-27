@@ -1,0 +1,17 @@
+rundir: /run/knot-resolver
+workers: 1
+network:
+  listen:
+    - interface: 172.17.0.1@53
+    - interface: 127.0.0.1@53
+cache:
+  storage: /var/cache/knot-resolver
+  size-max: 100M
+forward:
+  # Tailnet names exist only in Tailscale's MagicDNS; it answers the rest of
+  # ts.net from public DNS, so the whole suffix can go there.
+  - subtree: ts.net
+    servers: [100.100.100.100]
+    options:
+      authoritative: false
+      dnssec: false
