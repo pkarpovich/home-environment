@@ -1,0 +1,57 @@
+# After a power cut every lamp comes back on. The Hue lamps are set on the bridge to the
+# "powerfail" power-on preset, which returns each one to its pre-outage state on its own.
+# The Yeelight sofa strip has no such mode and always powers up lit, so HA remembers its
+# last real on/off and puts it back when it reappears lit.
+#
+# A select rather than a boolean: a new boolean starts as off, and the first HA restart
+# after deploy would then switch off a strip that was legitimately on. 'unknown' acts on
+# nothing until the first real toggle has been seen.
+input_select:
+  sofa_strip_last_power:
+    name: Sofa strip last on/off
+    icon: mdi:led-strip-variant
+    options:
+      - unknown
+      - "on"
+      - "off"
+
+automation:
+  - id: power_restore_remember_sofa_strip
+    alias: Power restore - remember sofa strip
+    description: Records only real on/off switches. A change out of 'unavailable' is the strip powering up, not a choice, and must not overwrite the remembered state.
+    mode: queued
+    triggers:
+      - trigger: state
+        entity_id: light.sofa_strip
+        from: "off"
+        to: "on"
+      - trigger: state
+        entity_id: light.sofa_strip
+        from: "on"
+        to: "off"
+    actions:
+      - action: input_select.select_option
+        target:
+          entity_id: input_select.sofa_strip_last_power
+        data:
+          option: "{{ trigger.to_state.state }}"
+
+  - id: power_restore_sofa_strip
+    alias: Power restore - sofa strip
+    description: The strip reappeared lit after being unreachable (power cut, socket blip or HA restart) but was off before, so switch it back off.
+    mode: single
+    triggers:
+      - trigger: state
+        entity_id: light.sofa_strip
+        from:
+          - unavailable
+          - unknown
+        to: "on"
+    conditions:
+      - condition: state
+        entity_id: input_select.sofa_strip_last_power
+        state: "off"
+    actions:
+      - action: light.turn_off
+        target:
+          entity_id: light.sofa_strip
