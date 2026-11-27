@@ -1,0 +1,9 @@
+[Unit]
+Description=remount the NAS and start containers that failed without it
+
+[Timer]
+OnBootSec=3min
+OnUnitActiveSec=2min
+
+[Install]
+WantedBy=timers.target
