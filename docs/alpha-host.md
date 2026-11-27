@@ -40,6 +40,16 @@ Setup, once:
 
 `docker logs mirror-hook` on lasso shows every delivery and the result of the sync call; GitHub's webhook page shows the response (`queued` when the signature matched).
 
+## Docker daemon
+
+`/etc/docker/daemon.json` points every container at knot-resolver (`compose-knot-resolver.yml`), with Cloudflare as the fallback while the resolver is down or not started yet:
+
+```json
+{ "dns": ["172.17.0.1", "1.1.1.1"] }
+```
+
+A container takes its DNS servers when it starts. Without this file that is the host's `/etc/resolv.conf` of that moment, and after a power cut docker starts before Tailscale writes its resolver there, so every container booted with the host cannot resolve tailnet names until it is restarted (2026-11-27). Docker's embedded DNS moves on to the next server when one does not answer, so a stopped resolver costs only the tailnet names. A change to the file needs `sudo systemctl restart docker`, which restarts every container.
+
 ## Docker networks created by hand
 
 `spot.yml` creates none of these on alpha:

@@ -16,6 +16,7 @@ include:
   - path: compose-slowreader.yml
   - path: compose-bookorbit.yml
   - path: compose-victoriametrics.yml
+  - path: compose-knot-resolver.yml
 
 services:
   homepage:

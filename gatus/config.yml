@@ -153,6 +153,18 @@ endpoints:
     alerts:
       - type: telegram
 
+  - name: Container DNS (knot-resolver)
+    group: Infrastructure
+    url: "172.17.0.1"
+    interval: 5m
+    dns:
+      query-name: "github.com"
+      query-type: "A"
+    conditions:
+      - "[DNS_RCODE] == NOERROR"
+    alerts:
+      - type: telegram
+
   - name: pkarpovich.space DNS
     group: Infrastructure
     url: "1.1.1.1"

@@ -1,0 +1,19 @@
+# The resolver every container on alpha uses (/etc/docker/daemon.json "dns",
+# see docs/alpha-host.md). Without it a container keeps the DNS servers the
+# host had when the container started; after a power cut docker starts before
+# Tailscale has written its resolver, and the containers then cannot resolve
+# tailnet names until they are restarted. Host network, so it listens on the
+# docker bridge gateway that every network reaches and on loopback, never on
+# the LAN. It resolves recursively itself; only ts.net goes to MagicDNS.
+services:
+  knot-resolver:
+    container_name: knot-resolver
+    image: cznic/knot-resolver:v6.5.1
+    restart: unless-stopped
+    network_mode: host
+    volumes:
+      - ./knot-resolver:/etc/knot-resolver:ro
+      - knot_resolver_cache:/var/cache/knot-resolver
+
+volumes:
+  knot_resolver_cache:

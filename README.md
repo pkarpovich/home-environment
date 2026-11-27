@@ -50,6 +50,7 @@ The compose files are the source of truth; this table is the map. Everything bel
 | `compose-slowreader.yml` | slowreader (local-first RSS reader, built from a pinned upstream commit, behind Authelia; see the file header) | `slowreader.*` |
 | `compose-bookorbit.yml` | bookorbit + pgvector postgres (ebook and audiobook library with KOReader and iPhone sync; its library is `/volume2/media/bookorbit` on the NAS, separate from the Calibre library and the Plex audiobooks; see the file header) | `bookorbit.*` |
 | `compose-victoriametrics.yml` | victoriametrics (long-term store for the flat's own sensors, see [Home climate](#home-climate)) | internal only |
+| `compose-knot-resolver.yml` | knot-resolver (recursive DNS for every container on alpha, on the docker bridge gateway; see the file header and [`docs/alpha-host.md`](docs/alpha-host.md#docker-daemon)) | internal only |
 | `compose-authelia.yml` | authelia (SSO portal + the `authelia@docker` forward-auth middleware, see [Authentication](#authentication)) | `auth.*` |
 | `compose-torrents.yml`, `compose-twitch.yml` | qbittorrent + flood, ganymede - standalone `-f` deploys, not in the alpha `include:` set | |
 | `compose-derp.yml` | private Tailscale DERP relay - **lasso only**, by hand: `docker compose -f compose-derp.yml up -d --build` (see [`docs/tailnet.md`](docs/tailnet.md)) | `derp.pkarpovich.dev`, STUN `3478/udp` |
